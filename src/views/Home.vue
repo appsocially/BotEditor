@@ -1,13 +1,15 @@
 <template>
-  <HelloWorld />
+  <div>
+    <!--Kooh /-->
+  </div>
 </template>
 
 <script>
-  import HelloWorld from '../components/HelloWorld'
+//import Kooh from "../components/module";
 
-  export default {
-    components: {
-      HelloWorld
-    }
+export default {
+  components: {
+    //Kooh
   }
+};
 </script>

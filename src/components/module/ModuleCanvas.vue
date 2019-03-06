@@ -63,7 +63,6 @@
 import db from "../firebaseInit";
 import { createNamespacedHelpers } from "vuex";
 
-import visualizer from "../scenarioVisualizer";
 import entity from "../entity";
 
 import ModuleConversation from "./ModuleConversation";
@@ -117,7 +116,6 @@ export default {
     window.scenarioArray = this.scenarioArray;
     window.connectNode = this.connectNodeForNodeController;
 
-    visualizer.loadAllNode(this.scenarioArray);
 
     this.normalMessageNodes = this.scenarioArray.filter(function(content){
       return content.type == 'normal';
@@ -135,7 +133,12 @@ export default {
     
     if(!this.completeLoadingLine){
       this.loadAllEdges();
-      this.completeLoadingLine = true
+      this.completeLoadingLine = true;
+
+      // startNodeのところまでスクロール
+      var canvasWrapper = document.querySelector('#canvasWrapper');
+      canvasWrapper.scrollTop = 200;
+      canvasWrapper.scrollTop = 100000/2 - window.innerHeight/2;
     }
     //this.edgesArray = pointsBetweenNodes;
 

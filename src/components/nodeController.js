@@ -182,15 +182,12 @@ function dragmoveOnConnectStarter(d) {
 }
 
 function dragendedOnConnectStarter(d) {
-  console.log('\nDrag Ended');
-
   window.isDragingConnector = false;
 
   if(!window.isHoveringOnNode){
     // 多分これやっちゃいけないやつ
     window.updatePosition(this.to, this.from, d.nodeId);
   }else{
-    console.log('connect to this node::', window.nodeHovering);
     $('#lineForPreview').hide();
     window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id});
   }

@@ -92,6 +92,11 @@ export default {
       height: ${this.nodeTextSize.height}px;
       `;
 
+    
+    var textarea = this.$el.children[0].children[1];
+    textarea.select();
+
+
   },
   methods: {
     down(e){

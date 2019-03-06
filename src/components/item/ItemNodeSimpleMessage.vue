@@ -132,9 +132,8 @@ export default {
 
     this.textareaStyle = `width: ${this.nodeTextSize.width}px; height: ${this.nodeTextSize.height}px;`;
 
-    // textarea
+    
     var textarea = this.$el.children[0].children[1];
-    textarea.focus();
     textarea.select();
 
   },

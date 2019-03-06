@@ -58,14 +58,16 @@ function dragmoveOnNode(d) {
     var svg = d3.select(`#line-${node.id}`);
     var path = svg.selectAll("path");
 
-    var data = path[0][0].__data__;
+    if(path[0] && path[0][0]){
+      var data = path[0][0].__data__;
 
-    path.remove();
+      path.remove();
 
-    data.source.x += d3.event.dx;
-    data.source.y += d3.event.dy;
+      data.source.x += d3.event.dx;
+      data.source.y += d3.event.dy;
 
-    drawLine(data.source, data.target, id);
+      drawLine(data.source, data.target, id);
+    }
   }
 
   // 対象のノードにつながっているlineの座標を変更
@@ -79,12 +81,14 @@ function dragmoveOnNode(d) {
     var path = svg.selectAll("path");
     path.remove();
 
-    var data = path[0][0].__data__;
+    if(path[0] && path[0][0]){
+      var data = path[0][0].__data__;
 
-    data.target.x += d3.event.dx;
-    data.target.y += d3.event.dy;
+      data.target.x += d3.event.dx;
+      data.target.y += d3.event.dy;
 
-    drawLine(data.source, data.target, id);
+      drawLine(data.source, data.target, id);
+    }
   }
 
 
@@ -107,7 +111,8 @@ nodeController.dragOnConnectStarter = d3.behavior.drag()
 function dragstartedOnConnectStarter(d) {
   d3.event.sourceEvent.stopPropagation();
 
-  
+  window.isDragingConnector = true;
+
   $('#lineForPreview').show();
 
   // ノードがselectionだった場合
@@ -132,15 +137,16 @@ function dragstartedOnConnectStarter(d) {
   }else{
     var nodePos = $(`#${d.nodeId}`).position();
     var starterWraperPos = $(`#${d.starterId}`).parent().position();
+    var offset = $(`#${d.starterId}`).parent().height()/2;
 
     this.from = {
       x: Math.round(nodePos.left + starterWraperPos.left + 9),
-      y: Math.round(nodePos.top + starterWraperPos.top + 15)
+      y: Math.round(nodePos.top + starterWraperPos.top + offset)
     };
 
     this.to = {
       x: Math.round(nodePos.left + starterWraperPos.left + 9),
-      y: Math.round(nodePos.top + starterWraperPos.top + 15)
+      y: Math.round(nodePos.top + starterWraperPos.top + offset)
     };
   }
 
@@ -178,8 +184,16 @@ function dragmoveOnConnectStarter(d) {
 function dragendedOnConnectStarter(d) {
   console.log('\nDrag Ended');
 
-  // 多分これやっちゃいけないやつ
-  window.updatePosition(this.to, this.from, d.nodeId);
+  window.isDragingConnector = false;
+
+  if(!window.isHoveringOnNode){
+    // 多分これやっちゃいけないやつ
+    window.updatePosition(this.to, this.from, d.nodeId);
+  }else{
+    console.log('connect to this node::', window.nodeHovering);
+    $('#lineForPreview').hide();
+    window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id});
+  }
 }
 
 

@@ -1,7 +1,7 @@
 <template lang="pug">
 
-  div.wrap-item-conversation-selection.f.flex-wrap.px8.py16
-    div(v-for='item in selections').selection.mr6.mb6
+  div.wrap-item-conversation-selection.f.flex-wrap.px8.py10
+    div(v-for='item in selections').selection.mr6.mt6.mb12
       span(@click='callNextEvent(item.label, item.next)').px12.py8 {{item.label}}
 
 </template>
@@ -11,6 +11,7 @@
 .wrap-item-conversation-selection {
   width: 100%;
   height: 100%;
+  overflow: scroll;
   .selection {
     display: inline-block;
     span {

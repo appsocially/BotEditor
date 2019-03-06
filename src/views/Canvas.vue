@@ -5,10 +5,7 @@
     module-canvas(v-if='!!project && !!scenario' :project='project')
     //module-canvas(v-if='!!project && !!scenarioArray' :project='project' :scenarioArray='scenarioArray')
     div.wrap-preview
-      //item-preview-header
       module-conversation(v-if='!!project && !!scenario' :project='project')
-      //module-conversation(v-if='!!project' :project='project')
-
 
 </template>
 

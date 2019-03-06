@@ -13,8 +13,7 @@
   background: #FFF;
   position: absolute;
   border-radius: 12px;
-  /*top: 49964.5px;
-  left: 100px;*/
+  box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
   .wrap-selectors {
     .selector {
       cursor: pointer;
@@ -95,6 +94,8 @@ export default {
       d3.select('#nodeSelector', this.position)
         .style('top', `${this.position.y - selector.clientHeight/2}px`)
         .style('left', `${this.position.x}px`);
+
+      $('.focused').removeClass('focused');
     }
   }
 };

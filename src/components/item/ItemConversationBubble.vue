@@ -4,7 +4,7 @@
     div(:class='fadeIn').wrap-bot-icon
       img(src='@/assets/logo.png')
     div(:class='fadeIn').wrap-bubble.mr8
-      span.text.px10.py8 {{content.text}}
+      span.text.px8.py6 {{content.text}}
       
 </template>
 
@@ -33,8 +33,10 @@
     top: 40px;
     opacity: 0;
     .text {
+      display: inline-block;
       background: #F0F0F0;
       border-radius: 3px;
+      font-size: 12px;
     }
   }
 

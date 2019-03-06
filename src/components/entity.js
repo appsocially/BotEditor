@@ -9,6 +9,14 @@ entity.getContent = function(scenario, id){
 
 }
 
+entity.getFirstNode = function(scenario){
+
+  for(var i=0; i<scenario.length; i++){
+    if(scenario[i].type == "start-point") return entity.getContent(scenario, scenario[i].next);
+  }
+
+}
+
 entity.getNodesThatConnectTo = function(scenario, id){
 
   var nodes = [];
@@ -64,5 +72,6 @@ entity.getNodesThatConnectFrom = function(scenario, id){
 
   return nodes;
 }
+
 
 export default entity;

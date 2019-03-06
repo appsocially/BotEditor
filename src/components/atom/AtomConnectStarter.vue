@@ -1,12 +1,12 @@
 <template lang="pug">
 
-  div.wrap-atom
+  div.wrap-atom-connect-starter
     
 </template>
 
 <style lang="scss">
 
-.wrap-atom {
+.wrap-atom-connect-starter {
   display: block;
   width: 8px;
   height: 8px;

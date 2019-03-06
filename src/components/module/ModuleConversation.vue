@@ -1,7 +1,7 @@
 <template lang="pug">
 
   div.wrap-module-conversation
-    item-preview-header(ref='preview_header' @initConversation='initConversation')
+    item-preview-header(ref='preview_header' @initConversation='initConversation').mb
     div.wrap-message-bubbles
       item-conversation-bubble(v-for='item in messageBubbles' :id='item.id' :key='item.id' :content='item')
     div.wrap-user-input
@@ -18,11 +18,12 @@ $inputHeihgt: 100px;
   position: relative;
   display: block;
   width: 100%;
-  height: calc(100% - 26px);
+  height: 100%;
   background: #F7F7F7;
   .wrap-message-bubbles {
     width: 90%;
-    height: calc(100% - #{$inputHeihgt});
+    height: calc(100% - 120px);
+    /*height: calc(100% - #{$inputHeihgt});*/
     margin: 0 auto;
     overflow: scroll;
   }
@@ -101,7 +102,9 @@ export default {
     initConversation(){
       this.messageBubbles = [];
       this.selections = [];
-      this.fireEventOfConversation(`first-${this.project.id}`);
+
+      var firstNode= entity.getFirstNode(this.scenarioArray);
+      this.fireEventOfConversation(firstNode.id);
     },
     resetSelections(){
       this.selections = [];
@@ -112,6 +115,7 @@ export default {
     fireEventOfConversation(eventId){
       
       var event = entity.getContent(this.scenarioArray, eventId);
+
       if(!event) return;
 
       var sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
@@ -121,10 +125,15 @@ export default {
           
           (async () => {
             await sleep(1200);
+
             this.sendMessage(event);
 
-            var nextId = event.next;
-            this.fireEventOfConversation(nextId);
+            $('.focused').removeClass('focused');
+            var node = document.getElementById(event.id);
+            node.classList.add('focused');
+            
+            this.fireEventOfConversation(event.next);
+
           })();
 
         break;
@@ -133,13 +142,18 @@ export default {
           
           (async () => {
             await sleep(1200);
+
             this.sendMessage(event);
+
+            $('.focused').removeClass('focused');
+            var node = document.getElementById(event.id);
+            node.classList.add('focused');
 
             await sleep(400);
             this.selections = event.selections;
 
-            var nextId = event.next;
-            this.fireEventOfConversation(nextId);
+            this.fireEventOfConversation(event.next);
+
           })();
 
         break;

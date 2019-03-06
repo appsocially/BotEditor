@@ -3,12 +3,11 @@
   div.wrap-module-canvas#canvasWrapper
     div#canvas
       div#lines.wrap-lines
+        //item-edge(v-for='item in edgesArray' :id='item.id' :key='item.id' :content='item')
         svg#lineForPreview
-      item-node-selector(ref='selector' @addLine='addLine' @addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage')
-      item-node-simple-message(v-for='item in normalMessageNodes' :id='item.id' :key='item.id' :content='item').item-node-simple-message
-      item-node-selection(v-for='item in selectionNodes' :id='item.id' :key='item.id' :content='item').item-node-selection
-    //div.wrap-preview
-      module-conversation(v-if='scenarioArray' :scenario='scenarioArray')
+      item-node-selector(@addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage')
+      item-node-simple-message(v-for='item in normalMessageNodes' :id='item.id' :key='item.id' :content='item' @removeNormalMessageNode='removeNormalMessageNode' @loadAllEdges='loadAllEdges' @fixEdgeOfNormalNode='fixEdgeOfNormalNode').item-node-simple-message
+      item-node-selection(v-for='item in selectionNodes' :id='item.id' :key='item.id' :content='item' @removeSelectionMessage='removeSelectionMessage' @loadAllEdges='loadAllEdges').item-node-selection
 
 </template>
 
@@ -73,6 +72,8 @@ import ItemNodeSelector from "../item/ItemNodeSelector";
 import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage";
 import ItemNodeSelection from "../item/ItemNodeSelection";
 
+import ItemEdge from "../item/ItemEdge";
+
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
  "scenario"
 );
@@ -85,6 +86,7 @@ export default {
     ItemNodeSelector,
     ItemNodeSimpleMessage,
     ItemNodeSelection,
+    ItemEdge
   },
   props: {
     project: {
@@ -101,6 +103,8 @@ export default {
       normalMessageNodes: [],
       selectionNodes: [],
       lines: [],
+      edgesArray: [],
+      completeLoadingLine: false,
     }
   },
   created: async function(){
@@ -109,8 +113,9 @@ export default {
     console.log('module-canvas (scenarioArray)', this.scenarioArray);
 
 
-    // これやっちゃいけないやつ
+    // これ多分やっちゃいけないやつ
     window.scenarioArray = this.scenarioArray;
+    window.connectNode = this.connectNodeForNodeController;
 
     visualizer.loadAllNode(this.scenarioArray);
 
@@ -128,83 +133,11 @@ export default {
   },
   updated: function(){
     
-    // 全てのノード同士をつなぐ
-    var getPointsOfLine = function(scenario){
-      var points = [];
-      for(var i=0; i<scenario.length; i++){
-
-        if(scenario[i].nodeType=='single' && scenario[i].next){
-          var node = document.getElementById(scenario[i].id);
-          var nextNode = document.getElementById(scenario[i].next);
-
-          var from = {};
-          var to = {};
-
-          var startPointOffset = 9;
-
-          if(node&&nextNode){
-            from.x = node.offsetLeft + node.clientWidth + startPointOffset;
-            from.y = node.offsetTop + node.clientHeight/2;
-
-            to.x = nextNode.offsetLeft;
-            to.y = nextNode.offsetTop + nextNode.clientHeight/2;
-
-            points.push({
-              from: from,
-              to: to,
-              id: scenario[i].id,
-            });
-          }
-          
-        }else if(scenario[i].nodeType=='group'){
-
-          var selections = scenario[i].selections;
-          
-          for(var j=0; j<selections.length; j++){
-            if(selections[j].next){
-              var from = {};
-              var to = {};
-
-              var childNode = document.getElementById(selections[j].id);
-              var childNodePos = $(childNode).position();
-              var parentNodePos = $(childNode).closest('.item-node-selection').position();
-              var widthOffset = $(childNode).width();
-              var heightOffset = $(childNode).height()/2;
-
-              var startPointOffset = 9;
-
-
-              if(parentNodePos&&childNodePos){
-                from.x = parentNodePos.left + childNodePos.left + widthOffset + startPointOffset
-                from.y = parentNodePos.top + childNodePos.top + heightOffset;
-
-                var nextNode = document.getElementById(selections[j].next);
-
-                to.x = nextNode.offsetLeft;
-                to.y = nextNode.offsetTop + nextNode.clientHeight/2;
-
-                points.push({
-                  from: from,
-                  to: to,
-                  id: selections[j].id,
-                });
-              }
-            }
-
-          } // for
-
-        } // if
-
-      } // for
-      return points;
+    if(!this.completeLoadingLine){
+      this.loadAllEdges();
+      this.completeLoadingLine = true
     }
-
-    var pointsBetweenNodes = getPointsOfLine(this.scenarioArray);
-    
-    for(var i=0; i<pointsBetweenNodes.length; i++){
-      var points = pointsBetweenNodes[i];
-      this.addLine(points.from, points.to, points.id);
-    }
+    //this.edgesArray = pointsBetweenNodes;
 
   },
   methods: {
@@ -212,12 +145,34 @@ export default {
       'loadScenarioByProjectId',
       'pushContentToScenario',
       'connectSingleNode',
-      'connectGroupNode'
+      'connectGroupNode',
+      'connectNode',
+      'deleteNode',
+      'disconnectNode'
     ]),
     update(){
       this.project = this.project;
     },
-    addLine(from, to, id){
+    loadAllEdges(){
+      var scenario = this.scenarioArray;
+      var points = [];
+      for(var i=0; i<scenario.length; i++){
+        if(scenario[i].nodeType=='single' && scenario[i].next){
+          points = points.concat(this.getCoordinatesOfSingleNode(scenario[i]));
+        }else if(scenario[i].nodeType=='group'){
+          points = points.concat(this.getCoordinatesOfGroupNode(scenario[i]));
+        } // if
+      } // for
+
+      var pointsBetweenNodes = points; 
+      
+      for(var i=0; i<pointsBetweenNodes.length; i++){
+        var points = pointsBetweenNodes[i];
+        this.addEdge(points.from, points.to, points.id);
+      }
+    },
+    addEdge(from, to, id){
+
       var data = [
         {
           source: {x: from.x, y: from.y},
@@ -239,6 +194,91 @@ export default {
         .attr("stroke", "#FF9A0A")
         .attr("d", diagonal);
       
+    },
+    /*removeLine(id){
+      
+    },*/
+    getCoordinatesOfSingleNode(event){
+
+      var points = [];
+
+      var node = document.getElementById(event.id);
+      var nextNode = document.getElementById(event.next);
+
+      var from = {};
+      var to = {};
+
+      var startPointOffset = 9;
+
+      if(node&&nextNode){
+        from.x = node.offsetLeft + node.clientWidth + startPointOffset;
+        from.y = node.offsetTop + node.clientHeight/2;
+
+        to.x = nextNode.offsetLeft;
+        to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+
+        points.push({
+          from: from,
+          to: to,
+          id: event.id
+        });
+        //return {from: from, to: to, id: scenario[i].id};
+      }
+
+      return points;
+
+    },
+    getCoordinatesOfGroupNode(event){
+
+      var points = [];
+
+      var selections = event.selections;
+      
+      for(var j=0; j<selections.length; j++){
+        if(selections[j].next){
+          var from = {};
+          var to = {};
+
+          var childNode = document.getElementById(selections[j].id);
+          var childNodePos = $(childNode).position();
+          var parentNodePos = $(childNode).closest('.item-node-selection').position();
+          var widthOffset = $(childNode).width();
+          var heightOffset = $(childNode).height()/2;
+
+          var startPointOffset = 9;
+
+
+          if(parentNodePos&&childNodePos){
+            from.x = parentNodePos.left + childNodePos.left + widthOffset + startPointOffset
+            from.y = parentNodePos.top + childNodePos.top + heightOffset;
+
+            var nextNode = document.getElementById(selections[j].next);
+
+            to.x = nextNode.offsetLeft;
+            to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+
+            points.push({
+              from: from,
+              to: to,
+              id: selections[j].id,
+            });
+          }
+        }
+
+      } // for
+
+      return points;
+
+    },
+    fixEdgeOfNormalNode(event){
+
+      var points = this.getCoordinatesOfSingleNode(event);
+      if(points[0]) this.addEdge(points[0].from, points[0].to, points[0].id);
+
+    },
+    connectNodeForNodeController(fromId, toId){
+      this.connectNode(fromId, toId);
+      this.loadAllEdges();
     },
     addNormalMessage(position, dragStartedPosition, dragStartedId){
 
@@ -263,17 +303,27 @@ export default {
 
       this.normalMessageNodes.push(content);
 
-      this.addLine(dragStartedPosition, position, dragStartedId);
+      this.addEdge(dragStartedPosition, position, dragStartedId);
 
       this.pushContentToScenario(content);
 
       // ノードがselectionだった場合
+      this.connectNode({fromId: dragStartedId, toId: content.id});
+      /*
       if(dragStartedId.indexOf('selection')>-1){
-        this.connectGroupNode({fromId: dragStartedId, toId: content.id});
+        this.connectNode({fromId: dragStartedId, toId: content.id});
       }else{
-        this.connectSingleNode({fromId: dragStartedId, toId: content.id});
+        this.connectNode({fromId: dragStartedId, toId: content.id});
       }
+      */
 
+    },
+    removeNormalMessageNode(id){
+      for(var i=0; i<this.normalMessageNodes.length; i++){
+        if(this.normalMessageNodes[i].id==id) this.normalMessageNodes.splice(i,1);
+      }
+      this.deleteNode(id);
+      this.disconnectNode(id);
     },
     addSelectionMessage(position, dragStartedPosition, dragStartedId){
 
@@ -303,7 +353,7 @@ export default {
 
       this.selectionNodes.push(content);
 
-      this.addLine(dragStartedPosition, position, dragStartedId);
+      this.addEdge(dragStartedPosition, position, dragStartedId);
 
       this.pushContentToScenario(content);
 
@@ -314,7 +364,14 @@ export default {
         this.connectSingleNode({fromId: dragStartedId, toId: content.id});
       }
 
-    }
+    },
+    removeSelectionMessage(id){
+      for(var i=0; i<this.selectionNodes.length; i++){
+        if(this.selectionNodes[i].id==id) this.selectionNodes.splice(i,1);
+      }
+      this.deleteNode(id);
+      this.disconnectNode(id);
+    },
   },
   computed: {
     ...mapState([

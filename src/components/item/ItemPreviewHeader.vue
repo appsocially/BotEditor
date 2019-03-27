@@ -14,6 +14,7 @@
   background: #FFEB52;
   .wrap-preview-header-icons {
     i {
+      width: 22px;
       font-size: 18px;
       cursor: pointer;
     }

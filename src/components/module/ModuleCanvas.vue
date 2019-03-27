@@ -5,10 +5,17 @@
       div#lines.wrap-lines
         //item-edge(v-for='item in edgesArray' :id='item.id' :key='item.id' :content='item')
         svg#lineForPreview
-      item-node-selector(@addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage')
-      item-node-simple-message(v-for='item in normalMessageNodes' :id='item.id' :key='item.id' :content='item' @removeNormalMessageNode='removeNormalMessageNode' @loadAllEdges='loadAllEdges' @fixEdgeOfNormalNode='fixEdgeOfNormalNode').item-node-simple-message
-      item-node-selection(v-for='item in selectionNodes' :id='item.id' :key='item.id' :content='item' @removeSelectionMessage='removeSelectionMessage' @loadAllEdges='loadAllEdges').item-node-selection
+        svg#previewLineForGoTo
+      item-node-selector(@addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage' @addOpenQuestionMessage='addOpenQuestionMessage' @selectToNodeByGoTo='selectToNodeByGoTo')
 
+      item-node-start-point(v-if='startPointNode' :content='startPointNode')
+      item-node-simple-message(v-for='item in normalMessageNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeNormalMessageNode='removeNormalMessageNode' @loadAllEdges='loadAllEdges' @fixEdgeOfNormalNode='fixEdgeOfNormalNode').item-node-simple-message
+      item-node-selection(v-for='item in selectionNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeSelectionMessage='removeSelectionMessage' @loadAllEdges='loadAllEdges').item-node-selection
+      item-node-open-question(v-for='item in openQuestionNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeOpenQuestionNode='removeOpenQuestionNode' @loadAllEdges='loadAllEdges').item-node-open-question
+      item-node-go-to(v-for='item in goToNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeGoToNode='removeGoToNode' @loadAllEdges='loadAllEdges').item-node-go-to
+      
+      div#modalOverlay
+      
 </template>
 
 <style lang="scss">
@@ -44,6 +51,21 @@
           cursor: pointer;
         }
       }
+      #previewLineForGoTo {
+        display: none;
+      }
+      .show {
+        display: block;
+      }
+    }
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
     }
   }
   .wrap-preview {
@@ -61,30 +83,42 @@
 
 <script>
 import db from "../firebaseInit";
+
 import { createNamespacedHelpers } from "vuex";
+import Auth from '@/components/auth';
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
+ "auth"
+);
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
+ "scenario"
+);
 
 import entity from "../entity";
 
 import ModuleConversation from "./ModuleConversation";
 
 import ItemNodeSelector from "../item/ItemNodeSelector";
+
+import ItemNodeStartPoint from "../item/ItemNodeStartPoint";
 import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage";
 import ItemNodeSelection from "../item/ItemNodeSelection";
+import ItemNodeOpenQuestion from "../item/ItemNodeOpenQuestion";
+import ItemNodeGoTo from "../item/ItemNodeGoTo";
 
 import ItemEdge from "../item/ItemEdge";
-
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
- "scenario"
-);
 
 
 export default {
   name: 'ModuleCanvas',
   components: {
+    Auth,
     ModuleConversation,
+    ItemNodeStartPoint,
     ItemNodeSelector,
     ItemNodeSimpleMessage,
     ItemNodeSelection,
+    ItemNodeOpenQuestion,
+    ItemNodeGoTo,
     ItemEdge
   },
   props: {
@@ -99,8 +133,11 @@ export default {
   },
   data() {
     return {
+      startPointNode: null,
       normalMessageNodes: [],
       selectionNodes: [],
+      openQuestionNodes: [],
+      goToNodes: [],
       lines: [],
       edgesArray: [],
       completeLoadingLine: false,
@@ -111,20 +148,21 @@ export default {
     await this.loadScenarioByProjectId(this.projectId);
     console.log('module-canvas (scenarioArray)', this.scenarioArray);
 
-
     // これ多分やっちゃいけないやつ
     window.scenarioArray = this.scenarioArray;
+    window.project = this.project;
+
+    // 多分もっといい方法がありそう。
+    window.addGoTo = this.addGoTo; // itemSelectorで呼び出してる
+    window.updateNodePosition = this.updateNodePosition; // nodeController.jsで読んでる
     window.connectNode = this.connectNodeForNodeController;
 
-
-    this.normalMessageNodes = this.scenarioArray.filter(function(content){
-      return content.type == 'normal';
-    });
-
-    this.selectionNodes = this.scenarioArray.filter(function(content){
-      return content.type == 'selection';
-    });
-
+    this.startPointNode = entity.getStartPointNode(this.scenarioArray);
+    this.normalMessageNodes = entity.getNormalNodes(this.scenarioArray);
+    this.selectionNodes = entity.getSelectionNodes(this.scenarioArray);
+    this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray);
+    this.goToNodes = entity.getGoToNodes(this.scenarioArray);
+    
   },
   mounted: function(){
 
@@ -150,6 +188,7 @@ export default {
       'connectSingleNode',
       'connectGroupNode',
       'connectNode',
+      'updateNode',
       'deleteNode',
       'disconnectNode'
     ]),
@@ -160,7 +199,7 @@ export default {
       var scenario = this.scenarioArray;
       var points = [];
       for(var i=0; i<scenario.length; i++){
-        if(scenario[i].nodeType=='single' && scenario[i].next){
+        if((scenario[i].nodeType=='single'  || scenario[i].nodeType=='point') && scenario[i].next){
           points = points.concat(this.getCoordinatesOfSingleNode(scenario[i]));
         }else if(scenario[i].nodeType=='group'){
           points = points.concat(this.getCoordinatesOfGroupNode(scenario[i]));
@@ -211,7 +250,12 @@ export default {
       var from = {};
       var to = {};
 
-      var startPointOffset = 9;
+      if(event.type == 'start-point'){
+        var startPointOffset = -2;
+      }else{
+        var startPointOffset = 9;
+      }
+      
 
       if(node&&nextNode){
         from.x = node.offsetLeft + node.clientWidth + startPointOffset;
@@ -257,14 +301,16 @@ export default {
 
             var nextNode = document.getElementById(selections[j].next);
 
-            to.x = nextNode.offsetLeft;
-            to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+            if(nextNode){
+              to.x = nextNode.offsetLeft;
+              to.y = nextNode.offsetTop + nextNode.clientHeight/2;
 
-            points.push({
-              from: from,
-              to: to,
-              id: selections[j].id,
-            });
+              points.push({
+                from: from,
+                to: to,
+                id: selections[j].id,
+              });
+            }
           }
         }
 
@@ -283,14 +329,19 @@ export default {
       this.connectNode(fromId, toId);
       this.loadAllEdges();
     },
+    updateNodePosition(id, pos){
+      var content = entity.getContent(this.scenarioArray, id);
+      content.gui.position = pos;
+      this.updateNode(content);
+    },
     addNormalMessage(position, dragStartedPosition, dragStartedId){
 
       this.project.nodeNum++;
 
       var topOffset = 15;
-
+      
       var content = {
-        author: 'test',
+        author: this.uid,
         id: `simpleTmp${this.project.nodeNum}`,
         type: 'normal',
         nodeType: 'single',
@@ -308,11 +359,12 @@ export default {
 
       this.addEdge(dragStartedPosition, position, dragStartedId);
 
+      this.connectNode({fromId: dragStartedId, toId: content.id});
+
       this.pushContentToScenario(content);
 
-      // ノードがselectionだった場合
-      this.connectNode({fromId: dragStartedId, toId: content.id});
       /*
+      // ノードがselectionだった場合
       if(dragStartedId.indexOf('selection')>-1){
         this.connectNode({fromId: dragStartedId, toId: content.id});
       }else{
@@ -335,7 +387,7 @@ export default {
       var topOffset = 53;
 
       var content = {
-        author: 'test',
+        author: this.uid,
         id: `selectionTmp${this.project.nodeNum}`,
         num: this.project.nodeNum,
         type: 'selection',
@@ -358,14 +410,18 @@ export default {
 
       this.addEdge(dragStartedPosition, position, dragStartedId);
 
-      this.pushContentToScenario(content);
+      this.connectNode({fromId: dragStartedId, toId: content.id});
 
+      this.pushContentToScenario(content);
+      
+      /*
       // ノードがselectionだった場合
       if(dragStartedId.indexOf('selection')>-1){
         this.connectGroupNode({fromId: dragStartedId, toId: content.id});
       }else{
         this.connectSingleNode({fromId: dragStartedId, toId: content.id});
       }
+      */
 
     },
     removeSelectionMessage(id){
@@ -375,10 +431,124 @@ export default {
       this.deleteNode(id);
       this.disconnectNode(id);
     },
+    addOpenQuestionMessage(position, dragStartedPosition, dragStartedId){
+
+      var topOffset = 33;
+
+      this.project.nodeNum++;
+      
+      var content = {
+        author: this.uid,
+        id: `openquestionTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'openquestion',
+        nodeType: 'single',
+        text: 'What is question?',//+idRand,
+        expectedAnswer: 'type your answer...',
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          },
+        },
+      };
+      
+      this.openQuestionNodes.push(content);
+
+      this.addEdge(dragStartedPosition, position, dragStartedId);
+
+      this.connectNode({fromId: dragStartedId, toId: content.id});
+
+      this.pushContentToScenario(content);
+
+    },
+    removeOpenQuestionNode(id){
+      for(var i=0; i<this.openQuestionNodes.length; i++){
+        if(this.openQuestionNodes[i].id==id) this.openQuestionNodes.splice(i,1);
+      }
+      this.deleteNode(id);
+      this.disconnectNode(id);
+    },
+
+    // これはノード選択後に呼び出す
+    addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum){
+
+      var topOffset = 23;
+
+      this.project.nodeNum++;
+      
+      var content = {
+        author: this.uid,
+        id: `goToTmp${this.project.nodeNum}`,
+        toId: targetId,
+        num: this.project.nodeNum,
+        type: 'goto',
+        nodeType: 'single',
+        text: targetNum,
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          },
+        },
+      };
+      
+      this.goToNodes.push(content);
+
+      this.addEdge(dragStartedPosition, position, dragStartedId);
+
+      this.connectNode({fromId: dragStartedId, toId: content.id});
+
+      this.pushContentToScenario(content);
+
+    },
+    removeGoToNode(id){
+      for(var i=0; i<this.goToNodes.length; i++){
+        if(this.goToNodes[i].id==id) this.goToNodes.splice(i,1);
+      }
+      
+      this.deleteNode(id);
+      this.disconnectNode(id);
+    },
+    selectToNodeByGoTo(position, dragStartedPosition, dragStartedId){
+      // 1. モーダルを出してノード選択モードにする。
+      // 2. 各ノードのfocusメソッドでノード選択モードならGoToに紐づけるという処理を書く。
+      $('#modalOverlay').fadeToggle(400);
+
+      var nodes = document.getElementsByClassName('node');
+      
+      var nodeClickHandler = function(e){
+        
+        var position = e.data.position;
+        var dragStartedPosition = e.data.dragStartedPosition;
+        var dragStartedId = e.data.dragStartedId;
+
+        var targetNum = parseInt(this.dataset.num);
+        var targetId = this.dataset.id;
+
+        window.addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum);
+
+        var nodes = document.getElementsByClassName('node');
+        $(nodes).off('click');
+
+        $('#modalOverlay').fadeToggle(400);
+
+      };
+
+      $(nodes).click({
+        position: position,
+        dragStartedPosition: dragStartedPosition,
+        dragStartedId: dragStartedId
+      }, nodeClickHandler);
+
+    },
   },
   computed: {
     ...mapState([
       'scenarioArray',
+    ]),
+    ...mapStateAuth([
+      'uid'
     ]),
     projectId() {
       return this.project.id;

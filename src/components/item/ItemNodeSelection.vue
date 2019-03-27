@@ -1,6 +1,6 @@
 <template lang="pug">
 
-  div(@click='focus'  @mouseover='over' @mouseleave='leave' :class='scaleUp').wrap-item-node-selection
+  div(@click='focus'  @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-selection.node
     div.wrap-text.f.fm.px16.pt7.pb6
       span.text {{content.text}}
       textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent).text
@@ -206,6 +206,7 @@ export default {
     focus(){
       $('.focused').removeClass('focused');
       this.$el.classList.add('focused');
+      $('#previewLineForGoTo').removeClass('show');
     },
     callRemoveSelectionMessage(id){
       this.$emit('removeSelectionMessage', id);

@@ -14,12 +14,36 @@
         <span class="mr-2">Latest Release</span>
       </v-btn>
     </v-toolbar-->
+    <div id='nowLoading'>
+      <div class='wrap-now-loading f fh'>
+        <span>Now Loading...</span>
+      </div>
+    </div>
 
     <v-content>
       <router-view></router-view>
     </v-content>
   </v-app>
 </template>
+
+<style lang="scss">
+
+#nowLoading {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: #FFF;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  .wrap-now-loading {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+</style>
 
 <script>
 

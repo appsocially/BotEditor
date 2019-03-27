@@ -5,8 +5,8 @@
     div.wrap-message-bubbles
       item-conversation-bubble(v-for='item in messageBubbles' :id='item.id' :key='item.id' :content='item')
     div.wrap-user-input
+      item-conversation-input-free-text(:placeholder='placeholder' :nextEvent='nexEventOfFreeText' @fireEventOfConversation='fireEventOfConversation' @sendMessage='sendMessage' @resetInputFreeText='resetInputFreeText')
       item-conversation-input-selection(v-if='selections[0]' :selections='selections' ref='user_input_selection' @fireEventOfConversation='fireEventOfConversation' @resetSelections='resetSelections' @sendMessage='sendMessage')
-
 
 </template>
 
@@ -22,7 +22,7 @@ $inputHeihgt: 100px;
   background: #F7F7F7;
   .wrap-message-bubbles {
     width: 90%;
-    height: calc(100% - 120px);
+    height: calc(100% - 160px);
     /*height: calc(100% - #{$inputHeihgt});*/
     margin: 0 auto;
     overflow: scroll;
@@ -44,8 +44,9 @@ import entity from "../entity";
 
 import ItemPreviewHeader from "../item/ItemPreviewHeader";
 import ItemConversationBubble from "../item/ItemConversationBubble";
-import ItemConversationInputSelection from "../item/ItemConversationInputSelection";
 
+import ItemConversationInputFreeText from "../item/ItemConversationInputFreeText";
+import ItemConversationInputSelection from "../item/ItemConversationInputSelection";
 
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
  "scenario"
@@ -57,6 +58,7 @@ export default {
   components: {
     ItemPreviewHeader,
     ItemConversationBubble,
+    ItemConversationInputFreeText,
     ItemConversationInputSelection,
   },
   props: {
@@ -73,6 +75,8 @@ export default {
     return {
       messageBubbles: [],
       selections: [],
+      placeholder: 'Message',
+      nexEventOfFreeText: '',
     }
   },
   created: function(){
@@ -118,8 +122,11 @@ export default {
 
       if(!event) return;
 
-      var sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+      this.nexEventOfFreeText = '';
+      this.placehoder = 'Message';
 
+      var sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+      
       switch(event.type){
         case 'normal':
           
@@ -130,7 +137,7 @@ export default {
 
             $('.focused').removeClass('focused');
             var node = document.getElementById(event.id);
-            node.classList.add('focused');
+            if(node) node.classList.add('focused');
             
             this.fireEventOfConversation(event.next);
 
@@ -147,7 +154,7 @@ export default {
 
             $('.focused').removeClass('focused');
             var node = document.getElementById(event.id);
-            node.classList.add('focused');
+            if(node) node.classList.add('focused');
 
             await sleep(400);
             this.selections = event.selections;
@@ -157,8 +164,41 @@ export default {
           })();
 
         break;
+
+        case 'openquestion':
+
+          (async () => {
+            await sleep(1200);
+
+            this.sendMessage(event);
+
+            $('.focused').removeClass('focused');
+            var node = document.getElementById(event.id);
+            if(node) node.classList.add('focused');
+
+            await sleep(400);
+            
+            this.placeholder = event.expectedAnswer;
+            this.nexEventOfFreeText = event.next;
+
+          })();
+
+        break;
+
+        case 'goto':
+
+          (async () => {
+            await sleep(1200);
+            this.fireEventOfConversation(event.toId);
+          })();
+
+        break;
       }
 
+    },
+    resetInputFreeText(){
+      this.placeholder = 'Message';
+      this.nexEventOfFreeText = '';
     }
   },
   computed: {

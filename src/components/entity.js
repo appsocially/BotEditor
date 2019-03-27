@@ -2,23 +2,50 @@
 var entity = {};
 
 entity.getContent = function(scenario, id){
-
   for(var i=0; i<scenario.length; i++){
     if(scenario[i].id == id) return scenario[i];
   }
 
+  return false;
+}
+
+entity.getStartPointNode = function(scenario){
+  for(var i=0; i<scenario.length; i++){
+    if(scenario[i].type == "start-point") return scenario[i];
+  }
 }
 
 entity.getFirstNode = function(scenario){
-
   for(var i=0; i<scenario.length; i++){
     if(scenario[i].type == "start-point") return entity.getContent(scenario, scenario[i].next);
   }
+}
 
+entity.getNormalNodes = function(scenario){
+  return scenarioArray.filter(function(content){
+    return content.type == 'normal';
+  });
+}
+
+entity.getSelectionNodes = function(scenario){
+  return scenarioArray.filter(function(content){
+    return content.type == 'selection';
+  });
+}
+
+entity.getOpenQuestionNodes = function(scenario){
+  return scenarioArray.filter(function(content){
+    return content.type == 'openquestion';
+  });
+}
+
+entity.getGoToNodes = function(scenario){
+  return scenarioArray.filter(function(content){
+    return content.type == 'goto';
+  });
 }
 
 entity.getNodesThatConnectTo = function(scenario, id){
-
   var nodes = [];
   for (var i = 0; i < scenario.length; i++) {
     if ((scenario[i].nodeType == 'single' || scenario[i].nodeType=='point') && scenario[i].next == id) {
@@ -34,7 +61,6 @@ entity.getNodesThatConnectTo = function(scenario, id){
     }
   }
   return nodes;
-
 }
 
 entity.nodeHasNext = function(scenario, id){

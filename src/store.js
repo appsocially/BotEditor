@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import * as scenario from "./store/scenario";
+import * as auth from "./store/auth";
 
 Vue.use(Vuex);
 
@@ -14,6 +15,11 @@ export default new Vuex.Store({
     scenario: {
       namespaced: true,
       ...scenario,
+      //state: scenario.state
+    },
+    auth: {
+      namespaced: true,
+      ...auth,
       //state: scenario.state
     },
     //scenario, // memo: means scenarion: scenario

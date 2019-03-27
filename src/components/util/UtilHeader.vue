@@ -3,11 +3,11 @@
   div.wrap-util
     div.util-content.f.flex-between
       div.icon-left.f.fm
-        span test-l
+        //span test-l
       div.label.f.fm
         span {{label}}
       div.icon-right.f.fm
-        span test-r
+        //span test-r
 
 </template>
 
@@ -22,6 +22,7 @@
   height: 48px;
   border-bottom: solid .6px rgba(0,0,0,0.2);
   background: #f8f8f8;
+  z-index: 1;
   .util-content {
     margin: 0 auto;
     width: 90%;
@@ -37,11 +38,13 @@
 <script>
 export default {
   name: 'UtilHeader',
-  props: ['label'],
+  props: ['label', 'signOut'],
   data() {
     return {
-      project: 'test',
     }
   },
+  created: function(){
+    window.signOut = this.signOut;
+  }
 };
 </script>

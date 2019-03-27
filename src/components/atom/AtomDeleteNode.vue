@@ -1,7 +1,7 @@
 <template lang="pug">
 
   span(@click='deleteNode').wrap-atom-delete Delete
-    
+
 </template>
 
 <style lang="scss">
@@ -43,6 +43,7 @@ export default {
     deleteNode(){
       console.log('Delete This Node::', this.content.id);
 
+      // 繋がっているエッジをcanvasから削除
       var connectedNodes = entity.getNodesThatConnectTo(window.scenarioArray, this.content.id);
       for(var i=0; i<connectedNodes.length; i++){
         this.removeLine(connectedNodes[i].id);
@@ -64,6 +65,12 @@ export default {
         break;
         case 'selection':
           this.$emit('callRemoveSelectionMessage', this.content.id);
+        break;
+        case 'openquestion':
+          this.$emit('callRemoveOpenQuestionNode', this.content.id);
+        break;
+        case 'goto':
+          this.$emit('callRemoveGoToNode', this.content.id);
         break;
       }
       

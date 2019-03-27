@@ -23,6 +23,7 @@ nodeController.dragOnNode = d3.behavior.drag()
   
 function dragstartedOnNode(d) {
   d3.event.sourceEvent.stopPropagation();
+  console.log(window.scenarioArray);
 }
 
 function dragmoveOnNode(d) { 
@@ -96,6 +97,8 @@ function dragmoveOnNode(d) {
 
 function dragendedOnNode(d) {
   console.log('\nDrag Ended');
+  
+  window.updateNodePosition(d.id, d.pos);
 }
 
 
@@ -186,12 +189,14 @@ function dragendedOnConnectStarter(d) {
 
   if(!window.isHoveringOnNode){
     // 多分これやっちゃいけないやつ
-    window.updatePosition(this.to, this.from, d.nodeId);
+    window.updateSelectorPosition(this.to, this.from, d.nodeId);
   }else{
     $('#lineForPreview').hide();
     window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id});
   }
 }
+
+
 
 
 function drawLine(from, to, id){

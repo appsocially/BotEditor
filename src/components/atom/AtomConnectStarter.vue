@@ -43,11 +43,12 @@ export default {
     var starterId = `connectStarter-${this.nodeId}`;
     var elem = document.getElementById(starterId);
     var pos = {};
+
     var connectStarter = d3.select(`#${starterId}`).data([
       {nodeId: this.nodeId, starterId: starterId},
     ]);
-
     connectStarter.call(nodeController.dragOnConnectStarter);
+    
   }
 };
 </script>

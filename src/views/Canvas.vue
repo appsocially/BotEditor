@@ -1,11 +1,11 @@
 <template lang="pug">
 
-  div.wrap-canvas-page
-    util-header(:label='label')
-    module-canvas(v-if='!!project && !!scenario' :project='project')
-    //module-canvas(v-if='!!project && !!scenarioArray' :project='project' :scenarioArray='scenarioArray')
-    div.wrap-preview
-      module-conversation(v-if='!!project && !!scenario' :project='project')
+  Auth(:on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn")
+    div(slot-scope="{signOut}").wrap-canvas-page
+      util-header(:sign-out="signOut" :label='label')
+      module-canvas(v-if='!!project && !!scenario' :project='project')
+      div.wrap-preview
+        module-conversation(v-if='!!project && !!scenario' :project='project')
 
 </template>
 
@@ -30,11 +30,16 @@
 </style>
 
 <script>
+import Auth from '@/components/auth'
+
 import db from "../components/firebaseInit";
 import { createNamespacedHelpers } from "vuex";
-
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
+const { mapState, mapActions } = createNamespacedHelpers(
  "scenario"
+);
+
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
+ "auth"
 );
 
 import UtilHeader from "../components/util/UtilHeader";
@@ -46,6 +51,7 @@ import ItemPreviewHeader from "../components/item/ItemPreviewHeader";
 export default {
   name: 'Canvas',
   components: {
+    Auth,
     UtilHeader,
     ModuleCanvas,
     ModuleConversation,
@@ -76,12 +82,19 @@ export default {
         console.error("Error writing document: ", error);
       });
 
+    project.editedAt = new Date();
+
+    await db.collection("projects")
+          .doc(projectId)
+          .update({editedAt: new Date()});
+
     console.log('canvas', project);
     this.label = project.title;
     this.project = project;
 
     await this.loadScenarioByProjectId(projectId);
     this.scenario = this.scenarioArray;
+
 
     //var test = await this.loadScenarioByProjectId(projectId);
    
@@ -109,10 +122,24 @@ export default {
       'connectSingleNode',
       'connectGroupNode'
     ]),
+    onFailedAuthentication() {
+      //this.loggingIn = false;
+      this.$router.push('/sign-in');
+    },
+    onLoggedIn({ onboardingData }) {
+
+    },
+    onTitleClick(signOut){
+      console.log('clicked');
+      signOut();
+    },
   },
   computed: {
     ...mapState([
-      'scenarioArray',
+      'scenarioArray'
+    ]),
+    ...mapStateAuth([
+      'uid'
     ]),
   }
 };

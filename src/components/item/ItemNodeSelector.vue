@@ -47,7 +47,9 @@ export default {
 
     this.selection = [
       {label: 'Message', type: 'normal'},//method: this.callAddSimpleMessage},
-      {label: 'Question', type: 'selection'}//method: this.addSelectionMessage},
+      {label: 'Selection', type: 'selection'},//method: this.addSelectionMessage},
+      {label: 'Open Question', type: 'openquestion'},//method: this.addSelectionMessage},
+      {label: 'Go To', type: 'goto'},//method: this.addSelectionMessage},
     ];
 
     //this.position = {x: 100, y: 49964};
@@ -60,7 +62,7 @@ export default {
       .style('left', `${this.position.x}px`);
 
     // 多分これやっちゃいけないやつ
-    window.updatePosition = this.updatePosition;
+    window.updateSelectorPosition = this.updatePosition;
 
   },
   methods: {
@@ -72,6 +74,12 @@ export default {
         break;
         case 'selection':
           this.$emit('addSelectionMessage', this.position, this.dragStartedPosition, this.dragStartedId);
+        break;
+        case 'openquestion':
+          this.$emit('addOpenQuestionMessage', this.position, this.dragStartedPosition, this.dragStartedId);
+        break;
+        case 'goto':
+          this.$emit('selectToNodeByGoTo', this.position, this.dragStartedPosition, this.dragStartedId);
         break;
       }
 

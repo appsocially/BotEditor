@@ -33,8 +33,17 @@
 </template>
 
 <script>
+import firebase from "firebase";
+import db from "@/components/firebaseInit";
+
 import FirebaseSignInUi from '@/components/sign-in/firebase-sign-in-ui'
+
+import { createNamespacedHelpers } from "vuex";
 import Auth from '@/components/auth'
+const { mapState, mapActions } = createNamespacedHelpers(
+ "auth"
+);
+
 export default {
   components: {
     FirebaseSignInUi,
@@ -49,7 +58,34 @@ export default {
     onFailedAuthentication() {
       this.loggingIn = false;
     },
-    onLoggedIn({ onboardingData }) {
+    async onLoggedIn({ onboardingData }) {
+
+      var userDoc = await db.collection('users').doc(this.uid).get();
+
+      if(!userDoc.exists){
+        var user = await firebase.auth().currentUser;
+
+        var userObj = {
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          photoUrl: user.photoURL,
+          lastSignInTime: user.metadata.lastSignInTime,
+          creationTime: user.metadata.creationTime,
+          groups: ['Appsocially'],
+        };
+
+        await db.collection("users")
+          .doc(user.uid)
+          .set(userObj)
+          .then(function() {
+            console.log("Document successfully written!");
+          })
+          .catch(function(error) {
+            console.error("Error writing document: ", error);
+          });
+      }
+
 
       this.$router.push('/top');
 
@@ -60,7 +96,15 @@ export default {
         this.$router.push('/user-onboarding')
       }
       */
-    }
+    },
+    /*signOut() {
+      await firebase.auth().signOut();
+    }*/
+  },
+  computed: {
+    ...mapState([
+      'uid',
+    ]),
   }
 }
 </script>

@@ -33,6 +33,7 @@
 import Auth from '@/components/auth'
 
 import db from "../components/firebaseInit";
+
 import { createNamespacedHelpers } from "vuex";
 const { mapState, mapActions } = createNamespacedHelpers(
  "scenario"

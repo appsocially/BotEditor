@@ -1,30 +1,23 @@
 <template lang="pug">
 
   Auth(:on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn")
-    div(slot-scope="{signOut}").wrap-canvas-page
+    div(slot-scope="{signOut}").wrap-conversation-page
       util-header(:sign-out="signOut" :label='label')
-      module-canvas(v-if='!!project && !!scenario' :project='project')
-      div.wrap-preview
+      div.wrap-conversation
         module-conversation(v-if='!!project && !!scenario' :project='project')
 
 </template>
 
 <style lang="scss">
 
-.wrap-canvas-page {
-
-  .wrap-preview {
-    position: fixed;
-    z-index: 200;
-    right: 16px;
-    bottom: 16px;
-    width: 300px;
-    height: 440px;
-    filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
-    overflow: hidden;
-    border-radius: 3px;
+.wrap-conversation-page {
+  width: 100%;
+  height: 90vh;
+  overflow: hidden;
+  .wrap-conversation {
+    margin-top: 48px;
+    height: calc(100% - 48px);  
   }
-
 }
 
 </style>
@@ -47,7 +40,6 @@ import UtilHeader from "../components/util/UtilHeader";
 import ModuleCanvas from "../components/module/ModuleCanvas";
 import ModuleConversation from "../components/module/ModuleConversation";
 
-import ItemPreviewHeader from "../components/item/ItemPreviewHeader";
 
 export default {
   name: 'Canvas',
@@ -55,8 +47,7 @@ export default {
     Auth,
     UtilHeader,
     ModuleCanvas,
-    ModuleConversation,
-    ItemPreviewHeader
+    ModuleConversation
   },
   //props: ['labels', 'projects'],
   data() {

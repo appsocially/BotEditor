@@ -9,7 +9,7 @@
           div.wrap-input.px4
             input(v-model='botName' placeholder='Bot Name').px4.py8
           span(@click='createNewBot').create-button.px12.f.fh Create Bot
-        div.wrap-projects.mt20
+        div.wrap-projects.mt20.pb40
           div(v-for='item in projects' @click='toCanvas(item.id)').project.mb12.f.fh
             div
               span.title.mb18 {{item.title}}
@@ -60,17 +60,12 @@
       filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
       cursor: pointer;
       .title {
-        display: block;
         font-size: 16px;
-        text-align: center;
       }
-      .name {
+      span {
         display: block;
         font-size: 12px;
         text-align: center;
-      }
-      .created-at {
-        font-size: 12px;
       }
     }
   }  
@@ -113,7 +108,7 @@ export default {
     ]),
     onFailedAuthentication() {
       //this.loggingIn = false;
-      this.$router.push('/sign-in');
+      this.$router.push('sign-in');
     },
     async onLoggedIn({ onboardingData }) {
       
@@ -200,7 +195,8 @@ export default {
 
         $('#nowLoading').fadeOut(400);
 
-        window.location.href = `./canvas/${id}`;
+        this.$router.push(`/canvas/${id}`);
+        //window.location.href = `./canvas/${id}`;
       } // if
 
     },

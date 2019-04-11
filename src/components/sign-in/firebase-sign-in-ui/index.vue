@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span class='title'>Welcame to Bot Editor !!</span>
+    <span class='title'>Welcome to Bot Editor !!</span>
     <div id="firebaseui-auth-container"/>
     <v-progress-circular 
       v-show="!isSignInUILoaded"

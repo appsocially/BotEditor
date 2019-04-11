@@ -128,7 +128,7 @@ export const mutations = {
           .doc(projectId)
           .collection("scenario")
           .doc(clientContent.id)
-          .set(clientContent)
+          .update(clientContent)
           .then(function(e){
             console.log('updated content');
           });

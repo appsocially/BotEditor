@@ -55,6 +55,12 @@ export default {
     return {
       //
     };
+  },
+  created: function(){
+    if(location.hash!=''){
+      var urlWithoutHash = location.href.split('#')[0] + location.href.split('#')[1];
+      location.href = urlWithoutHash;
+    }
   }
 };
 </script>

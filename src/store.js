@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import * as scenario from "./store/scenario";
 import * as auth from "./store/auth";
+import * as edges from "./store/edges";
 
 Vue.use(Vuex);
 
@@ -21,6 +22,10 @@ export default new Vuex.Store({
       namespaced: true,
       ...auth,
       //state: scenario.state
+    },
+    edges: {
+      namespaced: true,
+      ...edges,
     },
     //scenario, // memo: means scenarion: scenario
     //projects

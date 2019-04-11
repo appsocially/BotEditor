@@ -159,6 +159,7 @@ export default {
 
       //this.fixSize();
       setTimeout(this.fixSize, 100);
+
     },
     over(){
       if(window.isDragingConnector){
@@ -178,7 +179,7 @@ export default {
       this.content.text = e.target.value;
 
       //this.fixSize();
-      setTimeout(this.fixSize, 100);
+      this.$nextTick(this.fixSize);
     },
     fixSize(){
       this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;

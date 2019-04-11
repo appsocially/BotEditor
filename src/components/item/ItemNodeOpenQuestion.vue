@@ -196,7 +196,7 @@ export default {
 
       this.content.text = e.target.value;
 
-      setTimeout(this.fixSize, 10);
+      this.$nextTick(this.fixSize);
 
       // コンテンツのセーブ
       clearTimeout(this.timer);
@@ -233,7 +233,7 @@ export default {
 
       this.content.expectedAnswer = e.target.value;
 
-      setTimeout(this.fixSizeOfExpectedAnswer, 10);
+      this.$nextTick(this.fixSizeOfExpectedAnswer);
 
       // コンテンツのセーブ
       clearTimeout(this.timer);

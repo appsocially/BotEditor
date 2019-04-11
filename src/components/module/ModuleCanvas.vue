@@ -6,6 +6,7 @@
         //item-edge(v-for='item in edgesArray' :id='item.id' :key='item.id' :content='item')
         svg#lineForPreview
         svg#previewLineForGoTo
+        //item-edge(v-for='item in edges' :content='item')
       item-node-selector(@addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage' @addOpenQuestionMessage='addOpenQuestionMessage' @selectToNodeByGoTo='selectToNodeByGoTo')
 
       item-node-start-point(v-if='startPointNode' :content='startPointNode')
@@ -89,8 +90,11 @@ import Auth from '@/components/auth';
 const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
  "auth"
 );
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
+const { mapState, mapActions } = createNamespacedHelpers(
  "scenario"
+);
+const { mapGetters: mapEdgesGetters } = createNamespacedHelpers(
+ "edges"
 );
 
 import entity from "../entity";
@@ -139,7 +143,6 @@ export default {
       selectionNodes: [],
       openQuestionNodes: [],
       goToNodes: [],
-      lines: [],
       edgesArray: [],
       completeLoadingLine: false,
     }
@@ -550,6 +553,9 @@ export default {
     ]),
     ...mapStateAuth([
       'uid'
+    ]),
+    ...mapEdgesGetters([
+      'edges'
     ]),
     projectId() {
       return this.project.id;

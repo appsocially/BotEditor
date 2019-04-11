@@ -104,8 +104,7 @@ export default {
 
       this.content.label = e.target.value;
 
-      //this.fixSize();
-      setTimeout(this.fixSize, 10);
+      this.$nextTick(this.fixSize);
     },
     fixSize(){
       this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;

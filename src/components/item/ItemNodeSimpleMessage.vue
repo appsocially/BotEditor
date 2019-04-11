@@ -1,6 +1,6 @@
 <template lang="pug">
 
-  div(@click='focus' @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-simple-message.node
+  div(ref='dragDiv' :style='{top: `${content.gui.position.y}px`, left: `${content.gui.position.x}px`}' @click='focus' @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-simple-message.node
     div.wrap-text.f.fm.pl16.pr10.pt7.pb6
       span.text {{content.text}}
       textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent="addNewNode").text
@@ -82,10 +82,16 @@
 
 <script>
 
+import { createNamespacedHelpers } from "vuex";
+
 import nodeController from "../nodeController";
 
 import AtomConnectStarter from "../atom/AtomConnectStarter";
 import AtomDeleteNode from "../atom/AtomDeleteNode";
+
+const { mapMutations } = createNamespacedHelpers(
+ "edges"
+);
 
 export default {
   name: 'ItemNodeSimpleMessage',
@@ -125,7 +131,17 @@ export default {
       .style('top', `${pos.y}px`)
       .style('left', `${pos.x}px`);
 
-    node.call(nodeController.dragOnNode);
+    const coordinate = this.getCoordinates();
+    this.set({
+      id: this.content.id,
+      next: this.content.next,
+      ...coordinate
+    });
+
+    //node.call(nodeController.dragOnNode);
+
+    const node = d3.select(this.$refs.dragDiv);
+    node.call(this.setUpDrag());
 
 
     this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
@@ -137,6 +153,7 @@ export default {
     var textarea = this.$el.children[0].children[1];
     textarea.select();
 
+
   },
   watch: {
     message: function(newVal, oldVal){
@@ -144,6 +161,53 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([
+      'set'
+    ]),
+    setUpDrag(){
+      return d3.behavior.drag()
+        .origin(function(d) { 
+          console.log(d);
+          return d; 
+        })
+        //.on("dragstart", dragstartedOnNode)
+        .on("drag", (d) => {
+          console.log('d3.event.dx:', d3.event.dx);
+          
+          this.content.gui.position.x += d3.event.dx;
+          this.content.gui.position.y += d3.event.dy;
+        })
+        .on("dragend", (d) => {
+          const coordinate = this.getCoordinates();
+          this.set({
+            id: this.content.id,
+            next: this.content.next,
+            ...coordinate
+          });
+        });
+
+    },
+    getCoordinates(){
+
+      const node = this.$refs.dragDiv;
+
+      const startPointOffset = 9;
+      
+      const left = {
+        x: node.offsetLeft,
+        y: node.offsetTop + node.clientHeight/2
+      };
+
+      const right = {
+        x: node.offsetLeft + node.clientWidth,
+        y: node.offsetTop + node.clientHeight/2
+      };
+
+      const coordinate = {left: left, right: right};
+
+      return coordinate;
+
+    },
     over(){
       if(window.isDragingConnector){
         this.scaleUp = 'scale-up';
@@ -162,8 +226,8 @@ export default {
 
       this.content.text = e.target.value;
 
-      //this.fixSize();
-      setTimeout(this.fixSize, 10);
+
+      this.$nextTick(this.fixSize);
 
       // コンテンツのセーブ
       clearTimeout(this.timer);

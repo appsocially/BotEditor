@@ -1,15 +1,17 @@
 <template lang="pug">
 
   div(ref='dragDiv' :style='{top: `${content.gui.position.y}px`, left: `${content.gui.position.x}px`}' @click='focus' @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-simple-message.node
-    div.wrap-text.f.fm.pl16.pr10.pt7.pb6
+    div.wrap-text.f.fm.pl16.pr16.pt7.pb6
       span.text {{content.text}}
       textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent="addNewNode").text
       div.wrap-starter.f.fh
         atom-connect-starter(:nodeId='content.id' :id='starterId')
     div.wrap-num
       span {{content.num}}
-    div.wrap-delete
+    // div.wrap-delete
       atom-delete-node(:content='content' @callRemoveNormalMessageNode='callRemoveNormalMessageNode')
+    div.wrap-node-window.f.fc
+      atom-node-window(:content='content' ref="toolWindow" @delete='callRemoveNormalMessageNode')
     
 </template>
 
@@ -64,6 +66,13 @@
     top: -22px;
   }
 
+  .wrap-node-window {
+    position: absolute;
+    bottom: 0px;
+    top: calc(100% + 10px);
+    width: 100%;
+  }
+
   &.focused {
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     .wrap-delete {
@@ -88,6 +97,7 @@ import nodeController from "../nodeController";
 
 import AtomConnectStarter from "../atom/AtomConnectStarter";
 import AtomDeleteNode from "../atom/AtomDeleteNode";
+import AtomNodeWindow from "../atom/AtomNodeWindow";
 
 const { mapMutations } = createNamespacedHelpers(
  "edges"
@@ -98,6 +108,7 @@ export default {
   components: {
     AtomConnectStarter,
     AtomDeleteNode,
+    AtomNodeWindow
   },
   props: {
     content: {
@@ -138,10 +149,10 @@ export default {
       ...coordinate
     });
 
-    //node.call(nodeController.dragOnNode);
+    node.call(nodeController.dragOnNode);
 
     const node = d3.select(this.$refs.dragDiv);
-    node.call(this.setUpDrag());
+    //node.call(this.setUpDrag());
 
 
     this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
@@ -157,36 +168,35 @@ export default {
   },
   watch: {
     message: function(newVal, oldVal){
-      //console.log(newVal);
+      
     }
   },
   methods: {
     ...mapMutations([
       'set'
     ]),
-    setUpDrag(){
-      return d3.behavior.drag()
-        .origin(function(d) { 
-          console.log(d);
-          return d; 
-        })
-        //.on("dragstart", dragstartedOnNode)
-        .on("drag", (d) => {
-          console.log('d3.event.dx:', d3.event.dx);
+    // setUpDrag(){
+    //   return d3.behavior.drag()
+    //     .origin(function(d) { 
+    //       return d; 
+    //     })
+    //     //.on("dragstart", dragstartedOnNode)
+    //     .on("drag", (d) => {
           
-          this.content.gui.position.x += d3.event.dx;
-          this.content.gui.position.y += d3.event.dy;
-        })
-        .on("dragend", (d) => {
-          const coordinate = this.getCoordinates();
-          this.set({
-            id: this.content.id,
-            next: this.content.next,
-            ...coordinate
-          });
-        });
+          
+    //       this.content.gui.position.x += d3.event.dx;
+    //       this.content.gui.position.y += d3.event.dy;
+    //     })
+    //     .on("dragend", (d) => {
+    //       const coordinate = this.getCoordinates();
+    //       this.set({
+    //         id: this.content.id,
+    //         next: this.content.next,
+    //         ...coordinate
+    //       });
+    //     });
 
-    },
+    // },
     getCoordinates(){
 
       const node = this.$refs.dragDiv;
@@ -226,12 +236,11 @@ export default {
 
       this.content.text = e.target.value;
 
-
       this.$nextTick(this.fixSize);
 
       // コンテンツのセーブ
       clearTimeout(this.timer);
-      this.timer = setTimeout(this.updateNodeContent, 800);
+      this.timer = setTimeout(this.updateNodeContent, 400);
 
     },
     fixSize(){
@@ -245,31 +254,34 @@ export default {
       var gapOfWidth = this.$el.offsetWidth - this.preNodeSize.width;
       var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height;
 
-      this.content.gui.position.y -= gapOfHeight/2;
+      this.content.gui.position.y -= gapOfHeight/2
 
       var id = this.content.id;
       var pos = this.content.gui.position;
       var node = d3.select(`#${id}`)
         .data([{pos: pos, id: id}])
         .style('top', `${pos.y}px`)
-        .style('left', `${pos.x}px`);
+        .style('left', `${pos.x}px`)
 
-      if(gapOfWidth!=0 || gapOfHeight>0) this.$emit('loadAllEdges');
+      if(gapOfWidth!=0 || gapOfHeight>0) this.$emit('loadAllEdges')
       //this.$emit('fixEdgeOfNormalNode', this.content);
     },
     updateNodeContent(){
-      this.$emit('updateNode',  this.content);
+      this.$emit('updateNode',  this.content)
     },
     addNewNode(){
-      console.log('Add Single New Node');
+      
     },
     focus(){
-      $('.focused').removeClass('focused');
-      this.$el.classList.add('focused');
-      $('#previewLineForGoTo').removeClass('show');
+      $('.focused').removeClass('focused')
+      this.$el.classList.add('focused')
+      $('#previewLineForGoTo').removeClass('show')
+
+      $('.node-window-active').removeClass('node-window-active')
+      this.$refs.toolWindow.$el.classList.add("node-window-active")
     },
     callRemoveNormalMessageNode(id){
-      this.$emit('removeNormalMessageNode',  id);
+      this.$emit('removeNormalMessageNode',  id)
     }
   },
 };

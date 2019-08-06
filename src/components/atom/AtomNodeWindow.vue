@@ -99,8 +99,6 @@ export default {
     switch(this.content.type){
       case 'normal':
         this.lists = [
-          //{label: 'Test Node', icon: 'home', id: 'test', func: this.deleteNode},
-          //{label: 'Test Node', icon: 'home', id: 'test', func: this.deleteNode},
           {
             label: 'Delete Node',
             icon: 'delete',
@@ -112,8 +110,6 @@ export default {
 
       case 'selection':
         this.lists = [
-          //{label: 'Test Node', icon: 'home', id: 'test', func: this.deleteNode},
-          //{label: 'Test Node', icon: 'home', id: 'test', func: this.deleteNode},
           {
             label: 'Custom Var to get',
             icon: 'monetization_on',
@@ -131,13 +127,23 @@ export default {
 
       case 'openquestion':
         this.lists = [
-          //{label: 'Test Node', icon: 'home', id: 'test', func: this.deleteNode},
           {
             label: 'Custom Var to get',
             icon: 'monetization_on',
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
+          {
+            label: 'Delete Node',
+            icon: 'delete',
+            id: 'delete-node',
+            func: this.deleteNode
+          }
+        ];
+      break;
+
+      case 'goto':
+        this.lists = [
           {
             label: 'Delete Node',
             icon: 'delete',

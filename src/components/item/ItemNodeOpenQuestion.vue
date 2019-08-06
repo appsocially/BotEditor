@@ -13,7 +13,10 @@
       span {{content.num}}
     div.wrap-delete
       atom-delete-node(:content='content' ref='test' @callRemoveOpenQuestionNode='callRemoveOpenQuestionNode')
-    
+    div.wrap-node-window.f.fc
+      atom-node-window(:content='content' ref="toolWindow" @delete='callRemoveOpenQuestionNode')
+
+
 </template>
 
 <style lang="scss">
@@ -89,6 +92,12 @@
     right: 2px;
     top: -22px;
   }
+  .wrap-node-window {
+    position: absolute;
+    bottom: 0px;
+    top: calc(100% + 10px);
+    width: 100%;
+  }
 
   &.focused {
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
@@ -112,12 +121,14 @@ import nodeController from "../nodeController";
 
 import AtomConnectStarter from "../atom/AtomConnectStarter";
 import AtomDeleteNode from "../atom/AtomDeleteNode";
+import AtomNodeWindow from "../atom/AtomNodeWindow";
 
 export default {
   name: 'ItemNodeOpenQuestion',
   components: {
     AtomConnectStarter,
     AtomDeleteNode,
+    AtomNodeWindow
   },
   props: {
     content: {
@@ -180,100 +191,103 @@ export default {
   methods: {
     over(){
       if(window.isDragingConnector){
-        this.scaleUp = 'scale-up';
-        window.isHoveringOnNode = true;
-        window.nodeHovering = this.content;
+        this.scaleUp = 'scale-up'
+        window.isHoveringOnNode = true
+        window.nodeHovering = this.content
       }
     },
     leave(){
-      this.scaleUp = '';
-      window.isHoveringOnNode = false;
-      window.nodeHovering = '';
+      this.scaleUp = ''
+      window.isHoveringOnNode = false
+      window.nodeHovering = ''
     },
     down(e){
-      this.preNodeSize.width = this.$el.offsetWidth;
-      this.preNodeSize.height = this.$el.offsetHeight;
+      this.preNodeSize.width = this.$el.offsetWidth
+      this.preNodeSize.height = this.$el.offsetHeight
 
-      this.content.text = e.target.value;
+      this.content.text = e.target.value
 
-      this.$nextTick(this.fixSize);
+      this.$nextTick(this.fixSize)
 
       // コンテンツのセーブ
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.updateNodeContent, 800);
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNodeContent, 800)
     },
     fixSize(){
-      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
-      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight;
+      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
+      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
       this.textareaStyle = `
-        width: ${this.nodeTextSize.width}px;
-        height: ${this.nodeTextSize.height}px;
-        `;
+        width: ${this.nodeTextSize.width}px
+        height: ${this.nodeTextSize.height}px
+        `
 
-      var gapOfWidth = this.$el.offsetWidth - this.preNodeSize.width;
-      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height;
+      var gapOfWidth = this.$el.offsetWidth - this.preNodeSize.width
+      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height
 
-      console.log(gapOfWidth);
+      console.log(gapOfWidth)
 
-      this.content.gui.position.y -= gapOfHeight/2;
+      this.content.gui.position.y -= gapOfHeight/2
 
-      var id = this.content.id;
-      var pos = this.content.gui.position;
+      var id = this.content.id
+      var pos = this.content.gui.position
       var node = d3.select(`#${id}`)
         .data([{pos: pos, id: id}])
         .style('top', `${pos.y}px`)
-        .style('left', `${pos.x}px`);
+        .style('left', `${pos.x}px`)
 
       // 線を再描画
-      if(gapOfWidth!=0 || gapOfHeight>0) this.$emit('loadAllEdges');
-      //this.$emit('fixEdgeOfNormalNode', this.content);
+      if(gapOfWidth!=0 || gapOfHeight>0) this.$emit('loadAllEdges')
+      //this.$emit('fixEdgeOfNormalNode', this.content)
     },
     downOnExpectedAnswer(e){
-      this.preNodeSize.height = this.$el.offsetHeight;
+      this.preNodeSize.height = this.$el.offsetHeight
 
-      this.content.expectedAnswer = e.target.value;
+      this.content.expectedAnswer = e.target.value
 
-      this.$nextTick(this.fixSizeOfExpectedAnswer);
+      this.$nextTick(this.fixSizeOfExpectedAnswer)
 
       // コンテンツのセーブ
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.updateNodeContent, 800);
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNodeContent, 800)
     },
     fixSizeOfExpectedAnswer(){
-      this.nodeExpectedAnswerSize.width = this.$el.children[1].firstChild.offsetWidth + 8;
-      this.nodeExpectedAnswerSize.height = this.$el.children[1].firstChild.offsetHeight;
+      this.nodeExpectedAnswerSize.width = this.$el.children[1].firstChild.offsetWidth + 8
+      this.nodeExpectedAnswerSize.height = this.$el.children[1].firstChild.offsetHeight
       this.textareaStyleOfExpectedAnswer = `
         width: ${this.nodeExpectedAnswerSize.width}px;
         height: ${this.nodeExpectedAnswerSize.height}px;
         `;
 
-      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height;
-      this.content.gui.position.y -= gapOfHeight/2;
+      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height
+      this.content.gui.position.y -= gapOfHeight/2
 
-      var id = this.content.id;
-      var pos = this.content.gui.position;
+      var id = this.content.id
+      var pos = this.content.gui.position
       var node = d3.select(`#${id}`)
         .data([{pos: pos, id: id}])
         .style('top', `${pos.y}px`)
-        .style('left', `${pos.x}px`);
+        .style('left', `${pos.x}px`)
 
       // 線を再描画
-      if(gapOfHeight>0) this.$emit('loadAllEdges');
-      //this.$emit('fixEdgeOfNormalNode', this.content);
+      if(gapOfHeight>0) this.$emit('loadAllEdges')
+      //this.$emit('fixEdgeOfNormalNode', this.content)
     },
     updateNodeContent(){
-      this.$emit('updateNode',  this.content);
+      this.$emit('updateNode',  this.content)
     },
     addNewNode(){
-      console.log('Add Single New Node');
+      console.log('Add Single New Node')
     },
     focus(){
-      $('.focused').removeClass('focused');
-      this.$el.classList.add('focused');
-      $('#previewLineForGoTo').removeClass('show');
+      $('.focused').removeClass('focused')
+      this.$el.classList.add('focused')
+      $('#previewLineForGoTo').removeClass('show')
+
+      $('.node-window-active').removeClass('node-window-active')
+      this.$refs.toolWindow.$el.classList.add("node-window-active")
     },
     callRemoveOpenQuestionNode(id){
-      this.$emit('removeOpenQuestionNode',  id);
+      this.$emit('removeOpenQuestionNode',  id)
     }
   },
 };

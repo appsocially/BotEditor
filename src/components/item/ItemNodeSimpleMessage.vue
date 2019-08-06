@@ -91,13 +91,13 @@
 
 <script>
 
-import { createNamespacedHelpers } from "vuex";
+import { createNamespacedHelpers } from "vuex"
 
-import nodeController from "../nodeController";
+import nodeController from "../nodeController"
 
-import AtomConnectStarter from "../atom/AtomConnectStarter";
-import AtomDeleteNode from "../atom/AtomDeleteNode";
-import AtomNodeWindow from "../atom/AtomNodeWindow";
+import AtomConnectStarter from "../atom/AtomConnectStarter"
+import AtomDeleteNode from "../atom/AtomDeleteNode"
+import AtomNodeWindow from "../atom/AtomNodeWindow"
 
 const { mapMutations } = createNamespacedHelpers(
  "edges"
@@ -199,65 +199,65 @@ export default {
     // },
     getCoordinates(){
 
-      const node = this.$refs.dragDiv;
+      const node = this.$refs.dragDiv
 
-      const startPointOffset = 9;
+      const startPointOffset = 9
       
       const left = {
         x: node.offsetLeft,
         y: node.offsetTop + node.clientHeight/2
-      };
+      }
 
       const right = {
         x: node.offsetLeft + node.clientWidth,
         y: node.offsetTop + node.clientHeight/2
-      };
+      }
 
-      const coordinate = {left: left, right: right};
+      const coordinate = {left: left, right: right}
 
-      return coordinate;
+      return coordinate
 
     },
     over(){
       if(window.isDragingConnector){
-        this.scaleUp = 'scale-up';
-        window.isHoveringOnNode = true;
-        window.nodeHovering = this.content;
+        this.scaleUp = 'scale-up'
+        window.isHoveringOnNode = true
+        window.nodeHovering = this.content
       }
     },
     leave(){
-      this.scaleUp = '';
-      window.isHoveringOnNode = false;
-      window.nodeHovering = '';
+      this.scaleUp = ''
+      window.isHoveringOnNode = false
+      window.nodeHovering = ''
     },
     down(e){
-      this.preNodeSize.width = this.$el.offsetWidth;
-      this.preNodeSize.height = this.$el.offsetHeight;
+      this.preNodeSize.width = this.$el.offsetWidth
+      this.preNodeSize.height = this.$el.offsetHeight
 
-      this.content.text = e.target.value;
+      this.content.text = e.target.value
 
-      this.$nextTick(this.fixSize);
+      this.$nextTick(this.fixSize)
 
       // コンテンツのセーブ
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.updateNodeContent, 400);
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNodeContent, 400)
 
     },
     fixSize(){
-      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
-      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight;
+      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
+      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
       this.textareaStyle = `
         width: ${this.nodeTextSize.width}px;
         height: ${this.nodeTextSize.height}px;
         `;
 
-      var gapOfWidth = this.$el.offsetWidth - this.preNodeSize.width;
-      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height;
+      var gapOfWidth = this.$el.offsetWidth - this.preNodeSize.width
+      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height
 
       this.content.gui.position.y -= gapOfHeight/2
 
-      var id = this.content.id;
-      var pos = this.content.gui.position;
+      var id = this.content.id
+      var pos = this.content.gui.position
       var node = d3.select(`#${id}`)
         .data([{pos: pos, id: id}])
         .style('top', `${pos.y}px`)
@@ -268,9 +268,6 @@ export default {
     },
     updateNodeContent(){
       this.$emit('updateNode',  this.content)
-    },
-    addNewNode(){
-      
     },
     focus(){
       $('.focused').removeClass('focused')

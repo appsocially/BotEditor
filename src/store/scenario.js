@@ -22,7 +22,7 @@ export const mutations = {
           return;
         }
 
-      }else if(state.scenarioArray[i].nodeType=='group'){
+      } else if (state.scenarioArray[i].nodeType=='group'){
         
         var selections = state.scenarioArray[i].selections;
         for(var j=0; j<selections.length; j++){
@@ -51,7 +51,7 @@ export const mutations = {
   },
   updateNode(state, value) {
     for(var i=0; i<state.scenarioArray.length; i++){
-      if(state.scenarioArray[i].id==value.id){
+      if(state.scenarioArray[i].id == value.id){
         state.scenarioArray[i] = value;
       }
     }
@@ -123,7 +123,7 @@ export const mutations = {
           });
 
       // dbとコンテンツが違う場合
-      }else if(JSON.stringify(dbContent) != JSON.stringify(clientContent)){
+      } else if(JSON.stringify(dbContent) != JSON.stringify(clientContent)){
         db.collection("projects")
           .doc(projectId)
           .collection("scenario")
@@ -143,7 +143,31 @@ export const mutations = {
       .doc(projectId)
       .update({nodeNum: window.project.nodeNum});
 
+    console.log("saved")
+
   },
+  addCustomVar(state, value){
+    var content = entity.getContent(scenarioArray, value.nodeId);
+    content.customVariable = {
+      location: value.location,
+      varType: value.varType
+    }
+  },
+  updateCustomVar(state, value){
+    var content = entity.getContent(scenarioArray, value.nodeId);
+    content.customVariable = {
+      location: value.location,
+      varType: value.varType
+    }
+  },
+  addCustomAction(state, value){
+    var content = entity.getContent(scenarioArray, value.nodeId);
+    content.customAction = value.customAction
+  },
+  updateCustomAction(state, value){
+    var content = entity.getContent(scenarioArray, value.nodeId);
+    content.customAction = value.customAction
+  }
 };
 
 export const actions = {
@@ -180,6 +204,22 @@ export const actions = {
   },
   disconnectNode({commit}, id){
     commit('disconnectNode', id);
+    commit('saveScenario');
+  },
+  addCustomVar({commit}, customVar){
+    commit('addCustomVar', customVar);
+    commit('saveScenario');
+  },
+  updateCustomVar({commit}, customVar){
+    commit('addCustomVar', customVar);
+    commit('saveScenario');
+  },
+  addCustomAction({commit}, customAction){
+    commit('addCustomAction', customAction);
+    commit('saveScenario');
+  },
+  updateCustomAction({commit}, customAction){
+    commit('addCustomAction', customAction);
     commit('saveScenario');
   }
 };

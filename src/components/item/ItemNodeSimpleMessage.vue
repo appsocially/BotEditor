@@ -279,6 +279,9 @@ export default {
     },
     callRemoveNormalMessageNode(id){
       this.$emit('removeNormalMessageNode',  id)
+    },
+    addNewNode(){
+      console.log("add")
     }
   },
 };

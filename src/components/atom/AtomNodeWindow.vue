@@ -1,13 +1,33 @@
 <template lang="pug">
 
-  div.wrap-atom-node-window
+  div(@click="onToolWindow").wrap-atom-node-window
     // div.wrap-triangle
       div.triangle
     div.window
       div(v-for="item in lists" :key="item.id" :class="item.id").menu
         v-icon {{item.icon}}
         span(@click="item.func") {{item.label}}
-    
+        div(v-if="item.id === 'show-custom-vars' && showCustomVar" :class="String(showCustomVar)").child-list
+          div(v-if="hasCustomVar")
+            div.wrap-id.pt8
+              v-text-field(label="Name" :value="content.customVariable.location" v-model="customVarLocationValue")
+            div.wrap-selector
+              v-select(:items="varTypes" label="Type" :value="content.customVariable.varType" v-model="customVarTypeValue")
+          div(v-else).wrap-no-custom-var
+            span.no-var.mb10 This node has No Custom Var
+            div.f.fc
+              span(@click="createVar").button-add Add Custom Var
+          div.child-triangle
+        div(v-if="item.id === 'show-custom-action' && showCustomAction" :class="String(showCustomAction)").child-list
+          div(v-if="hasCustomAction")
+            div.wrap-id.pt8
+              v-text-field(label="Name" :value="content.customAction" v-model="customActionValue")
+          div(v-else).wrap-no-custom-var
+            span.no-var.mb10 This node has No Custom Action
+            div.f.fc
+              span(@click="createAction").button-add Add Custom Action
+          div.child-triangle
+      
 </template>
 
 <style lang="scss">
@@ -51,6 +71,53 @@
         display: block;
         white-space: nowrap;
       }
+      .child-list {
+        display: flex;
+        position: absolute;
+        left: calc(100% + 14px);
+        top: 0;
+        padding: 12px 16px 12px 16px;
+        border-radius: 3px;
+        background: #FFF;
+        box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+        transition: all 400ms ease;
+        opacity: 0.0;
+        transform: translateX(0px);
+        .wrap-id {
+          width: 160px;
+          margin-right: 8px;
+        }
+        .wrap-selector {
+          width: 100px;
+        }
+        .child-triangle {
+          position: absolute;
+          top: 12px;
+          right: 100%;
+          border-top: 8px solid transparent;
+          border-right: 10px solid #FFF;
+          border-bottom: 8px solid transparent;
+        }
+        .wrap-no-custom-var {
+          .no-var {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+          }
+          .button-add {
+            text-align: center;
+            background: #ff9a0a;
+            padding: 8px 14px;
+            border-radius: 8px;
+            color: #FFF;
+            font-size: 10px;
+            cursor: pointer;
+          }
+        }
+        &.true {
+          opacity: 1.0 !important;
+        }
+      }
     }
     .delete-node {
       border-top: solid rgba(0,0,0,0.2) 0.4px;
@@ -79,6 +146,12 @@
 
 import entity from "../entity"
 
+import { createNamespacedHelpers } from "vuex";
+import { setTimeout } from 'timers';
+const { mapState, mapActions } = createNamespacedHelpers(
+ "scenario"
+)
+
 export default {
   name: 'AtomNodeWindow',
   props: {
@@ -90,15 +163,29 @@ export default {
   data() {
     return {
       lists: [],
+      windowStatus: '',
       showCustomVar: false,
+      showCustomAction: false,
+      hasCustomVar: false,
+      hasCustomAction: false,
       varTypes: ['String', 'Boolean', 'Number'],
-      windowStatus: ''
+      customVarLocationValue: '',
+      customVarTypeValue: '',
+      customActionValue: '',
+      timer: {}
     }
   },
   created: function(){
+    
     switch(this.content.type){
       case 'normal':
         this.lists = [
+          {
+            label: 'Custom Action',
+            icon: 'add_comment',
+            id: 'show-custom-action',
+            func: this.toggleCustomActionMenu
+          },
           {
             label: 'Delete Node',
             icon: 'delete',
@@ -117,6 +204,12 @@ export default {
             func: this.toggleCuostomVarMenu
           },
           {
+            label: 'Custom Action',
+            icon: 'add_comment',
+            id: 'show-custom-action',
+            func: this.toggleCustomActionMenu
+          },
+          {
             label: 'Delete Node',
             icon: 'delete',
             id: 'delete-node',
@@ -127,6 +220,12 @@ export default {
 
       case 'openquestion':
         this.lists = [
+          {
+            label: 'Custom Action',
+            icon: 'add_comment',
+            id: 'show-custom-action',
+            func: this.toggleCustomActionMenu
+          },
           {
             label: 'Custom Var to get',
             icon: 'monetization_on',
@@ -153,6 +252,16 @@ export default {
         ];
       break;
     }
+
+    if(this.content.customVariable) {
+      this.customVarLocationValue = this.content.customVariable.location
+      this.customVarTypeValue = this.content.customVariable.varType
+      this.hasCustomVar = true
+    }
+    if(this.content.customAction) {
+      this.customActionValue = this.content.customAction
+      this.hasCustomAction = true
+    }
   },
   mounted: function(){
 
@@ -160,14 +269,71 @@ export default {
   watch: {
     showToolWindow(newVal, oldVal){
       this.windowStatus = (newVal)? 'active' : ''
+    },
+    customVarLocationValue(newVal, oldVal){
+      if(newVal !== oldVal && oldVal !== ""){
+        clearTimeout(this.timer)
+        this.timer = setTimeout(this.updateVar, 1000)
+      }
+    },
+    customVarTypeValue(newVal, oldVal){
+      if(newVal !== oldVal && oldVal !== ""){
+        clearTimeout(this.timer)
+        this.timer = setTimeout(this.updateVar, 1000)
+      }
     }
   },
   methods: {
+    ...mapActions([
+      'updateCustomVar',
+      'addCustomVar',
+      'updateCustomAction',
+      'addCustomAction'
+    ]),
+    onToolWindow(e) {
+      e.stopPropagation()
+    },
     activateWindow() {
       this.windowStatus = 'active'
     },
     toggleCuostomVarMenu() {
+      this.showCustomAction = false
       this.showCustomVar = !this.showCustomVar
+    },
+    toggleCustomActionMenu() {
+      this.showCustomVar = false
+      this.showCustomAction = !this.showCustomAction
+    },
+    createVar() {
+      this.addCustomVar({
+        nodeId: this.content.id,
+        location: `var-${this.content.id}`,
+        varType: this.varTypes[0]
+      })
+      this.customVarLocationValue = this.content.customVariable.location
+      this.customVarTypeValue = this.content.customVariable.varType
+      this.hasCustomVar = true
+    },
+    updateVar() {
+      this.updateCustomVar({
+        nodeId: this.content.id,
+        location: this.content.customVariable.location,
+        varType: this.content.customVariable.varType
+      })
+    },
+    createAction() {
+      this.addCustomAction({
+        nodeId: this.content.id,
+        customAction: `ca-${this.content.id}`
+      })
+      this.customActionValue = this.content.customAction
+      this.hasCustomAction = true
+    },
+    updateAction() {
+      this.updateCustomAction({
+        nodeId: this.content.id,
+        customAction: this.content.customAction
+      })
     },
     deleteNode(e) {
       e.stopPropagation()
@@ -179,7 +345,7 @@ export default {
         // disconnect
       }
 
-      if(this.content.nodeType == 'single'){
+      if(this.content.nodeType == 'single') {
         this.removeLine(this.content.id);
       }else{
         var selections = this.content.selections;

@@ -3,7 +3,7 @@
   div(@click='focus' @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-open-question.node
     div.wrap-text.f.fm.px10.pt10.pb6
       span.text {{message}}
-      textarea(v-model='message' :style='textareaStyle' @keydown='down').text
+      textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent="addNewNode").text
     div.wrap-expected-answer.f.fm.px10.pt6.pb10
       span.expected-answer {{expectedAnswerModel}}
       textarea(v-model='expectedAnswerModel' :style='textareaStyleOfExpectedAnswer' @keydown='downOnExpectedAnswer' @keydown.enter.exact.prevent="addNewNode").expected-answer
@@ -11,7 +11,7 @@
       atom-connect-starter(:nodeId='content.id' :id='starterId')
     div.wrap-num
       span {{content.num}}
-    div.wrap-delete
+    // div.wrap-delete
       atom-delete-node(:content='content' ref='test' @callRemoveOpenQuestionNode='callRemoveOpenQuestionNode')
     div.wrap-node-window.f.fc
       atom-node-window(:content='content' ref="toolWindow" @delete='callRemoveOpenQuestionNode')

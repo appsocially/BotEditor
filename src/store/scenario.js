@@ -119,7 +119,7 @@ export const mutations = {
           .doc(clientContent.id)
           .set(clientContent)
           .then(function(e){
-            console.log('added new content');
+            // console.log('added new content');
           });
 
       // dbとコンテンツが違う場合
@@ -130,7 +130,7 @@ export const mutations = {
           .doc(clientContent.id)
           .update(clientContent)
           .then(function(e){
-            console.log('updated content');
+            // console.log('updated content');
           });
 
       // dbにコンテンツがあってクライアントにない場合

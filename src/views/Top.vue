@@ -10,6 +10,7 @@
             input(v-model='botName' placeholder='Bot Name').px4.py8
           span(@click='createNewBot').create-button.px12.f.fh Create Bot
         div.wrap-projects.mt20.pb40
+          // span(@click="addConditionToAllNodes") update
           div(v-for='item in projects' @click='toCanvas(item.id)').project.mb12.f.fh
             div
               span.title.mb18 {{item.title}}
@@ -200,6 +201,53 @@ export default {
       } // if
 
     },
+    async addConditionToAllNodes () {
+      var ids = await db.collection("projects").get().then((q) => {
+        return q.docs.map((e)=>{ return e.id })
+      })
+      
+      for(var i=0; i<ids.length; i++){
+        var nodes = await db.collection("projects").doc(ids[i])
+          .collection("scenario").get()
+          .then((q) => {
+            return q.docs.map((e)=>{ return e.data() })
+          })
+
+        for(var n_i=0; n_i < nodes.length; n_i++){
+          if(nodes[n_i].nodeType == "group"){
+            var selections = nodes[n_i].selections
+            for(var s_i=0; s_i < selections.length; s_i++){
+              if(selections[s_i].next){
+                selections[s_i].conditions = [
+                  {
+                    type: "else",
+                    next: selections[s_i].next
+                  }
+                ]
+              }
+            }
+            db.collection("projects").doc(ids[i])
+              .collection("scenario")
+              .doc(nodes[n_i].id)
+              .set({"selections": selections}, {merge: true})
+          } else {
+            if(nodes[n_i].next){
+              nodes[n_i].conditions = [
+                {
+                  type: "else",
+                  next: nodes[n_i].next
+                }
+              ]
+              db.collection("projects").doc(ids[i])
+                .collection("scenario")
+                .doc(nodes[n_i].id)
+                .set({"conditions": nodes[n_i].conditions}, {merge: true})
+            }
+          }
+        }
+        console.log("nodes", nodes)
+      }
+    }
     /*deleteBot() {
 
     }*/

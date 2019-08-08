@@ -23,7 +23,6 @@ nodeController.dragOnNode = d3.behavior.drag()
   
 function dragstartedOnNode(d) {
   d3.event.sourceEvent.stopPropagation();
-  console.log(window.scenarioArray);
 }
 
 function dragmoveOnNode(d) { 
@@ -52,6 +51,7 @@ function dragmoveOnNode(d) {
   */
 
   var connectedNodes = entity.getNodesThatConnectFrom(window.scenarioArray, d.id);
+  
   for(var i=0; i<connectedNodes.length; i++){
     var node = connectedNodes[i];
     var id = node.id;
@@ -67,7 +67,8 @@ function dragmoveOnNode(d) {
       data.source.x += d3.event.dx;
       data.source.y += d3.event.dy;
 
-      drawLine(data.source, data.target, id);
+      window.updateEdge(data.source, data.target, id);
+      // drawLine(data.source, data.target, id);
     }
   }
 
@@ -88,7 +89,8 @@ function dragmoveOnNode(d) {
       data.target.x += d3.event.dx;
       data.target.y += d3.event.dy;
 
-      drawLine(data.source, data.target, id);
+      window.updateEdge(data.source, data.target, id);
+      // drawLine(data.source, data.target, id);
     }
   }
 
@@ -193,36 +195,44 @@ function dragendedOnConnectStarter(d) {
   }else{
     $('#lineForPreview').hide();
     window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id});
+
+    var to = {
+      x: $(`#${window.nodeHovering.id}`).position().left,
+      y: $(`#${window.nodeHovering.id}`).position().top + $(`#${window.nodeHovering.id}`).height()/2
+    }
+    console.log("d.nodeId", d.nodeId)
+    window.updateEdge(this.from, to, d.nodeId)
+    
+    setTimeout(window.loadAllEdges, 10)
+    // window.addEdge(this.from, to, d.nodeId)
+    // window.loadAllEdges()
   }
 }
 
+// function drawLine(from, to, id){
+//   var data = [
+//     {
+//       source: {x: from.x, y: from.y},
+//       target: {x: to.x, y: to.y}
+//     }
+//   ];
+  
+//   var diagonal = d3.svg.diagonal();
 
+//   var lines = d3.select('#lines');
+//   lines.append('svg').attr("id", `line-${id}`);
 
+//   var svg = d3.select('#lines').select(`#line-${id}`);
+//   svg.remove();
+//   svg = d3.select('#lines').select(`#line-${id}`);
 
-function drawLine(from, to, id){
-  var data = [
-    {
-      source: {x: from.x, y: from.y},
-      target: {x: to.x, y: to.y}
-    }
-  ];
-
-  var diagonal = d3.svg.diagonal();
-
-  var lines = d3.select('#lines');
-  lines.append('svg').attr("id", `line-${id}`);
-
-  var svg = d3.select('#lines').select(`#line-${id}`);
-  svg.remove();
-  svg = d3.select('#lines').select(`#line-${id}`);
-
-  var path = svg.selectAll("path").data(data).enter()
-    .append("path")
-    .attr("id", `line-${id}`)
-    .attr("fill", "none")
-    .attr("stroke", "#FF9A0A")
-    .attr("d", diagonal);
-}
+//   var path = svg.selectAll("path").data(data).enter()
+//     .append("path")
+//     .attr("id", `line-${id}`)
+//     .attr("fill", "none")
+//     .attr("stroke", "#FF9A0A")
+//     .attr("d", diagonal);
+// }
 
 
 export default nodeController;

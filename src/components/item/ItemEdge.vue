@@ -22,6 +22,7 @@
 <script>
 
 import nodeController from "../nodeController";
+import { functions } from 'firebase';
 
 
 export default {
@@ -37,42 +38,63 @@ export default {
   },
   data() {
     return {
-
     }
   },
+  watch: {
+    // content: function(newVal, oldVal){
+    //   console.log("newVal", newVal)
+    // },
+    // content: {
+    //   // the callback will be called immediately after the start of the observation
+    //   immediate: true, 
+    //   handler (val, oldVal) {
+    //     // do your stuff
+    //     console.log("ItemEdge Pos", val)
+    //   }
+    // }
+  },
   created: function(){
-
-    debugger
+    // debugger
+    console.log("ItemEdge created", this.content)
   },
   mounted: function(){
+    this.draw()
+  },
+  // update: function(){
+  //   console.log("ItemEdge updated", this.content.id)
+  // },
+  methods: {
+    draw() {
+      // console.log("ItemEdge draw", this.content.id)
 
-    /*
-    var id = this.content.id;
-    var from = this.content.from;
-    var to = this.content.to;
-    
-    var data = [
-      {
-        source: {x: from.x, y: from.y},
-        target: {x: to.x, y: to.y}
-      }
-    ];
+      var id = this.content.id;
+      var from = this.content.from;
+      var to = this.content.to;
 
-    var diagonal = d3.svg.diagonal();
+      this.from = from
+      this.to = to
+      
+      var data = [
+        {
+          source: {x: from.x, y: from.y},
+          target: {x: to.x, y: to.y}
+        }
+      ];
 
-    var lines = d3.select('#lines');
-    lines.select(`#line-${id}`).remove();
-    lines.append('svg').attr("id", `line-${id}`);
+      var diagonal = d3.svg.diagonal();
 
-    var svg = d3.select('#lines').select(`#line-${id}`);
-    var path = svg.selectAll("path").data(data).enter()
-      .append("path")
-      .attr("id", `line-${id}`)
-      .attr("fill", "none")
-      .attr("stroke", "#FF9A0A")
-      .attr("d", diagonal);
-    */
+      var lines = d3.select('#lines');
+      lines.select(`#line-${id}`).remove();
+      lines.append('svg').attr("id", `line-${id}`);
 
+      var svg = d3.select('#lines').select(`#line-${id}`);
+      var path = svg.selectAll("path").data(data).enter()
+        .append("path")
+        .attr("id", `line-${id}`)
+        .attr("fill", "none")
+        .attr("stroke", "#FF9A0A")
+        .attr("d", diagonal);
+    }
   }
 };
 </script>

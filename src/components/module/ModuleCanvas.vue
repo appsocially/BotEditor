@@ -6,6 +6,7 @@
         //item-edge(v-for='item in edgesArray' :id='item.id' :key='item.id' :content='item')
         svg#lineForPreview
         svg#previewLineForGoTo
+        item-edge(v-for='item in edgesArray' :content='item' :ref='item.id' :key="item.key")
         //item-edge(v-for='item in edges' :content='item')
       item-node-selector(@addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage' @addOpenQuestionMessage='addOpenQuestionMessage' @selectToNodeByGoTo='selectToNodeByGoTo')
 
@@ -47,6 +48,7 @@
         position: absolute;
         width: 100%;
         height: 100%;
+        background: transparent;
         path {
           pointer-events: all;
           cursor: pointer;
@@ -147,6 +149,15 @@ export default {
       completeLoadingLine: false,
     }
   },
+  // watch: {
+  //   edgesArray: function(newVal, oldVal){
+  //     // this.loadAllEdges()
+  //     if(JSON.stringify(newVal) !== JSON.stringify(oldVal)){
+  //       console.log("watching!!!")
+  //       this.loadAllEdges()
+  //     }
+  //   }
+  // },
   created: async function(){
 
     await this.loadScenarioByProjectId(this.projectId);
@@ -161,18 +172,20 @@ export default {
     window.updateNodePosition = this.updateNodePosition; // nodeController.jsで読んでる
     window.connectNode = this.connectNodeForNodeController;
 
+    window.loadAllEdges = this.loadAllEdges;
+    window.addEdge = this.addEdge;
+    window.updateEdge = this.updateEdge;
+
     this.startPointNode = entity.getStartPointNode(this.scenarioArray);
     this.normalMessageNodes = entity.getNormalNodes(this.scenarioArray);
     this.selectionNodes = entity.getSelectionNodes(this.scenarioArray);
     this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray);
     this.goToNodes = entity.getGoToNodes(this.scenarioArray);
     
-  },
-  mounted: function(){
+    // setInterval(this.loadAllEdges, 1000)
 
   },
   updated: function(){
-    
     if(!this.completeLoadingLine){
       this.loadAllEdges();
       this.completeLoadingLine = true;
@@ -200,7 +213,10 @@ export default {
       this.project = this.project;
     },
     loadAllEdges(){
+      this.edgesArray = []
+
       var scenario = this.scenarioArray;
+
       var points = [];
       for(var i=0; i<scenario.length; i++){
         if((scenario[i].nodeType=='single'  || scenario[i].nodeType=='point') && scenario[i].next){
@@ -210,40 +226,66 @@ export default {
         } // if
       } // for
 
-      var pointsBetweenNodes = points; 
+      var pointsBetweenNodes = points;
       
       for(var i=0; i<pointsBetweenNodes.length; i++){
         var points = pointsBetweenNodes[i];
         this.addEdge(points.from, points.to, points.id);
       }
+      console.log("edgesArray[loadAllEdges]", this.edgesArray)
+      this.edgesArray = this.edgesArray
     },
+    // addEdge(from, to, id){
+
+    //   var data = [
+    //     {
+    //       source: {x: from.x, y: from.y},
+    //       target: {x: to.x, y: to.y}
+    //     }
+    //   ];
+
+    //   var diagonal = d3.svg.diagonal();
+
+    //   var lines = d3.select('#lines');
+    //   lines.select(`#line-${id}`).remove();
+    //   lines.append('svg').attr("id", `line-${id}`);
+
+    //   var svg = d3.select('#lines').select(`#line-${id}`);
+    //   var path = svg.selectAll("path").data(data).enter()
+    //     .append("path")
+    //     .attr("id", `line-${id}`)
+    //     .attr("fill", "none")
+    //     .attr("stroke", "#FF9A0A")
+    //     .attr("d", diagonal);
+      
+    // },
     addEdge(from, to, id){
-
-      var data = [
-        {
-          source: {x: from.x, y: from.y},
-          target: {x: to.x, y: to.y}
-        }
-      ];
-
-      var diagonal = d3.svg.diagonal();
-
-      var lines = d3.select('#lines');
-      lines.select(`#line-${id}`).remove();
-      lines.append('svg').attr("id", `line-${id}`);
-
-      var svg = d3.select('#lines').select(`#line-${id}`);
-      var path = svg.selectAll("path").data(data).enter()
-        .append("path")
-        .attr("id", `line-${id}`)
-        .attr("fill", "none")
-        .attr("stroke", "#FF9A0A")
-        .attr("d", diagonal);
-      
+      // console.log("before", this.edgesArray)
+      this.edgesArray.push({
+        from: from,
+        to: to,
+        id: id
+      })
+      if(this.$refs[id]) this.$refs[id][0].draw()      
+      // this.edgesArray = this.edgesArray
+      // console.log("after", this.edgesArray)
     },
-    /*removeLine(id){
-      
-    },*/
+    updateEdge(from, to, id){
+      for(var i=0; i<this.edgesArray.length; i++){
+        if(this.edgesArray[i].id === id){
+          this.edgesArray[i].from = from
+          this.edgesArray[i].to = to
+          this.$refs[id][0].draw()
+        }
+      }
+    },
+    removeEdge(id){
+      console.log("before", this.edgesArray)
+      this.edgesArray = this.edgesArray.filter((e) => {
+        return e.id !== id
+      })
+      console.log("after", this.edgesArray)
+    },
     getCoordinatesOfSingleNode(event){
 
       var points = [];
@@ -378,9 +420,9 @@ export default {
 
     },
     removeNormalMessageNode(id){
-      for(var i=0; i<this.normalMessageNodes.length; i++){
-        if(this.normalMessageNodes[i].id==id) this.normalMessageNodes.splice(i,1);
-      }
+      this.normalMessageNodes = this.normalMessageNodes.filter(e => {
+        return e.id !== id
+      })
       this.deleteNode(id);
       this.disconnectNode(id);
     },
@@ -429,9 +471,9 @@ export default {
 
     },
     removeSelectionMessage(id){
-      for(var i=0; i<this.selectionNodes.length; i++){
-        if(this.selectionNodes[i].id==id) this.selectionNodes.splice(i,1);
-      }
+      this.selectionNodes = this.selectionNodes.filter(e => {
+        return e.id !== id
+      })
       this.deleteNode(id);
       this.disconnectNode(id);
     },
@@ -467,9 +509,9 @@ export default {
 
     },
     removeOpenQuestionNode(id){
-      for(var i=0; i<this.openQuestionNodes.length; i++){
-        if(this.openQuestionNodes[i].id==id) this.openQuestionNodes.splice(i,1);
-      }
+      this.openQuestionNodes = this.openQuestionNodes.filter(e => {
+        return e.id !== id
+      })
       this.deleteNode(id);
       this.disconnectNode(id);
     },
@@ -507,9 +549,9 @@ export default {
 
     },
     removeGoToNode(id){
-      for(var i=0; i<this.goToNodes.length; i++){
-        if(this.goToNodes[i].id==id) this.goToNodes.splice(i,1);
-      }
+      this.goToNodes = this.goToNodes.filter(e => {
+        return e.id !== id
+      })
       
       this.deleteNode(id);
       this.disconnectNode(id);

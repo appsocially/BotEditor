@@ -166,11 +166,6 @@ export default {
 
 
   },
-  watch: {
-    message: function(newVal, oldVal){
-      
-    }
-  },
   methods: {
     ...mapMutations([
       'set'

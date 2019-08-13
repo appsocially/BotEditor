@@ -10,7 +10,7 @@
             input(v-model='botName' placeholder='Bot Name').px4.py8
           span(@click='createNewBot').create-button.px12.f.fh Create Bot
         div.wrap-projects.mt20.pb40
-          // span(@click="addConditionToAllNodes") update
+          span(@click="addConditionToAllNodes") update
           div(v-for='item in projects' @click='toCanvas(item.id)').project.mb12.f.fh
             div
               span.title.mb18 {{item.title}}

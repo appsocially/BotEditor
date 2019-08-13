@@ -99,5 +99,73 @@ entity.getNodesThatConnectFrom = function(scenario, id){
   return nodes;
 }
 
+entity.getEdgesThatConnectTo = function(scenario, id){
+  var edges = [];
+  for (var i = 0; i < scenario.length; i++) {
+    if(scenario[i].nodeType == 'single' || scenario[i].nodeType=='point'){
+      if(scenario[i].conditions){
+        var targetConditions = scenario[i].conditions.filter((e) => {return (e.next==id)})
+        targetConditions.map((e) => { 
+          var c = e
+          c.fromNodeId = scenario[i].id
+          return c
+        })
+        edges = edges.concat(targetConditions)
+      }
+    }
+    if(scenario[i].nodeType == 'group'){
+      var selections = scenario[i].selections;
+      for(var j=0; j<selections.length; j++){
+        if(selections[j].conditions){
+          var targetConditions = selections[j].conditions.filter((e) => {return (e.next==id)})
+          targetConditions.map((e) => { 
+            var c = e
+            c.fromNodeId = selections[j].id
+            return c
+          })
+          edges = edges.concat(targetConditions)
+        }
+      }
+    }
+  }
+  return edges;
+}
+
+entity.getEdgesThatConnectFrom = function(scenario, id){
+  var edges = [];
+
+  var targetNode = scenario.filter((e) => {
+    return (id == e.id)
+  })[0]
+  
+  if(targetNode.nodeType == 'single' || targetNode.nodeType=='point'){
+    if(targetNode.conditions){
+      var targetConditions = targetNode.conditions
+      targetConditions.map((e) => { 
+        var c = e
+        c.fromNodeId = targetNode.id
+        return c
+      })
+      edges = edges.concat(targetConditions)
+    }
+  }
+  
+  if(targetNode.nodeType == 'group'){
+    var selections = targetNode.selections;
+    for(var j=0; j<selections.length; j++){
+      if(selections[j].conditions){
+        var targetConditions = selections[j].conditions
+        targetConditions.map((e) => { 
+          var c = e
+          c.fromNodeId = selections[j].id
+          return c
+        })
+        edges = edges.concat(targetConditions)
+      }
+    }
+  }
+
+  return edges;
+}
 
 export default entity;

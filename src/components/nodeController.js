@@ -25,7 +25,7 @@ function dragstartedOnNode(d) {
   d3.event.sourceEvent.stopPropagation();
 }
 
-function dragmoveOnNode(d) { 
+function dragmoveOnNode(d) {
 
   d.pos.x += d3.event.dx;
   d.pos.y += d3.event.dy;
@@ -50,50 +50,112 @@ function dragmoveOnNode(d) {
   }
   */
 
-  var connectedNodes = entity.getNodesThatConnectFrom(window.scenarioArray, d.id);
+  // var connectedNodes = entity.getNodesThatConnectFrom(window.scenarioArray, d.id);
   
-  for(var i=0; i<connectedNodes.length; i++){
-    var node = connectedNodes[i];
-    var id = node.id;
+  // for(var i=0; i<connectedNodes.length; i++){
+  //   var node = connectedNodes[i];
+  //   var id = node.id;
 
-    var svg = d3.select(`#line-${node.id}`);
-    var path = svg.selectAll("path");
+  //   var svg = d3.select(`#line-${node.id}`);
+  //   var path = svg.selectAll("path");
+
+  //   if(path[0] && path[0][0]){
+  //     var data = path[0][0].__data__;
+
+  //     path.remove();
+
+  //     data.source.x += d3.event.dx;
+  //     data.source.y += d3.event.dy;
+
+  //     window.updateEdge(data.source, data.target, id);
+  //     // drawLine(data.source, data.target, id);
+  //   }
+
+  // 対象のノードにつながっているlineの座標を変更
+  // var connectedNodes = entity.getNodesThatConnectTo(window.scenarioArray, d.id);
+  
+  // for(var i=0; i<connectedNodes.length; i++){
+  //   var node = connectedNodes[i];
+  //   var id = node.id;
+
+  //   var svg = d3.select(`#line-${id}`);
+  //   var path = svg.selectAll("path");
+  //   path.remove();
+
+  //   if(path[0] && path[0][0]){
+  //     var data = path[0][0].__data__;
+
+  //     data.target.x += d3.event.dx;
+  //     data.target.y += d3.event.dy;
+
+  //     window.updateEdge(data.source, data.target, id);
+  //     // drawLine(data.source, data.target, id);
+  //   }
+  // }
+
+  var connectedEdges = entity.getEdgesThatConnectTo(window.scenarioArray, d.id);
+  
+  for(var i=0; i<connectedEdges.length; i++){
+
+    var id = `${connectedEdges[i].type}-${connectedEdges[i].fromNodeId}`
+    var svg = d3.select(`#line-${id}`)
+    var path = svg.selectAll("path")
 
     if(path[0] && path[0][0]){
-      var data = path[0][0].__data__;
+      var data = path[0][0].__data__
 
-      path.remove();
+      path.remove()
 
-      data.source.x += d3.event.dx;
-      data.source.y += d3.event.dy;
+      data.target.x += d3.event.dx
+      data.target.y += d3.event.dy
 
-      window.updateEdge(data.source, data.target, id);
+      window.updateEdge(data.source, data.target, id)
       // drawLine(data.source, data.target, id);
+    }
+  }
+
+  // 対象のノードから繋がってるedgeの始点を変更しようとしているところ
+
+  var growingEdges = entity.getEdgesThatConnectFrom(window.scenarioArray, d.id);
+  
+  for(var i=0; i<growingEdges.length; i++){
+    var id = `${growingEdges[i].type}-${growingEdges[i].fromNodeId}`
+    var svg = d3.select(`#line-${id}`)
+    var path = svg.selectAll("path")
+
+    if(path[0] && path[0][0]){
+      var data = path[0][0].__data__
+
+      path.remove()
+
+      data.source.x += d3.event.dx
+      data.source.y += d3.event.dy
+
+      window.updateEdge(data.source, data.target, id)
     }
   }
 
   // 対象のノードにつながっているlineの座標を変更
-  var connectedNodes = entity.getNodesThatConnectTo(window.scenarioArray, d.id);
+  // var connectedNodes = entity.getNodesThatConnectTo(window.scenarioArray, d.id);
   
-  for(var i=0; i<connectedNodes.length; i++){
-    var node = connectedNodes[i];
-    var id = node.id;
+  // for(var i=0; i<connectedNodes.length; i++){
+  //   var node = connectedNodes[i];
+  //   var id = node.id;
 
-    var svg = d3.select(`#line-${id}`);
-    var path = svg.selectAll("path");
-    path.remove();
+  //   var svg = d3.select(`#line-${id}`);
+  //   var path = svg.selectAll("path");
+  //   path.remove();
 
-    if(path[0] && path[0][0]){
-      var data = path[0][0].__data__;
+  //   if(path[0] && path[0][0]){
+  //     var data = path[0][0].__data__;
 
-      data.target.x += d3.event.dx;
-      data.target.y += d3.event.dy;
+  //     data.target.x += d3.event.dx;
+  //     data.target.y += d3.event.dy;
 
-      window.updateEdge(data.source, data.target, id);
-      // drawLine(data.source, data.target, id);
-    }
-  }
-
+  //     window.updateEdge(data.source, data.target, id);
+  //     // drawLine(data.source, data.target, id);
+  //   }
+  // }
 
 }
 

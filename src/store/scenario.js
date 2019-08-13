@@ -1,7 +1,6 @@
 import db from "@/components/firebaseInit";
 import entity from "@/components/entity";
 
-
 export const state = ()=>({
   scenarioArray: [],
   scenarioHistory: []
@@ -15,10 +14,37 @@ export const mutations = {
     state.scenarioArray.push(value);
   },
   updateNext(state, value) {
+
+    var getNewConditions = function(node, value) {
+      if(node.conditions){
+        var newConditions = node.conditions
+        // 同じコンディションがすでに含まれているか
+        if(newConditions.filter((e) => { return e.type === value.condition })[0]){
+          newConditions = newConditions.map((e) => {
+            if(e.type === value.condition){
+              var newCondition = {type: e.type, next: value.toId}
+              return newCondition
+            } else {
+              return e
+            }
+          }) // map(e)
+        } else {
+          newConditions.push({type: e.type, next: value.toId})
+        }
+
+      } else {
+        newConditions = [{next: value.toId, type: "else"}]
+      }
+
+      return newConditions
+    }
+
+
     for(var i=0; i<state.scenarioArray.length; i++){
       if(state.scenarioArray[i].nodeType=='single' || state.scenarioArray[i].nodeType=='point'){
         if(state.scenarioArray[i].id==value.fromId){
-          state.scenarioArray[i].next = value.toId;
+          // state.scenarioArray[i].next = value.toId;
+          state.scenarioArray[i].conditions = getNewConditions(state.scenarioArray[i], value)
           return;
         }
 
@@ -27,7 +53,8 @@ export const mutations = {
         var selections = state.scenarioArray[i].selections;
         for(var j=0; j<selections.length; j++){
           if(selections[j].id==value.fromId){
-            selections[j].next = value.toId;
+            // selections[j].next = value.toId;
+            state.scenarioArray[i].selections[j].conditions = getNewConditions(selections[j], value)
             return;
           }
         }
@@ -63,13 +90,25 @@ export const mutations = {
         if(state.scenarioArray[i].next==value){
           delete state.scenarioArray[i].next;
         } 
+        if(state.scenarioArray[i].conditions){
+          state.scenarioArray[i].conditions = state.scenarioArray[i].conditions.filter((e) => {
+            return (e.next !== value)
+          })
+          if(!state.scenarioArray[i].conditions[0]) delete state.scenarioArray[i].conditions;
+        }
 
-      }else if(state.scenarioArray[i].nodeType=='group'){
+      } else if (state.scenarioArray[i].nodeType=='group'){
 
         var selections = state.scenarioArray[i].selections;
         for(var j=0; j<selections.length; j++){
           if(selections[j].next==value){
             delete selections[j].next;
+          }
+          if(selections[j].conditions){
+            state.scenarioArray[i].selections[j].conditions = selections[j].conditions.filter((e) => {
+              return (e.next !== value)
+            })
+            if(!state.scenarioArray[i].selections[j].conditions[0]) delete state.scenarioArray[i].selections[j].conditions
           }
         }
 

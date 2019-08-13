@@ -219,7 +219,7 @@ export default {
 
       var points = [];
       for(var i=0; i<scenario.length; i++){
-        if((scenario[i].nodeType=='single'  || scenario[i].nodeType=='point') && scenario[i].next){
+        if(scenario[i].nodeType=='single'  || scenario[i].nodeType=='point'){ //&& scenario[i].next){
           points = points.concat(this.getCoordinatesOfSingleNode(scenario[i]));
         }else if(scenario[i].nodeType=='group'){
           points = points.concat(this.getCoordinatesOfGroupNode(scenario[i]));
@@ -229,10 +229,9 @@ export default {
       var pointsBetweenNodes = points;
       
       for(var i=0; i<pointsBetweenNodes.length; i++){
-        var points = pointsBetweenNodes[i];
-        this.addEdge(points.from, points.to, points.id);
+        // var points = pointsBetweenNodes[i];
+        this.addEdge(pointsBetweenNodes[i].from, pointsBetweenNodes[i].to, pointsBetweenNodes[i].id);
       }
-      console.log("edgesArray[loadAllEdges]", this.edgesArray)
       this.edgesArray = this.edgesArray
     },
     // addEdge(from, to, id){
@@ -266,7 +265,7 @@ export default {
         to: to,
         id: id
       })
-      if(this.$refs[id]) this.$refs[id][0].draw()      
+      if(this.$refs[id]) this.$refs[id][0].draw()
       // this.edgesArray = this.edgesArray
       // console.log("after", this.edgesArray)
     },
@@ -280,43 +279,62 @@ export default {
       }
     },
     removeEdge(id){
-      console.log("before", this.edgesArray)
       this.edgesArray = this.edgesArray.filter((e) => {
         return e.id !== id
       })
-      console.log("after", this.edgesArray)
+    },
+    removeEdgesThatConnectNodeOf(nodeId){
+      var fromEdges = entity.getEdgesThatConnectFrom(this.scenarioArray, nodeId)
+      var toEdges = entity.getEdgesThatConnectTo(this.scenarioArray, nodeId)
+      var edgesToRemove = fromEdges.concat(toEdges).map((e) => {
+        return `${e.type}-${e.fromNodeId}`
+      })
+      for(var i=0; i<edgesToRemove.length; i++){
+        var lines = d3.select('#lines')
+        lines.select(`#line-${edgesToRemove[i]}`).remove()
+      }
+      this.edgesArray = this.edgesArray.filter((e) => {
+        return (!edgesToRemove.includes(e.id))
+      })
     },
     getCoordinatesOfSingleNode(event){
 
       var points = [];
 
       var node = document.getElementById(event.id);
-      var nextNode = document.getElementById(event.next);
 
-      var from = {};
-      var to = {};
+      if(event.conditions){
 
-      if(event.type == 'start-point'){
-        var startPointOffset = -2;
-      }else{
-        var startPointOffset = 9;
-      }
-      
+        for(var i=0; i<event.conditions.length; i++){
+          var nextNode = document.getElementById(event.conditions[i].next);
 
-      if(node&&nextNode){
-        from.x = node.offsetLeft + node.clientWidth + startPointOffset;
-        from.y = node.offsetTop + node.clientHeight/2;
+          var from = {};
+          var to = {};
 
-        to.x = nextNode.offsetLeft;
-        to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+          if(event.type == 'start-point'){
+            var startPointOffset = -2;
+          }else{
+            var startPointOffset = 9;
+          }
 
-        points.push({
-          from: from,
-          to: to,
-          id: event.id
-        });
-        //return {from: from, to: to, id: scenario[i].id};
-      }
+          if(node&&nextNode){
+            from.x = node.offsetLeft + node.clientWidth + startPointOffset;
+            from.y = node.offsetTop + node.clientHeight/2;
+
+            to.x = nextNode.offsetLeft;
+            to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+
+            points.push({
+              from: from,
+              to: to,
+              id: `${event.conditions[i].type}-${event.id}`,
+              type: event.conditions[i].type
+            });
+            //return {from: from, to: to, id: scenario[i].id};
+          }
+        }
+
+      } // event.conditions
 
       return points;
 
@@ -328,9 +346,11 @@ export default {
       var selections = event.selections;
       
       for(var j=0; j<selections.length; j++){
-        if(selections[j].next){
+        // if(selections[j].next){
+        var conditions = selections[j].conditions
+        if(conditions){
+
           var from = {};
-          var to = {};
 
           var childNode = document.getElementById(selections[j].id);
           var childNodePos = $(childNode).position();
@@ -340,24 +360,29 @@ export default {
 
           var startPointOffset = 9;
 
-
           if(parentNodePos&&childNodePos){
             from.x = parentNodePos.left + childNodePos.left + widthOffset + startPointOffset
             from.y = parentNodePos.top + childNodePos.top + heightOffset;
 
-            var nextNode = document.getElementById(selections[j].next);
+            for(var k=0; k<conditions.length; k++){
+              var nextNode = document.getElementById(conditions[k].next);
 
-            if(nextNode){
-              to.x = nextNode.offsetLeft;
-              to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+              if(nextNode){
+                var to = {};
 
-              points.push({
-                from: from,
-                to: to,
-                id: selections[j].id,
-              });
+                to.x = nextNode.offsetLeft;
+                to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+
+                points.push({
+                  from: from,
+                  to: to,
+                  id: `${conditions[k].type}-${selections[j].id}`,
+                  type: conditions[k].type
+                });
+              }
             }
           }
+
         }
 
       } // for
@@ -403,9 +428,8 @@ export default {
 
       this.normalMessageNodes.push(content);
 
-      this.addEdge(dragStartedPosition, position, dragStartedId);
-
-      this.connectNode({fromId: dragStartedId, toId: content.id});
+      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"});
+      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
 
       this.pushContentToScenario(content);
 
@@ -423,14 +447,17 @@ export default {
       this.normalMessageNodes = this.normalMessageNodes.filter(e => {
         return e.id !== id
       })
+      this.removeEdgesThatConnectNodeOf(id)
+
       this.deleteNode(id);
       this.disconnectNode(id);
+      
     },
     addSelectionMessage(position, dragStartedPosition, dragStartedId){
 
       this.project.nodeNum++;
 
-      var topOffset = 53;
+      var topOffset = 53
 
       var content = {
         author: this.uid,
@@ -450,15 +477,16 @@ export default {
             y: position.y - topOffset
           },
         },
-      };
+      }
 
-      this.selectionNodes.push(content);
+      this.selectionNodes.push(content)
 
-      this.addEdge(dragStartedPosition, position, dragStartedId);
+      this.addEdge(dragStartedPosition, position, dragStartedId)
 
-      this.connectNode({fromId: dragStartedId, toId: content.id});
+      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"})
+      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
 
-      this.pushContentToScenario(content);
+      this.pushContentToScenario(content)
       
       /*
       // ノードがselectionだった場合
@@ -474,6 +502,8 @@ export default {
       this.selectionNodes = this.selectionNodes.filter(e => {
         return e.id !== id
       })
+      this.removeEdgesThatConnectNodeOf(id)
+
       this.deleteNode(id);
       this.disconnectNode(id);
     },
@@ -501,9 +531,8 @@ export default {
       
       this.openQuestionNodes.push(content);
 
-      this.addEdge(dragStartedPosition, position, dragStartedId);
-
-      this.connectNode({fromId: dragStartedId, toId: content.id});
+      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"});
+      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
 
       this.pushContentToScenario(content);
 
@@ -512,6 +541,8 @@ export default {
       this.openQuestionNodes = this.openQuestionNodes.filter(e => {
         return e.id !== id
       })
+      this.removeEdgesThatConnectNodeOf(id)
+
       this.deleteNode(id);
       this.disconnectNode(id);
     },
@@ -541,9 +572,8 @@ export default {
       
       this.goToNodes.push(content);
 
-      this.addEdge(dragStartedPosition, position, dragStartedId);
-
-      this.connectNode({fromId: dragStartedId, toId: content.id});
+      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"});
+      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
 
       this.pushContentToScenario(content);
 
@@ -552,6 +582,8 @@ export default {
       this.goToNodes = this.goToNodes.filter(e => {
         return e.id !== id
       })
+
+      this.removeEdgesThatConnectNodeOf(id)
       
       this.deleteNode(id);
       this.disconnectNode(id);

@@ -23,7 +23,7 @@
   background: #FFF;
   position: absolute;
   border-radius: 12px;
-  z-index: 100;
+  // z-index: 100;
   width: 180px;
   .wrap-text {
     position: relative;
@@ -74,6 +74,7 @@
     bottom: 0px;
     top: calc(100% + 10px);
     width: 100%;
+    z-index: 101;
   }
 
   transition: transform 400ms ease, z-index 400ms ease, box-shadow 200ms ease;
@@ -205,6 +206,7 @@ export default {
         .style('left', `${pos.x}px`)
 
       if(gapOfHeight!=0) this.loadAllEdges()
+      this.loadAllEdges()
     },
     loadAllEdges(){
       this.$emit('loadAllEdges')

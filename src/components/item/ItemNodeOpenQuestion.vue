@@ -236,7 +236,9 @@ export default {
         .style('left', `${pos.x}px`)
 
       // 線を再描画
-      if(gapOfWidth!=0 || gapOfHeight>0) this.$emit('loadAllEdges')
+      // if(gapOfWidth!=0 || gapOfHeight>0) this.$emit('loadAllEdges')
+      this.$emit('loadAllEdges')
+
       //this.$emit('fixEdgeOfNormalNode', this.content)
     },
     downOnExpectedAnswer(e){
@@ -269,7 +271,9 @@ export default {
         .style('left', `${pos.x}px`)
 
       // 線を再描画
-      if(gapOfHeight>0) this.$emit('loadAllEdges')
+      // if(gapOfHeight>0) this.$emit('loadAllEdges')
+      this.$emit('loadAllEdges')
+
       //this.$emit('fixEdgeOfNormalNode', this.content)
     },
     updateNodeContent(){

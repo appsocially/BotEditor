@@ -21,7 +21,6 @@
   background: #FFF;
   position: absolute;
   border-radius: 12px;
-  z-index: 100;
   .wrap-text {
     position: relative;
     .text {
@@ -67,6 +66,7 @@
   }
 
   .wrap-node-window {
+    z-index: 101;
     position: absolute;
     bottom: 0px;
     top: calc(100% + 10px);
@@ -74,6 +74,7 @@
   }
 
   &.focused {
+    z-index: 102 !important;
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     .wrap-delete {
       display: block;

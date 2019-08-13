@@ -1,6 +1,6 @@
 <template lang="pug">
 
-  svg.wrap-item
+  svg(:id="`line-${content.id}`")
     
     
 </template>
@@ -55,11 +55,15 @@ export default {
   },
   created: function(){
     // debugger
-    console.log("ItemEdge created", this.content)
+    // console.log("ItemEdge created", this.content)
   },
   mounted: function(){
     this.draw()
   },
+  // beforeDestroy: function(){
+  //   var lines = d3.select('#lines')
+  //   lines.select(`#line-${this.content.id}`).remove()
+  // },
   // update: function(){
   //   console.log("ItemEdge updated", this.content.id)
   // },
@@ -67,9 +71,9 @@ export default {
     draw() {
       // console.log("ItemEdge draw", this.content.id)
 
-      var id = this.content.id;
-      var from = this.content.from;
-      var to = this.content.to;
+      var id = this.content.id
+      var from = this.content.from
+      var to = this.content.to
 
       this.from = from
       this.to = to
@@ -79,21 +83,21 @@ export default {
           source: {x: from.x, y: from.y},
           target: {x: to.x, y: to.y}
         }
-      ];
+      ]
 
-      var diagonal = d3.svg.diagonal();
+      var diagonal = d3.svg.diagonal()
 
-      var lines = d3.select('#lines');
-      lines.select(`#line-${id}`).remove();
-      lines.append('svg').attr("id", `line-${id}`);
+      var lines = d3.select('#lines')
+      lines.select(`#line-${id}`).remove()
+      lines.append('svg').attr("id", `line-${id}`)
 
-      var svg = d3.select('#lines').select(`#line-${id}`);
+      var svg = d3.select('#lines').select(`#line-${id}`)
       var path = svg.selectAll("path").data(data).enter()
         .append("path")
         .attr("id", `line-${id}`)
         .attr("fill", "none")
         .attr("stroke", "#FF9A0A")
-        .attr("d", diagonal);
+        .attr("d", diagonal)
     }
   }
 };

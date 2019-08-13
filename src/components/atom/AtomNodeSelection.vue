@@ -128,7 +128,8 @@ export default {
         .style('left', `${pos.x}px`);
       */
 
-      if(gapOfHeight!=0) this.$emit('loadAllEdges');
+      // if(gapOfHeight!=0) this.$emit('loadAllEdges')
+      this.$emit('loadAllEdges')
     },
     addNewNode(){
       console.log('Add Single New Node');

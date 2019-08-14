@@ -259,15 +259,13 @@ export default {
       
     // },
     addEdge(from, to, id){
-      // console.log("before", this.edgesArray)
       this.edgesArray.push({
         from: from,
         to: to,
         id: id
       })
-      if(this.$refs[id]) this.$refs[id][0].draw()
+      if(this.$refs[id] && this.$refs[id][0]) this.$refs[id][0].draw()
       // this.edgesArray = this.edgesArray
-      // console.log("after", this.edgesArray)
     },
     updateEdge(from, to, id){
       for(var i=0; i<this.edgesArray.length; i++){
@@ -287,7 +285,8 @@ export default {
       var fromEdges = entity.getEdgesThatConnectFrom(this.scenarioArray, nodeId)
       var toEdges = entity.getEdgesThatConnectTo(this.scenarioArray, nodeId)
       var edgesToRemove = fromEdges.concat(toEdges).map((e) => {
-        return `${e.type}-${e.fromNodeId}`
+        return e.id
+        // return `${e.type}-${e.fromNodeId}`
       })
       for(var i=0; i<edgesToRemove.length; i++){
         var lines = d3.select('#lines')
@@ -323,11 +322,11 @@ export default {
 
             to.x = nextNode.offsetLeft;
             to.y = nextNode.offsetTop + nextNode.clientHeight/2;
-
+            
             points.push({
               from: from,
               to: to,
-              id: `${event.conditions[i].type}-${event.id}`,
+              id: event.conditions[i].id,//`${event.conditions[i].type}-${event.id}`,
               type: event.conditions[i].type
             });
             //return {from: from, to: to, id: scenario[i].id};
@@ -376,7 +375,7 @@ export default {
                 points.push({
                   from: from,
                   to: to,
-                  id: `${conditions[k].type}-${selections[j].id}`,
+                  id: conditions[k].id,//`${conditions[k].type}-${selections[j].id}`,
                   type: conditions[k].type
                 });
               }
@@ -397,19 +396,19 @@ export default {
 
     },
     connectNodeForNodeController(fromId, toId){
-      this.connectNode(fromId, toId);
-      this.loadAllEdges();
+      this.connectNode(fromId, toId)
+      this.loadAllEdges()
     },
     updateNodePosition(id, pos){
-      var content = entity.getContent(this.scenarioArray, id);
-      content.gui.position = pos;
-      this.updateNode(content);
+      var content = entity.getContent(this.scenarioArray, id)
+      content.gui.position = pos
+      this.updateNode(content)
     },
     addNormalMessage(position, dragStartedPosition, dragStartedId){
 
-      this.project.nodeNum++;
+      this.project.nodeNum++
 
-      var topOffset = 15;
+      var topOffset = 15
       
       var content = {
         author: this.uid,
@@ -424,23 +423,22 @@ export default {
             y: position.y - topOffset
           },
         }
-      };
-
-      this.normalMessageNodes.push(content);
-
-      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"});
-      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
-
-      this.pushContentToScenario(content);
-
-      /*
-      // ノードがselectionだった場合
-      if(dragStartedId.indexOf('selection')>-1){
-        this.connectNode({fromId: dragStartedId, toId: content.id});
-      }else{
-        this.connectNode({fromId: dragStartedId, toId: content.id});
       }
-      */
+
+      this.normalMessageNodes.push(content)
+
+      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
+      // default conditionを足そうとしているところ   
+      if(fromNodeEdges.length === 0){
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
+      } else {
+        var uniqueStr = this.createRandomUniqueStr()
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
+      }
+
+      this.pushContentToScenario(content)
 
     },
     removeNormalMessageNode(id){
@@ -449,9 +447,8 @@ export default {
       })
       this.removeEdgesThatConnectNodeOf(id)
 
-      this.deleteNode(id);
-      this.disconnectNode(id);
-      
+      this.deleteNode(id)
+      this.disconnectNode(id)
     },
     addSelectionMessage(position, dragStartedPosition, dragStartedId){
 
@@ -481,10 +478,19 @@ export default {
 
       this.selectionNodes.push(content)
 
-      this.addEdge(dragStartedPosition, position, dragStartedId)
+      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
+      // default conditionを足そうとしているところ   
+      if(fromNodeEdges.length === 0){
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
+      } else {
+        var uniqueStr = this.createRandomUniqueStr()
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
+      }
 
-      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"})
-      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
+      // this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
+      // this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
 
       this.pushContentToScenario(content)
       
@@ -531,8 +537,19 @@ export default {
       
       this.openQuestionNodes.push(content);
 
-      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"});
-      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
+      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
+      // default conditionを足そうとしているところ   
+      if(fromNodeEdges.length === 0){
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
+      } else {
+        var uniqueStr = this.createRandomUniqueStr()
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
+      }
+
+      // this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`});
+      // this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
 
       this.pushContentToScenario(content);
 
@@ -572,8 +589,19 @@ export default {
       
       this.goToNodes.push(content);
 
-      this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else"});
-      this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
+      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
+      // default conditionを足そうとしているところ   
+      if(fromNodeEdges.length === 0){
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
+      } else {
+        var uniqueStr = this.createRandomUniqueStr()
+        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
+        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
+      }
+      
+      // this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`});
+      // this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
 
       this.pushContentToScenario(content);
 
@@ -620,6 +648,9 @@ export default {
       }, nodeClickHandler);
 
     },
+    createRandomUniqueStr(){
+      return Math.random().toString(36).slice(-4);
+    }
   },
   computed: {
     ...mapState([

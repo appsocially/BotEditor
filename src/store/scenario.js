@@ -22,18 +22,19 @@ export const mutations = {
         if(newConditions.filter((e) => { return e.type === value.condition })[0]){
           newConditions = newConditions.map((e) => {
             if(e.type === value.condition){
-              var newCondition = {type: e.type, next: value.toId}
+              var newCondition = {type: e.type, next: value.toId, id: value.id}
               return newCondition
             } else {
               return e
             }
           }) // map(e)
-        } else {
-          newConditions.push({type: e.type, next: value.toId})
+        // 同じコンディションがすでに含まれていなければ新しいコンディションとして足す
+        } else { 
+          newConditions.push({type: value.condition, next: value.toId, id: value.id})
         }
 
       } else {
-        newConditions = [{next: value.toId, type: "else"}]
+        newConditions = [{next: value.toId, type: "else", id: value.id}]
       }
 
       return newConditions
@@ -94,15 +95,15 @@ export const mutations = {
           state.scenarioArray[i].conditions = state.scenarioArray[i].conditions.filter((e) => {
             return (e.next !== value)
           })
-          if(!state.scenarioArray[i].conditions[0]) delete state.scenarioArray[i].conditions;
+          if(!state.scenarioArray[i].conditions[0]) delete state.scenarioArray[i].conditions
         }
 
       } else if (state.scenarioArray[i].nodeType=='group'){
 
-        var selections = state.scenarioArray[i].selections;
+        var selections = state.scenarioArray[i].selections
         for(var j=0; j<selections.length; j++){
           if(selections[j].next==value){
-            delete selections[j].next;
+            delete selections[j].next
           }
           if(selections[j].conditions){
             state.scenarioArray[i].selections[j].conditions = selections[j].conditions.filter((e) => {

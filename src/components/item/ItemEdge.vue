@@ -91,12 +91,15 @@ export default {
       lines.select(`#line-${id}`).remove()
       lines.append('svg').attr("id", `line-${id}`)
 
+      var dasharray = (this.content.id.split("-")[0] === "else")? "0 0": "6 6"
+
       var svg = d3.select('#lines').select(`#line-${id}`)
       var path = svg.selectAll("path").data(data).enter()
         .append("path")
         .attr("id", `line-${id}`)
         .attr("fill", "none")
         .attr("stroke", "#FF9A0A")
+        .attr("stroke-dasharray", dasharray)
         .attr("d", diagonal)
     }
   }

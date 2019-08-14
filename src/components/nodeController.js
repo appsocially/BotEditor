@@ -97,7 +97,8 @@ function dragmoveOnNode(d) {
   
   for(var i=0; i<connectedEdges.length; i++){
 
-    var id = `${connectedEdges[i].type}-${connectedEdges[i].fromNodeId}`
+    var id = connectedEdges[i].id
+    
     var svg = d3.select(`#line-${id}`)
     var path = svg.selectAll("path")
 
@@ -114,12 +115,11 @@ function dragmoveOnNode(d) {
     }
   }
 
-  // 対象のノードから繋がってるedgeの始点を変更しようとしているところ
-
+  // 対象のノードから繋がってるedgeの始点を変更
   var growingEdges = entity.getEdgesThatConnectFrom(window.scenarioArray, d.id);
   
   for(var i=0; i<growingEdges.length; i++){
-    var id = `${growingEdges[i].type}-${growingEdges[i].fromNodeId}`
+    var id = growingEdges[i].id
     var svg = d3.select(`#line-${id}`)
     var path = svg.selectAll("path")
 
@@ -254,9 +254,10 @@ function dragendedOnConnectStarter(d) {
   if(!window.isHoveringOnNode){
     // 多分これやっちゃいけないやつ
     window.updateSelectorPosition(this.to, this.from, d.nodeId);
-  }else{
+  } else {
     $('#lineForPreview').hide();
-    window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id});
+    
+    window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id, condition: "else", id: `else-${d.nodeId}`});
 
     var to = {
       x: $(`#${window.nodeHovering.id}`).position().left,

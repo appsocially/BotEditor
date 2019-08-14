@@ -221,7 +221,8 @@ export default {
                 selections[s_i].conditions = [
                   {
                     type: "else",
-                    next: selections[s_i].next
+                    next: selections[s_i].next,
+                    id: "else-"+selections[s_i].id
                   }
                 ]
               }
@@ -235,7 +236,8 @@ export default {
               nodes[n_i].conditions = [
                 {
                   type: "else",
-                  next: nodes[n_i].next
+                  next: nodes[n_i].next,
+                  id: "else-"+nodes[n_i].id
                 }
               ]
               db.collection("projects").doc(ids[i])

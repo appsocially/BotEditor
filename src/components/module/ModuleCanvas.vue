@@ -160,27 +160,27 @@ export default {
   // },
   created: async function(){
 
-    await this.loadScenarioByProjectId(this.projectId);
-    console.log('module-canvas (scenarioArray)', this.scenarioArray);
+    await this.loadScenarioByProjectId(this.projectId)
+    console.log('module-canvas (scenarioArray)', this.scenarioArray)
 
     // これ多分やっちゃいけないやつ
-    window.scenarioArray = this.scenarioArray;
-    window.project = this.project;
+    window.scenarioArray = this.scenarioArray
+    window.project = this.project
 
     // 多分もっといい方法がありそう。
-    window.addGoTo = this.addGoTo; // itemSelectorで呼び出してる
-    window.updateNodePosition = this.updateNodePosition; // nodeController.jsで読んでる
-    window.connectNode = this.connectNodeForNodeController;
+    window.addGoTo = this.addGoTo // itemSelectorで呼び出してる
+    window.updateNodePosition = this.updateNodePosition // nodeController.jsで読んでる
+    window.connectNode = this.connectNodeForNodeController
 
-    window.loadAllEdges = this.loadAllEdges;
-    window.addEdge = this.addEdge;
-    window.updateEdge = this.updateEdge;
+    window.loadAllEdges = this.loadAllEdges
+    window.addEdge = this.addEdge
+    window.updateEdge = this.updateEdge
 
-    this.startPointNode = entity.getStartPointNode(this.scenarioArray);
-    this.normalMessageNodes = entity.getNormalNodes(this.scenarioArray);
-    this.selectionNodes = entity.getSelectionNodes(this.scenarioArray);
-    this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray);
-    this.goToNodes = entity.getGoToNodes(this.scenarioArray);
+    this.startPointNode = entity.getStartPointNode(this.scenarioArray)
+    this.normalMessageNodes = entity.getNormalNodes(this.scenarioArray)
+    this.selectionNodes = entity.getSelectionNodes(this.scenarioArray)
+    this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray)
+    this.goToNodes = entity.getGoToNodes(this.scenarioArray)
     
     // setInterval(this.loadAllEdges, 1000)
 
@@ -234,30 +234,6 @@ export default {
       }
       this.edgesArray = this.edgesArray
     },
-    // addEdge(from, to, id){
-
-    //   var data = [
-    //     {
-    //       source: {x: from.x, y: from.y},
-    //       target: {x: to.x, y: to.y}
-    //     }
-    //   ];
-
-    //   var diagonal = d3.svg.diagonal();
-
-    //   var lines = d3.select('#lines');
-    //   lines.select(`#line-${id}`).remove();
-    //   lines.append('svg').attr("id", `line-${id}`);
-
-    //   var svg = d3.select('#lines').select(`#line-${id}`);
-    //   var path = svg.selectAll("path").data(data).enter()
-    //     .append("path")
-    //     .attr("id", `line-${id}`)
-    //     .attr("fill", "none")
-    //     .attr("stroke", "#FF9A0A")
-    //     .attr("d", diagonal);
-      
-    // },
     addEdge(from, to, id){
       this.edgesArray.push({
         from: from,
@@ -266,6 +242,22 @@ export default {
       })
       if(this.$refs[id] && this.$refs[id][0]) this.$refs[id][0].draw()
       // this.edgesArray = this.edgesArray
+    },
+    // セレクターからノードを追加した時に、そのノードを繋げるエッジを追加する
+    addEdgeFromSelector(fromId, toId, dragStartedPosition, position){
+      var fromNodeEdges = entity.getConditions(this.scenarioArray, fromId)
+      var elseEdge = fromNodeEdges.filter((e) => {
+        return (e.type === "else")
+      })[0]
+      
+      if(elseEdge){
+        var uniqueStr = this.createRandomUniqueStr()
+        this.connectNode({fromId: fromId, toId: toId, condition: "default", id: `default-${uniqueStr}-${fromId}`})
+        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${fromId}`)
+      } else {
+        this.connectNode({fromId: fromId, toId: toId, condition: "else", id: `else-${fromId}`})
+        this.addEdge(dragStartedPosition, position, `else-${fromId}`)        
+      }
     },
     updateEdge(from, to, id){
       for(var i=0; i<this.edgesArray.length; i++){
@@ -427,16 +419,7 @@ export default {
 
       this.normalMessageNodes.push(content)
 
-      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
-      // default conditionを足そうとしているところ   
-      if(fromNodeEdges.length === 0){
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
-      } else {
-        var uniqueStr = this.createRandomUniqueStr()
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
-      }
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
       this.pushContentToScenario(content)
 
@@ -478,19 +461,7 @@ export default {
 
       this.selectionNodes.push(content)
 
-      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
-      // default conditionを足そうとしているところ   
-      if(fromNodeEdges.length === 0){
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
-      } else {
-        var uniqueStr = this.createRandomUniqueStr()
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
-      }
-
-      // this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
-      // this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
       this.pushContentToScenario(content)
       
@@ -537,19 +508,7 @@ export default {
       
       this.openQuestionNodes.push(content);
 
-      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
-      // default conditionを足そうとしているところ   
-      if(fromNodeEdges.length === 0){
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
-      } else {
-        var uniqueStr = this.createRandomUniqueStr()
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
-      }
-
-      // this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`});
-      // this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
       this.pushContentToScenario(content);
 
@@ -589,19 +548,7 @@ export default {
       
       this.goToNodes.push(content);
 
-      var fromNodeEdges = entity.getConditions(this.scenarioArray, dragStartedId)
-      // default conditionを足そうとしているところ   
-      if(fromNodeEdges.length === 0){
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`)
-      } else {
-        var uniqueStr = this.createRandomUniqueStr()
-        this.connectNode({fromId: dragStartedId, toId: content.id, condition: "default", id: `default-${uniqueStr}-${dragStartedId}`})
-        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${dragStartedId}`)
-      }
-      
-      // this.connectNode({fromId: dragStartedId, toId: content.id, condition: "else", id: `else-${dragStartedId}`});
-      // this.addEdge(dragStartedPosition, position, `else-${dragStartedId}`);
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
       this.pushContentToScenario(content);
 
@@ -649,7 +596,7 @@ export default {
 
     },
     createRandomUniqueStr(){
-      return Math.random().toString(36).slice(-4);
+      return Math.random().toString(36).slice(-4)
     }
   },
   computed: {

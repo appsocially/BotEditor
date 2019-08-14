@@ -257,14 +257,25 @@ function dragendedOnConnectStarter(d) {
   } else {
     $('#lineForPreview').hide();
     
-    window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id, condition: "else", id: `else-${d.nodeId}`});
+    var fromNodeEdges = entity.getConditions(window.scenarioArray, d.nodeId)
+    var elseEdge = fromNodeEdges.filter((e) => {
+      return (e.type === "else")
+    })[0]
+
+    if(elseEdge){
+      var uniqueStr = Math.random().toString(36).slice(-4)
+      window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id, condition: "default", id: `default-${uniqueStr}-${d.nodeId}`});
+    } else {
+      window.connectNode({fromId: d.nodeId, toId: window.nodeHovering.id, condition: "else", id: `else-${d.nodeId}`});
+    }
 
     var to = {
       x: $(`#${window.nodeHovering.id}`).position().left,
       y: $(`#${window.nodeHovering.id}`).position().top + $(`#${window.nodeHovering.id}`).height()/2
     }
-    console.log("d.nodeId", d.nodeId)
-    window.updateEdge(this.from, to, d.nodeId)
+
+    // console.log("d.nodeId", d.nodeId)
+    // window.updateEdge(this.from, to, d.nodeId)
     
     setTimeout(window.loadAllEdges, 10)
     // window.addEdge(this.from, to, d.nodeId)

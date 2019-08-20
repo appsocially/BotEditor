@@ -10,6 +10,7 @@
 <style lang="scss">
 
 .wrap-item {
+  z-index: 100;
   background: #FFF;
   position: absolute;
   border-radius: 12px;

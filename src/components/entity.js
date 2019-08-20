@@ -201,4 +201,32 @@ entity.getConditions = function(scenario, id){
   return conditions;
 }
 
+entity.getContentByConditionId = function(scenario, id){
+
+  var content
+  for(var i=0; i<scenario.length; i++){
+    if(scenario[i].nodeType === "single" || scenario[i].nodeType === "point"){
+      if(scenario[i].conditions){
+        content = scenario[i].conditions.filter((e) => {
+          return (e.id === id)
+        })[0]
+
+        if(content) return scenario[i]
+      }
+    } else {
+      var selections = scenario[i].selections
+      for(var s_i=0; s_i < selections.length; s_i++){
+        if(selections[s_i].conditions){
+          content = selections[s_i].conditions.filter((e) => {
+            return (e.id === id)
+          })[0]
+
+          if(content) return selections[s_i]
+        }
+      }
+    }
+  }
+
+}
+
 export default entity;

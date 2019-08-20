@@ -6,9 +6,10 @@
         //item-edge(v-for='item in edgesArray' :id='item.id' :key='item.id' :content='item')
         svg#lineForPreview
         svg#previewLineForGoTo
-        item-edge(v-for='item in edgesArray' :content='item' :ref='item.id' :key="item.key")
+        item-edge(v-for='item in edgesArray' :content='item' :ref='item.id' :key="item.key" @openEdgeWindow="openEdgeWindow")
         //item-edge(v-for='item in edges' :content='item')
       item-node-selector(@addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage' @addOpenQuestionMessage='addOpenQuestionMessage' @selectToNodeByGoTo='selectToNodeByGoTo')
+      item-edge-window(ref="edgeWindow" @updateEdgeType="updateEdgeType")
 
       item-node-start-point(v-if='startPointNode' :content='startPointNode')
       item-node-simple-message(v-for='item in normalMessageNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeNormalMessageNode='removeNormalMessageNode' @loadAllEdges='loadAllEdges' @fixEdgeOfNormalNode='fixEdgeOfNormalNode').item-node-simple-message
@@ -16,6 +17,7 @@
       item-node-open-question(v-for='item in openQuestionNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeOpenQuestionNode='removeOpenQuestionNode' @loadAllEdges='loadAllEdges').item-node-open-question
       item-node-go-to(v-for='item in goToNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeGoToNode='removeGoToNode' @loadAllEdges='loadAllEdges').item-node-go-to
       
+      div(@click="closeToolWindows")#canvasBg
       div#modalOverlay
       
 </template>
@@ -35,9 +37,9 @@
     width: 100000px;
     max-width: 100000px;
     height: 100000px;
-    background: #F7F7F7;
-    background-size: 52px 52px;
-    background-image: linear-gradient(to right, rgba(100,100,100,0.1) 0.5px, transparent 1px), linear-gradient(to bottom, rgba(100,100,100,0.1) 0.3px, transparent 1px);
+    // background: #F7F7F7;
+    // background-size: 52px 52px;
+    // background-image: linear-gradient(to right, rgba(100,100,100,0.1) 0.5px, transparent 1px), linear-gradient(to bottom, rgba(100,100,100,0.1) 0.3px, transparent 1px);
     .wrap-lines {
       position: relative;
       z-index: 101;
@@ -60,6 +62,17 @@
       .show {
         display: block;
       }
+    }
+    #canvasBg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100000px;
+      max-width: 100000px;
+      height: 100000px;
+      background: #F7F7F7;
+      background-size: 52px 52px;
+      background-image: linear-gradient(to right, rgba(100,100,100,0.1) 0.5px, transparent 1px), linear-gradient(to bottom, rgba(100,100,100,0.1) 0.3px, transparent 1px);
     }
     #modalOverlay {
       display: none;
@@ -85,34 +98,37 @@
 </style>
 
 <script>
-import db from "../firebaseInit";
+import db from "../firebaseInit"
 
-import { createNamespacedHelpers } from "vuex";
-import Auth from '@/components/auth';
+import { createNamespacedHelpers } from "vuex"
+import Auth from '@/components/auth'
 const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
  "auth"
-);
+)
 const { mapState, mapActions } = createNamespacedHelpers(
  "scenario"
-);
+)
 const { mapGetters: mapEdgesGetters } = createNamespacedHelpers(
  "edges"
-);
+)
 
-import entity from "../entity";
-import exportECA from "../exportECA";
+import entity from "../entity"
+import exportECA from "../exportECA"
 
-import ModuleConversation from "./ModuleConversation";
+import ModuleConversation from "./ModuleConversation"
 
-import ItemNodeSelector from "../item/ItemNodeSelector";
+import ItemNodeSelector from "../item/ItemNodeSelector"
+import ItemEdgeWindow from "../item/ItemEdgeWindow"
 
-import ItemNodeStartPoint from "../item/ItemNodeStartPoint";
-import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage";
-import ItemNodeSelection from "../item/ItemNodeSelection";
-import ItemNodeOpenQuestion from "../item/ItemNodeOpenQuestion";
-import ItemNodeGoTo from "../item/ItemNodeGoTo";
+import ItemNodeStartPoint from "../item/ItemNodeStartPoint"
+import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage"
+import ItemNodeSelection from "../item/ItemNodeSelection"
+import ItemNodeOpenQuestion from "../item/ItemNodeOpenQuestion"
+import ItemNodeGoTo from "../item/ItemNodeGoTo"
 
-import ItemEdge from "../item/ItemEdge";
+import ItemEdge from "../item/ItemEdge"
+import { newExpression } from 'babel-types';
+import { isArray } from 'util';
 
 
 export default {
@@ -122,6 +138,7 @@ export default {
     ModuleConversation,
     ItemNodeStartPoint,
     ItemNodeSelector,
+    ItemEdgeWindow,
     ItemNodeSimpleMessage,
     ItemNodeSelection,
     ItemNodeOpenQuestion,
@@ -207,7 +224,8 @@ export default {
       'connectNode',
       'updateNode',
       'deleteNode',
-      'disconnectNode'
+      'disconnectNode',
+      'updateEdgeCondition'
     ]),
     update(){
       this.project = this.project;
@@ -268,6 +286,32 @@ export default {
         }
       }
     },
+    updateEdgeType(newType, edgeContent){
+      
+      this.$refs[edgeContent.id][0].removeLine()
+
+      var idArray = edgeContent.id.split("-")
+
+      // else以外からelseになる場合、idの部分（**-abcde-**）だけ消す
+      if(/*newType === "else" && */idArray[0] !== "else") {
+        idArray = idArray.filter((e, i) => { return i !==  1 })
+      }
+
+      idArray[0] = (newType === "else")? "else": `${newType}-${this.createRandomUniqueStr()}`
+      var newConditionId = idArray.join("-")
+      
+      this.updateEdgeCondition({id: edgeContent.id, new_condition_id: newConditionId})
+
+      this.edgesArray = this.edgesArray.map((e) => {
+        if(edgeContent.id === e.id){
+          e.id = newConditionId
+          return e
+        } else {
+          return e
+        }
+      })
+
+    },
     removeEdge(id){
       this.edgesArray = this.edgesArray.filter((e) => {
         return e.id !== id
@@ -287,6 +331,19 @@ export default {
       this.edgesArray = this.edgesArray.filter((e) => {
         return (!edgesToRemove.includes(e.id))
       })
+    },
+    openEdgeWindow(content){
+      // this.$refs.edgeWindow.closeWindow()
+      this.$refs.edgeWindow.updatePosition({
+        x: (content.to.x + content.from.x)/2,
+        y: (content.to.y + content.from.y)/2
+      })
+      this.$refs.edgeWindow.setContent(content)
+      setTimeout(this.$refs.edgeWindow.activateWindow, 10)
+    },
+    closeToolWindows(){
+       $('.node-window-active').removeClass('node-window-active')
+      this.$refs.edgeWindow.closeWindow()
     },
     getCoordinatesOfSingleNode(event){
 

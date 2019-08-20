@@ -23,7 +23,7 @@
   background: #FFF;
   position: absolute;
   border-radius: 12px;
-  // z-index: 100;
+  z-index: 100;
   width: 180px;
   .wrap-text {
     position: relative;
@@ -84,6 +84,7 @@
   }
 
   &.focused {
+    z-index: 101;
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     .wrap-delete {
       display: block;

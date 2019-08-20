@@ -123,11 +123,14 @@ export default {
       $('#previewLineForGoTo').addClass('show');
 
       var toNode = entity.getContent(window.scenarioArray, this.content.toId);
-      this.showPreviewLineForGoTo(
-        this.content.gui.position,
-        toNode.gui.position,
-        this.content.toId
-      );
+
+      if(toNode){
+        this.showPreviewLineForGoTo(
+          this.content.gui.position,
+          toNode.gui.position,
+          this.content.toId
+        )
+      }
 
       $('.node-window-active').removeClass('node-window-active')
       this.$refs.toolWindow.$el.classList.add("node-window-active")

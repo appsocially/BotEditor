@@ -127,6 +127,7 @@ export const mutations = {
     state.scenarioHistory.push(scenario);
     //console.log('scenarioHistory:', state.scenarioHistory);
   },
+
   async saveScenario(state, value){
     
     var projectId = location.pathname.split('/')[2];
@@ -207,6 +208,19 @@ export const mutations = {
   updateCustomAction(state, value){
     var content = entity.getContent(scenarioArray, value.nodeId);
     content.customAction = value.customAction
+  },
+
+  updateEdgeCondition(state, value){
+    var content = entity.getContentByConditionId(scenarioArray, value.id)
+    
+    content.conditions = content.conditions.map((e) => {
+      if(e.id === value.id) {
+        e.id = value.new_condition_id
+        return e
+      } else {
+        return e
+      }
+    })
   }
 };
 
@@ -261,6 +275,10 @@ export const actions = {
   updateCustomAction({commit}, customAction){
     commit('addCustomAction', customAction);
     commit('saveScenario');
+  },
+  updateEdgeCondition({commit}, new_condition_id){
+    commit('updateEdgeCondition', new_condition_id)
+    commit('saveScenario')
   }
 };
 

@@ -1,7 +1,6 @@
 <template lang="pug">
 
-  svg(:id="`line-${content.id}`")
-    
+  svg(:id="`line-${content.id}`")    
     
 </template>
 
@@ -14,6 +13,12 @@
   path {
     pointer-events: all;
     cursor: pointer;
+  }
+  .wrap-node-window {
+    position: absolute;
+    bottom: 0px;
+    top: calc(100% + 10px);
+    width: 100%;
   }
 }
 
@@ -38,6 +43,7 @@ export default {
   },
   data() {
     return {
+      show: false
     }
   },
   watch: {
@@ -60,9 +66,18 @@ export default {
   mounted: function(){
     this.draw()
   },
+  beforeUpdate: function(){
+    this.removeLine()
+  },
+  updated: function(){
+    this.draw()
+  },
   // beforeDestroy: function(){
-  //   var lines = d3.select('#lines')
-  //   lines.select(`#line-${this.content.id}`).remove()
+  //   debugger
+  //   this.removeLine()
+  //
+  //   // var lines = d3.select('#lines')
+  //   // lines.select(`#line-${this.content.id}`).remove()
   // },
   // update: function(){
   //   console.log("ItemEdge updated", this.content.id)
@@ -96,11 +111,24 @@ export default {
       var svg = d3.select('#lines').select(`#line-${id}`)
       var path = svg.selectAll("path").data(data).enter()
         .append("path")
+        .on("click", this.onEdge)
         .attr("id", `line-${id}`)
         .attr("fill", "none")
         .attr("stroke", "#FF9A0A")
         .attr("stroke-dasharray", dasharray)
         .attr("d", diagonal)
+    },
+    removeLine() {
+      var id = this.content.id
+      var lines = d3.select('#lines')
+      lines.select(`#line-${id}`).remove()
+    },
+    onEdge() {
+      $('.node-window-active').removeClass('node-window-active')
+      this.$emit("openEdgeWindow", this.content)
+    },
+    callRemoveEdge() {
+      
     }
   }
 };

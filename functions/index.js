@@ -26,6 +26,10 @@ const cors = require('cors')({origin: true});
 
 exports.getScenario = functions.https.onRequest((req, res) => {
 
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+
   cors(req, res, function() {
 
     console.log('getScenario');
@@ -49,7 +53,14 @@ exports.getScenario = functions.https.onRequest((req, res) => {
     let data = req.body;
     var scenarioId = data.scenarioId;
 
-    var scenario = getScenarioViaFirestore(scenarioId);
+    console.log('scenarioId: ', scenarioId);
+
+    if(scenarioId){
+      var scenario = getScenarioViaFirestore(scenarioId);
+    }else{
+      console.log('No scenarioId');
+      return;
+    }
   }); // cors
 
 

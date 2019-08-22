@@ -110,6 +110,40 @@ export default {
 
 
       var svg = d3.select('#lines').select(`#line-${id}`)
+
+      var p2 = {
+        x: from.x + (to.x - from.x)/2,
+        y: from.y + (to.y - from.y)/2
+      }
+
+      var mp_f_p2 = {
+        x: from.x + (p2.x - from.x)/2,
+        y: from.y + (p2.y - from.y)/2
+      }
+      var cross_p1 = {
+        x: p2.x,
+        y: from.y
+      }
+      var p1 = {
+        x: mp_f_p2.x + (cross_p1.x - mp_f_p2.x)/2,
+        y: mp_f_p2.y + (cross_p1.y - mp_f_p2.y)/2
+      }
+
+      var mp_p2_t = {
+        x: p2.x + (to.x - p2.x)/2,
+        y: p2.y + (to.y - p2.y)/2
+      }
+      var cross_p2 = {
+        x: p2.x,
+        y: to.y
+      }
+      var p3 = {
+        x: cross_p2.x + (mp_p2_t.x - cross_p2.x)/2,
+        y: cross_p2.y + (mp_p2_t.y - cross_p2.y)/2
+      }
+
+      var lineData = [from, p1, p2, p3, to]
+
       var path = svg.selectAll("path").data(data).enter()
         .append("path")
         .on("click", this.onEdge)
@@ -117,25 +151,10 @@ export default {
         .attr("fill", "none")
         .attr("stroke", "#FF9A0A")
         .attr("stroke-dasharray", dasharray)
-        .attr("d", diagonal)
-
-      // var midPoint = {
-      //   x: from.x + (to.x - from.x)/4,
-      //   y: from.y + (to.y - from.y)*3/4
-      // }
-      // var lineData = [from, midPoint, to]
-
-      // var path = svg.selectAll("path").data(data).enter()
-      //   .append("path")
-      //   .on("click", this.onEdge)
-      //   .attr("id", `line-${id}`)
-      //   .attr("fill", "none")
-      //   .attr("stroke", "#FF9A0A")
-      //   .attr("stroke-dasharray", dasharray)
-      //   .attr("d", d3.svg.line()
-      //     .x(function(d) { return d.x; })
-      //     .y(function(d) { return d.y; })
-      //     .interpolate('basis')(lineData))
+        .attr("d", d3.svg.line()
+          .x(function(d) { return d.x })
+          .y(function(d) { return d.y })
+          .interpolate('bundle')(lineData))
 
     },
     removeLine() {
@@ -143,7 +162,7 @@ export default {
       var lines = d3.select('#lines')
       lines.select(`#line-${id}`).remove()
     },
-    onEdge() {
+    onEdge(data) {
       $('.node-window-active').removeClass('node-window-active')
       this.$emit("openEdgeWindow", this.content)
     },

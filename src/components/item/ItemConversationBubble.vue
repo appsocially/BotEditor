@@ -4,7 +4,7 @@
     div(:class='fadeIn').wrap-bot-icon
       img(src='@/assets/logo.png')
     div(:class='fadeIn').wrap-bubble.mr8
-      span.text.px8.py6 {{content.text}}
+      span.text.px8.py6 {{bubbleValue}}
       
 </template>
 
@@ -60,7 +60,10 @@
 </style>
 
 <script>
-
+import { createNamespacedHelpers } from "vuex"
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
+ "scenario"
+)
 
 export default {
   name: 'ItemConversationBubble',
@@ -78,10 +81,17 @@ export default {
       //iconSrc: './assets/logo.png'
       reverse: '',
       fadeIn: '',
+      bubbleValue: ''
     }
   },
+  computed: {
+    ...mapState([
+      'customVars'
+    ]),
+  },
   created: function(){
-    this.reverse = this.content.reverse;
+    this.reverse = this.content.reverse
+    this.bubbleValue = this.replaceCustomVar(this.content.text)
   },
   mounted: function(){
 
@@ -91,6 +101,34 @@ export default {
       this.fadeIn = 'fade-in';
     })();
     
+  },
+  methods: {
+    replaceCustomVar (text) {
+      var resultText
+      
+      if (text.match(/\${[A-Za-z0-9]+}/)){
+        while (true) {
+          var containedCustomVarName = text.match(/\${[A-Za-z0-9]+}/)[0].split("{")[1].split("}")[0]
+          var matchedCustomVar = this.customVars.filter((e) => {
+            return (e.location === containedCustomVarName)
+          })[0]
+          if (matchedCustomVar) {
+            // カスタム変数が宣言されていた場合
+            var replaceValue = matchedCustomVar.value? matchedCustomVar.value: "null"
+          } else {
+            // カスタム変数が宣言されていなかった場合
+            var replaceValue = "null"
+          }
+          resultText = text.replace(/\${[A-Za-z0-9]+}/, replaceValue)
+
+          if (!resultText.match(/\${[A-Za-z0-9]+}/)) break
+        }
+      } else {
+        resultText = text
+      }
+
+      return resultText
+    }
   }
 };
 </script>

@@ -246,6 +246,21 @@ function dragmoveOnConnectStarter(d) {
     .attr("stroke", "#FF9A0A")
     .attr("d",diagonal);
 
+  // var midPoint = {
+  //   x: this.from.x + (this.to.x - this.from.x)/4,
+  //   y: this.from.y + (this.to.y - this.from.y)*3/4
+  // }
+  // var lineData = [this.from, midPoint, this.to]
+  // svg.selectAll("path").remove()
+  // svg.selectAll("path").data(data).enter()
+  //   .append("path")
+  //   .attr("fill", "none")
+  //   .attr("stroke", "#FF9A0A")
+  //   .attr("d", d3.svg.line()
+  //     .x(function(d) { return d.x; })
+  //     .y(function(d) { return d.y; })
+  //     .interpolate('basis')(lineData))
+
 }
 
 function dragendedOnConnectStarter(d) {

@@ -101,6 +101,7 @@
 
   &.focused {
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    z-index: 102 !important;
     .wrap-delete {
       display: block;
     }

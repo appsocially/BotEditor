@@ -199,8 +199,6 @@ export default {
     this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray)
     this.goToNodes = entity.getGoToNodes(this.scenarioArray)
     
-    // setInterval(this.loadAllEdges, 1000)
-
   },
   updated: function(){
     if(!this.completeLoadingLine){
@@ -288,6 +286,19 @@ export default {
     },
     updateEdgeType(newType, edgeContent){
       
+      // すでに対象のnodeにelseが紐づいている場合、そのコンディションをdefaultに変更する
+      if(newType === "else"){
+        var content = entity.getContentByConditionId(this.scenarioArray, edgeContent.id)
+        
+        var elseCondition = content.conditions.filter((e) => { return (e.id.split("-")[0] === "else") })[0]
+        if(elseCondition){
+          var targetEdgeContent = this.edgesArray.filter((e) => { return (elseCondition.id === e.id) })[0]
+          this.updateEdgeType("default", targetEdgeContent)
+        }
+      }
+
+      // nodeに紐づくconditionsの配列をアップデート
+      
       this.$refs[edgeContent.id][0].removeLine()
 
       var idArray = edgeContent.id.split("-")
@@ -347,86 +358,86 @@ export default {
     },
     getCoordinatesOfSingleNode(event){
 
-      var points = [];
+      var points = []
 
-      var node = document.getElementById(event.id);
+      var node = document.getElementById(event.id)
 
       if(event.conditions){
 
         for(var i=0; i<event.conditions.length; i++){
-          var nextNode = document.getElementById(event.conditions[i].next);
+          var nextNode = document.getElementById(event.conditions[i].next)
 
-          var from = {};
-          var to = {};
+          var from = {}
+          var to = {}
 
           if(event.type == 'start-point'){
-            var startPointOffset = -2;
+            var startPointOffset = -2
           }else{
-            var startPointOffset = 9;
+            var startPointOffset = 9
           }
 
           if(node&&nextNode){
-            from.x = node.offsetLeft + node.clientWidth + startPointOffset;
-            from.y = node.offsetTop + node.clientHeight/2;
+            from.x = node.offsetLeft + node.clientWidth + startPointOffset
+            from.y = node.offsetTop + node.clientHeight/2
 
-            to.x = nextNode.offsetLeft;
-            to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+            to.x = nextNode.offsetLeft
+            to.y = nextNode.offsetTop + nextNode.clientHeight/2
             
             points.push({
               from: from,
               to: to,
               id: event.conditions[i].id,//`${event.conditions[i].type}-${event.id}`,
               type: event.conditions[i].type
-            });
-            //return {from: from, to: to, id: scenario[i].id};
+            })
+            //return {from: from, to: to, id: scenario[i].id}
           }
         }
 
       } // event.conditions
 
-      return points;
+      return points
 
     },
     getCoordinatesOfGroupNode(event){
 
-      var points = [];
+      var points = []
 
-      var selections = event.selections;
+      var selections = event.selections
       
       for(var j=0; j<selections.length; j++){
         // if(selections[j].next){
         var conditions = selections[j].conditions
         if(conditions){
 
-          var from = {};
+          var from = {}
 
-          var childNode = document.getElementById(selections[j].id);
-          var childNodePos = $(childNode).position();
-          var parentNodePos = $(childNode).closest('.item-node-selection').position();
-          var widthOffset = $(childNode).width();
-          var heightOffset = $(childNode).height()/2;
+          var childNode = document.getElementById(selections[j].id)
+          var childNodePos = $(childNode).position()
+          var parentNodePos = $(childNode).closest('.item-node-selection').position()
+          var widthOffset = $(childNode).width()
+          var heightOffset = $(childNode).height()/2
 
-          var startPointOffset = 9;
+          var startPointOffset = 9
 
           if(parentNodePos&&childNodePos){
             from.x = parentNodePos.left + childNodePos.left + widthOffset + startPointOffset
-            from.y = parentNodePos.top + childNodePos.top + heightOffset;
+            from.y = parentNodePos.top + childNodePos.top + heightOffset
 
             for(var k=0; k<conditions.length; k++){
-              var nextNode = document.getElementById(conditions[k].next);
+              var nextNode = document.getElementById(conditions[k].next)
 
               if(nextNode){
-                var to = {};
+                var to = {}
 
-                to.x = nextNode.offsetLeft;
-                to.y = nextNode.offsetTop + nextNode.clientHeight/2;
+                to.x = nextNode.offsetLeft
+                to.y = nextNode.offsetTop + nextNode.clientHeight/2
 
                 points.push({
                   from: from,
                   to: to,
                   id: conditions[k].id,//`${conditions[k].type}-${selections[j].id}`,
                   type: conditions[k].type
-                });
+                })
               }
             }
           }
@@ -435,14 +446,12 @@ export default {
 
       } // for
 
-      return points;
+      return points
 
     },
     fixEdgeOfNormalNode(event){
-
-      var points = this.getCoordinatesOfSingleNode(event);
-      if(points[0]) this.addEdge(points[0].from, points[0].to, points[0].id);
-
+      var points = this.getCoordinatesOfSingleNode(event)
+      if(points[0]) this.addEdge(points[0].from, points[0].to, points[0].id)
     },
     connectNodeForNodeController(fromId, toId){
       this.connectNode(fromId, toId)
@@ -454,7 +463,6 @@ export default {
       this.updateNode(content)
     },
     addNormalMessage(position, dragStartedPosition, dragStartedId){
-
       this.project.nodeNum++
 
       var topOffset = 15
@@ -479,7 +487,6 @@ export default {
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
       this.pushContentToScenario(content)
-
     },
     removeNormalMessageNode(id){
       this.normalMessageNodes = this.normalMessageNodes.filter(e => {

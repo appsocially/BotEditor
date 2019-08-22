@@ -8,6 +8,8 @@
       span.window-title.mb12 Condition
       div.wrap-type-selector
         v-select(:items="conditionTypes" label="Type" v-model="conditionTypeValue" @change="changeType")
+      div.wrap-condition-content
+        atom-condition-content(ref="conditionContent" :conditionTypeValue='conditionTypeValue' :content='content')
 
 </template>
 
@@ -45,12 +47,12 @@
       display: block;
       text-align: center;
       font-size: 14px;
+      font-weight: bold;
     }
-
   }
 
   /* animation */
-  transition: all 200ms ease;
+  transition: transform 200ms ease, opacity 200ms ease;
   transform: scale(0.0);
   opacity: 0.0;
   &.active {
@@ -71,8 +73,13 @@ const { mapState, mapActions } = createNamespacedHelpers(
  "scenario"
 )
 
+import AtomConditionContent from "../atom/AtomConditionContent"
+
 export default {
   name: 'AtomNodeWindow',
+  components: {
+    AtomConditionContent
+  },
   props: {
     // content: {
     //   type: Object,
@@ -97,18 +104,15 @@ export default {
 
   },
   methods: {
-    ...mapActions([
-      
-    ]),
     setContent(content) {
       this.content = content
       this.conditionTypeValue = this.content.id.split("-")[0]
-      if(this.conditionTypeValue === "default"){
-        this.conditionTypeValue = ""
-      }
+      if(this.conditionTypeValue === "default") this.conditionTypeValue = ""
+      
+      this.$nextTick(this.$refs.conditionContent.updateDefaultOption)
     },
     updatePosition(position) {
-      const offsetX = 200/2
+      const offsetX = this.$el.offsetWidth/2
       const offsetY = 0/2
       this.positionStyle = `left: ${position.x - offsetX}px; top: ${position.y - offsetY}px;`
     },

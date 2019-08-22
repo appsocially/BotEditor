@@ -2,7 +2,7 @@
 
   div.wrap-item-conversation-selection.f.flex-wrap.px8.py10
     div(v-for='item in selections').selection.mr6.mt6.mb12
-      span(@click='callNextEvent(item.label, item.next)').px12.py8 {{item.label}}
+      span(@click='callNextEvent(item.label, item.id)').px12.py8 {{item.label}}
 
 </template>
 
@@ -29,6 +29,12 @@
 
 <script>
 
+import entity from "../entity"
+
+import { createNamespacedHelpers } from "vuex"
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
+ "scenario"
+)
 
 export default {
   name: 'ItemConversationInputSelection',
@@ -40,9 +46,18 @@ export default {
       type: Array,
       required: true,
     },
+    currentEvent: {
+      type: String,
+      required: false
+    }
+  },
+  computed: {
+    ...mapState([
+      'scenarioArray'
+    ])
   },
   created: function(){
-    console.log(this.selections);
+    console.log(this.selections)
   },
   mounted: function(){
     
@@ -51,15 +66,24 @@ export default {
 
   },
   methods: {
+    ...mapActions([
+      'insertValueIntoCustomVar'
+    ]),
     callNextEvent(label, id){
-      this.$emit('resetSelections');
-      this.$emit('fireEventOfConversation', id);
+      this.$emit('resetSelections')
 
+      var conditions = entity.getConditions(this.scenarioArray, id)
+      var matchedCondition= entity.getMatchedCondition(this.scenarioArray, conditions)
+      
+      this.$emit('fireEventOfConversation', matchedCondition.next)
+      
       var message = {
         text: label,
         reverse: 'flex-row-reverse',
-      };
-      this.$emit('sendMessage', message);
+      }
+      this.$emit('sendMessage', message)
+
+      this.insertValueIntoCustomVar({id: this.currentEvent.id, value: label})
     },
   }
 };

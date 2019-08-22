@@ -38,6 +38,10 @@
 </style>
 
 <script>
+import { createNamespacedHelpers } from "vuex";
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
+ "scenario"
+)
 
 export default {
   name: 'ItemConversationInputFreeText',
@@ -51,6 +55,10 @@ export default {
     nextEvent: {
       type: String,
       required: false,
+    },
+    currentEvent: {
+      type: String,
+      required: false
     }
   },
   data() {
@@ -69,6 +77,10 @@ export default {
 
   },
   methods: {
+    ...mapActions([
+      'loadScenarioByProjectId',
+      'insertValueIntoCustomVar'
+    ]),
     sendFreeText(){
 
       if(this.freeText=='') return;
@@ -91,6 +103,8 @@ export default {
       };
       this.$emit('sendMessage', message);
 
+      this.insertValueIntoCustomVar({id: this.currentEvent.id, value: this.freeText})
+
       this.freeText = '';
       //this.nextEvent = '';
     },
@@ -106,8 +120,7 @@ export default {
       */
 
       this.$emit('resetInputFreeText');
-    },
-  },
-  
+    }
+  }
 };
 </script>

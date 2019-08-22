@@ -1,17 +1,18 @@
-import db from "@/components/firebaseInit";
-import entity from "@/components/entity";
+import db from "@/components/firebaseInit"
+import entity from "@/components/entity"
 
-export const state = ()=>({
+export const state = () => ({
   scenarioArray: [],
-  scenarioHistory: []
+  scenarioHistory: [],
+  customVars: []
 });
 
 export const mutations = {
   replaceScenario(state, value) {
-    state.scenarioArray = value;
+    state.scenarioArray = value
   },
   addNodeToScenario(state, value) {
-    state.scenarioArray.push(value);
+    state.scenarioArray.push(value)
   },
   updateNext(state, value) {
 
@@ -75,7 +76,7 @@ export const mutations = {
       .doc(value)
       .delete().then(function(){
         console.log('delete');
-      });
+      })
   },
   updateNode(state, value) {
     for(var i=0; i<state.scenarioArray.length; i++){
@@ -122,35 +123,35 @@ export const mutations = {
     if(state.scenarioHistory.length > 10) state.scenarioHistory.shift();
 
     var scenario = state.scenarioArray.map(function(e){
-      return e;
-    });
-    state.scenarioHistory.push(scenario);
-    //console.log('scenarioHistory:', state.scenarioHistory);
+      return e
+    })
+    state.scenarioHistory.push(scenario)
+    //console.log('scenarioHistory:', state.scenarioHistory)
   },
 
   async saveScenario(state, value){
     
-    var projectId = location.pathname.split('/')[2];
+    var projectId = location.pathname.split('/')[2]
     const scenarioArray = await db.collection("projects")
       .doc(projectId)
       .collection('scenario')
       .get()
       .then(function(doc) {
         return doc.docs.map(function(doc){
-          return doc.data();
-        });
-      });
+          return doc.data()
+        })
+      })
 
-    var dbScenario = scenarioArray;
+    var dbScenario = scenarioArray
 
-    var clientScenario = state.scenarioArray;
+    var clientScenario = state.scenarioArray
 
     for(var i=0; i<clientScenario.length; i++){
-      var clientContent = clientScenario[i];
-      var dbContent = entity.getContent(dbScenario, clientContent.id);
-      //var clientContent = entity.getContent(clientScenario, dbContent.id);
+      var clientContent = clientScenario[i]
+      var dbContent = entity.getContent(dbScenario, clientContent.id)
+      //var clientContent = entity.getContent(clientScenario, dbContent.id)
 
-      if(clientContent==undefined || dbContent==undefined) break;
+      if(clientContent==undefined || dbContent==undefined) break
 
       // dbに無い場合
       if(dbContent==false){
@@ -160,8 +161,8 @@ export const mutations = {
           .doc(clientContent.id)
           .set(clientContent)
           .then(function(e){
-            // console.log('added new content');
-          });
+            // console.log('added new content')
+          })
 
       // dbとコンテンツが違う場合
       } else if(JSON.stringify(dbContent) != JSON.stringify(clientContent)){
@@ -171,8 +172,8 @@ export const mutations = {
           .doc(clientContent.id)
           .update(clientContent)
           .then(function(e){
-            // console.log('updated content');
-          });
+            // console.log('updated content')
+          })
 
       // dbにコンテンツがあってクライアントにない場合
       }
@@ -182,99 +183,140 @@ export const mutations = {
 
     db.collection("projects")
       .doc(projectId)
-      .update({nodeNum: window.project.nodeNum});
+      .update({nodeNum: window.project.nodeNum})
 
     console.log("saved")
 
   },
-  addCustomVar(state, value){
-    var content = entity.getContent(scenarioArray, value.nodeId);
+  setCustomVar(state, value){
+    var content = entity.getContent(scenarioArray, value.nodeId)
+    
+    // content.customVariable.location = value.location
+    // content.customVariable.varType = value.varType
     content.customVariable = {
       location: value.location,
       varType: value.varType
     }
   },
   updateCustomVar(state, value){
-    var content = entity.getContent(scenarioArray, value.nodeId);
-    content.customVariable = {
-      location: value.location,
-      varType: value.varType
-    }
+    var content = entity.getContent(scenarioArray, value.nodeId)
+    content.customVariable.location = value.location
+    content.customVariable.varType = value.varType
   },
-  addCustomAction(state, value){
+  loadAllCustomVars(state){
+    var nodesWithCustomVars = state.scenarioArray.filter((e) => {
+      return (e.customVariable)
+    })
+    state.customVars = nodesWithCustomVars.map((e) => {
+      var varObj = {
+        nodeId: e.id,
+        varType: e.customVariable.varType,
+        location: e.customVariable.location,
+        value: null
+      }
+      return varObj
+    })
+    // return state.customVars
+  },
+  insertValueIntoCustomVar(state, value){
+    state.customVars = state.customVars.map((e) => {
+      var customVar = e
+      if(e.id === value.id) customVar.value = value.value
+      return customVar
+    })
+  },
+  setCustomAction(state, value){
     var content = entity.getContent(scenarioArray, value.nodeId);
-    content.customAction = value.customAction
+    content.customAction = value.customAction    
   },
   updateCustomAction(state, value){
     var content = entity.getContent(scenarioArray, value.nodeId);
     content.customAction = value.customAction
   },
-
   updateEdgeCondition(state, value){
     var content = entity.getContentByConditionId(scenarioArray, value.id)
     
     content.conditions = content.conditions.map((e) => {
       if(e.id === value.id) {
-        e.id = value.new_condition_id
+        var condition = e
+        condition.id = value.new_condition_id
+        condition.type = value.new_condition_id.split("-")[0]
+        delete condition.option
         return e
       } else {
         return e
       }
     })
+  },
+  setConditionOption(state, value){
+    var content = entity.getConditionByConditionId(scenarioArray, value.conditionId)
+    content.option = value.option
   }
 };
 
 export const actions = {
   async loadScenarioByProjectId({commit}, projectId) {
-    commit('addHistory');
+    commit('addHistory')
     const scenarioArray = await db.collection("projects")
       .doc(projectId)
       .collection('scenario')
       .get()
       .then(function(doc) {
         return doc.docs.map(function(doc){
-          return doc.data();
-        });
-      });
-    commit('replaceScenario', scenarioArray);
+          return doc.data()
+        })
+      })
+    commit('replaceScenario', scenarioArray)
   },
   async pushContentToScenario({commit}, content){
-    commit('addNodeToScenario', content);
-    commit('saveScenario');
-    commit('addHistory');
+    commit('addNodeToScenario', content)
+    commit('saveScenario')
+    commit('addHistory')
   },
   async deleteNode({commit}, id){
-    commit('deleteNode', id);
-    commit('addHistory');
+    commit('deleteNode', id)
+    commit('addHistory')
   },
   async updateNode({commit}, content){
-    commit('updateNode', content);
-    commit('saveScenario');
-    commit('addHistory');
+    commit('updateNode', content)
+    commit('saveScenario')
+    commit('addHistory')
   },
   connectNode({commit}, id_from_to){
-    commit('updateNext', id_from_to);
-    commit('saveScenario');
+    commit('updateNext', id_from_to)
+    commit('saveScenario')
   },
   disconnectNode({commit}, id){
-    commit('disconnectNode', id);
-    commit('saveScenario');
+    commit('disconnectNode', id)
+    commit('saveScenario')
   },
   addCustomVar({commit}, customVar){
-    commit('addCustomVar', customVar);
-    commit('saveScenario');
+    commit('setCustomVar', customVar)
+    commit('loadAllCustomVars')
+    commit('saveScenario')
   },
   updateCustomVar({commit}, customVar){
-    commit('addCustomVar', customVar);
-    commit('saveScenario');
+    commit('setCustomVar', customVar)
+    commit('loadAllCustomVars')
+    commit('saveScenario')
+  },
+  insertValueIntoCustomVar({commit}, value){
+    commit('insertValueIntoCustomVar', value)
+  },
+  setConditionOption({commit}, option){
+    commit('setConditionOption', option)
+    commit('saveScenario')
   },
   addCustomAction({commit}, customAction){
-    commit('addCustomAction', customAction);
-    commit('saveScenario');
+    commit('setCustomAction', customAction)
+    commit('saveScenario')
   },
   updateCustomAction({commit}, customAction){
-    commit('addCustomAction', customAction);
-    commit('saveScenario');
+    commit('setCustomAction', customAction)
+    commit('saveScenario')
+  },
+  loadAllCustomVars({commit}){
+    commit('loadAllCustomVars')
   },
   updateEdgeCondition({commit}, new_condition_id){
     commit('updateEdgeCondition', new_condition_id)
@@ -282,6 +324,12 @@ export const actions = {
   }
 };
 
+export const getters = {
+  getCustomVars() {
+    console.log("state.customVars", state.customVars)
+    return state.customVars
+  }
+}
 /*
 export default {state, mutations, actions};
 */

@@ -108,6 +108,7 @@ export default {
 
       var dasharray = (this.content.id.split("-")[0] === "else")? "0 0": "6 6"
 
+
       var svg = d3.select('#lines').select(`#line-${id}`)
       var path = svg.selectAll("path").data(data).enter()
         .append("path")
@@ -117,6 +118,25 @@ export default {
         .attr("stroke", "#FF9A0A")
         .attr("stroke-dasharray", dasharray)
         .attr("d", diagonal)
+
+      // var midPoint = {
+      //   x: from.x + (to.x - from.x)/4,
+      //   y: from.y + (to.y - from.y)*3/4
+      // }
+      // var lineData = [from, midPoint, to]
+
+      // var path = svg.selectAll("path").data(data).enter()
+      //   .append("path")
+      //   .on("click", this.onEdge)
+      //   .attr("id", `line-${id}`)
+      //   .attr("fill", "none")
+      //   .attr("stroke", "#FF9A0A")
+      //   .attr("stroke-dasharray", dasharray)
+      //   .attr("d", d3.svg.line()
+      //     .x(function(d) { return d.x; })
+      //     .y(function(d) { return d.y; })
+      //     .interpolate('basis')(lineData))
+
     },
     removeLine() {
       var id = this.content.id

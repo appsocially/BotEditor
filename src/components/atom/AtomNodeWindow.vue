@@ -168,7 +168,7 @@ export default {
       showCustomAction: false,
       hasCustomVar: false,
       hasCustomAction: false,
-      varTypes: ['String', 'Boolean', 'Number'],
+      varTypes: ['String', 'Number'],
       customVarLocationValue: '',
       customVarTypeValue: '',
       customActionValue: '',
@@ -198,7 +198,7 @@ export default {
       case 'selection':
         this.lists = [
           {
-            label: 'Custom Var to get',
+            label: 'Custom Var as Answer',
             icon: 'monetization_on',
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
@@ -227,7 +227,7 @@ export default {
             func: this.toggleCustomActionMenu
           },
           {
-            label: 'Custom Var to get',
+            label: 'Custom Var as Answer',
             icon: 'monetization_on',
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
@@ -281,6 +281,12 @@ export default {
         clearTimeout(this.timer)
         this.timer = setTimeout(this.updateVar, 1000)
       }
+    },
+    customActionValue(newVal, oldVal){
+      if(newVal !== oldVal && oldVal !== ""){
+        clearTimeout(this.timer)
+        this.timer = setTimeout(this.updateAction, 1000)
+      }
     }
   },
   methods: {
@@ -317,8 +323,8 @@ export default {
     updateVar() {
       this.updateCustomVar({
         nodeId: this.content.id,
-        location: this.content.customVariable.location,
-        varType: this.content.customVariable.varType
+        location: this.customVarLocationValue, // this.content.customVariable.location,
+        varType: this.customVarTypeValue // this.content.customVariable.varType
       })
     },
     createAction() {
@@ -332,7 +338,7 @@ export default {
     updateAction() {
       this.updateCustomAction({
         nodeId: this.content.id,
-        customAction: this.content.customAction
+        customAction: this.customActionValue
       })
     },
     deleteNode(e) {

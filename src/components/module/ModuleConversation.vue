@@ -5,8 +5,21 @@
     div.wrap-message-bubbles
       item-conversation-bubble(v-for='item in messageBubbles' :id='item.id' :key='item.id' :content='item')
     div.wrap-user-input
-      item-conversation-input-free-text(:placeholder='placeholder' :nextEvent='nexEventOfFreeText' @fireEventOfConversation='fireEventOfConversation' @sendMessage='sendMessage' @resetInputFreeText='resetInputFreeText')
-      item-conversation-input-selection(v-if='selections[0]' :selections='selections' ref='user_input_selection' @fireEventOfConversation='fireEventOfConversation' @resetSelections='resetSelections' @sendMessage='sendMessage')
+      item-conversation-input-free-text(
+        :placeholder='placeholder'
+        :nextEvent='nextEventOfFreeText'
+        :currentEvent='currentEvent'
+        @fireEventOfConversation='fireEventOfConversation'
+        @sendMessage='sendMessage'
+        @resetInputFreeText='resetInputFreeText')
+      item-conversation-input-selection(
+        v-if='selections[0]'
+        :selections='selections'
+        :currentEvent='currentEvent'
+        ref='user_input_selection'
+        @fireEventOfConversation='fireEventOfConversation'
+        @resetSelections='resetSelections'
+        @sendMessage='sendMessage')
 
 </template>
 
@@ -37,20 +50,20 @@ $inputHeihgt: 100px;
 </style>
 
 <script>
-import db from "../firebaseInit";
-import { createNamespacedHelpers } from "vuex";
+import db from "../firebaseInit"
+import { createNamespacedHelpers } from "vuex"
 
-import entity from "../entity";
+import entity from "../entity"
 
-import ItemPreviewHeader from "../item/ItemPreviewHeader";
-import ItemConversationBubble from "../item/ItemConversationBubble";
+import ItemPreviewHeader from "../item/ItemPreviewHeader"
+import ItemConversationBubble from "../item/ItemConversationBubble"
 
-import ItemConversationInputFreeText from "../item/ItemConversationInputFreeText";
-import ItemConversationInputSelection from "../item/ItemConversationInputSelection";
+import ItemConversationInputFreeText from "../item/ItemConversationInputFreeText"
+import ItemConversationInputSelection from "../item/ItemConversationInputSelection"
 
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
  "scenario"
-);
+)
 
 
 export default {
@@ -76,8 +89,14 @@ export default {
       messageBubbles: [],
       selections: [],
       placeholder: 'Message',
-      nexEventOfFreeText: '',
+      nextEventOfFreeText: '',
+      currentEvent: ''
     }
+  },
+  computed: {
+    ...mapState([
+      'customVars'
+    ]),
   },
   created: function(){
     
@@ -97,115 +116,123 @@ export default {
     
   },
   methods: {
-    ...mapActions([
-      'loadScenarioByProjectId'
-    ]),
     update(){
-      this.project = this.project;
+      this.project = this.project
     },
     initConversation(){
-      this.messageBubbles = [];
-      this.selections = [];
+      this.messageBubbles = []
+      this.selections = []
 
-      var firstNode= entity.getFirstNode(this.scenarioArray);
-      this.fireEventOfConversation(firstNode.id);
+      var firstNode = entity.getFirstNode(this.scenarioArray)
+      this.fireEventOfConversation(firstNode.id)
     },
     resetSelections(){
-      this.selections = [];
+      this.selections = []
     },
     sendMessage(content){
-      this.messageBubbles.push(content);
+      this.messageBubbles.push(content)
     },
     fireEventOfConversation(eventId){
       
-      var event = entity.getContent(this.scenarioArray, eventId);
+      var event = entity.getContent(this.scenarioArray, eventId)
 
-      if(!event) return;
+      if(!event) return
 
-      this.nexEventOfFreeText = '';
-      this.placehoder = 'Message';
+      this.nextEventOfFreeText = ''
+      this.placehoder = 'Message'
 
-      var sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+      var sleep = msec => new Promise(resolve => setTimeout(resolve, msec))
       
       switch(event.type){
         case 'normal':
           
           (async () => {
-            await sleep(1200);
+            await sleep(1200)
 
-            this.sendMessage(event);
+            this.sendMessage(event)
 
-            $('.focused').removeClass('focused');
-            var node = document.getElementById(event.id);
-            if(node) node.classList.add('focused');
+            $('.focused').removeClass('focused')
+            var node = document.getElementById(event.id)
+            if(node) node.classList.add('focused')
             
-            this.fireEventOfConversation(event.next);
+            if(event.conditions) {
+              var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
+              this.fireEventOfConversation(matchedCondition.next)
+            }
+          })()
 
-          })();
-
-        break;
+        break
 
         case 'selection':
           
           (async () => {
-            await sleep(1200);
+            await sleep(1200)
 
-            this.sendMessage(event);
+            this.sendMessage(event)
 
-            $('.focused').removeClass('focused');
-            var node = document.getElementById(event.id);
-            if(node) node.classList.add('focused');
+            $('.focused').removeClass('focused')
+            var node = document.getElementById(event.id)
+            if(node) node.classList.add('focused')
 
-            await sleep(400);
-            this.selections = event.selections;
+            await sleep(400)
+            this.selections = event.selections
 
-            this.fireEventOfConversation(event.next);
+            if(event.conditions) {
+              var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
+              this.fireEventOfConversation(matchedCondition.next)
+            }
+          })()
 
-          })();
-
-        break;
+        break
 
         case 'openquestion':
 
           (async () => {
-            await sleep(1200);
+            await sleep(1200)
 
-            this.sendMessage(event);
+            this.sendMessage(event)
 
-            $('.focused').removeClass('focused');
-            var node = document.getElementById(event.id);
-            if(node) node.classList.add('focused');
+            $('.focused').removeClass('focused')
+            var node = document.getElementById(event.id)
+            if(node) node.classList.add('focused')
 
-            await sleep(400);
+            await sleep(400)
             
-            this.placeholder = event.expectedAnswer;
-            this.nexEventOfFreeText = event.next;
+            this.placeholder = event.expectedAnswer
 
-          })();
+            if(event.conditions) {
+              var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
+              this.nextEventOfFreeText = matchedCondition.next
+            }
+          })()
 
-        break;
+        break
 
         case 'goto':
 
           (async () => {
-            await sleep(1200);
-            this.fireEventOfConversation(event.toId);
-          })();
+            await sleep(1200)
+            if(event.conditions) {
+              var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
+              this.fireEventOfConversation(matchedCondition.next)
+            }
+          })()
 
-        break;
+        break
       }
 
+      this.currentEvent = event.id
     },
     resetInputFreeText(){
-      this.placeholder = 'Message';
-      this.nexEventOfFreeText = '';
+      this.placeholder = 'Message'
+      this.nextEventOfFreeText = ''
     }
   },
   computed: {
     ...mapState([
       'scenarioArray',
+      'customVars'
     ]),
-    
   }
 };
 </script>

@@ -37,7 +37,7 @@ export const mutations = {
   },
   updateAuthStatus(state, user) {
     const isLoggedIn = !!user
-    state.userDisplayName = isLoggedIn ? user.displayName : null
+    state.userDisplayName = isLoggedIn ? user.displayName : "No Name"
     state.uid = isLoggedIn ? user.uid : null
     state.isAuthenticating = false
     state.isLoggedIn = isLoggedIn

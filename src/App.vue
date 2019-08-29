@@ -34,7 +34,7 @@
   height: 100%;
   background: #FFF;
   position: fixed;
-  z-index: 100;
+  z-index: 1000;
   left: 0;
   top: 0;
   .wrap-now-loading {

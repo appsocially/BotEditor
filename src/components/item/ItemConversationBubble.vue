@@ -2,8 +2,9 @@
 
   div(:class='reverse').wrap-item-conversation-bubble.f.fm.mt12.mb14
     div(:class='fadeIn').wrap-bot-icon
-      img(src='@/assets/logo.png')
-    div(:class='fadeIn').wrap-bubble.mr8
+      img(:src="icon")
+      // img(src='@/assets/logo.png')
+    div(ref="bubble" :class='fadeIn').wrap-bubble.mr8
       span.text.px8.py6 {{bubbleValue}}
       
 </template>
@@ -74,6 +75,10 @@ export default {
     content: {
       type: Object,
       required: true,
+    },
+    icon: {
+      type: String,
+      required: false
     }
   },
   data() {
@@ -95,10 +100,12 @@ export default {
   },
   mounted: function(){
 
+    this.detectURL(this.content.text)
+
     var sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
     (async () => {
-      await sleep(200);
-      this.fadeIn = 'fade-in';
+      await sleep(200)
+      this.fadeIn = 'fade-in'
     })();
     
   },
@@ -128,6 +135,17 @@ export default {
       }
 
       return resultText
+    },
+    detectURL (text) {
+      const regex = /http(:\/\/[-_.!~*¥'()a-zA-Z0-9;\/?:¥@&=+¥$,%#]+)/      
+
+      if(text.match(regex)){
+        var span = document.createElement("span")
+        var textArrayWithoutURL = text.split(text.match(regex)[0])
+        
+        this.$refs.bubble.innerHTML =`<span class="text px8 py6">${textArrayWithoutURL[0]}<a href="${text.match(regex)[0]}" target="brank">${text.match(regex)[0]}</a>${textArrayWithoutURL[1]}</span>`
+      }
+      
     }
   }
 };

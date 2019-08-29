@@ -40,6 +40,7 @@ import FirebaseSignInUi from '@/components/sign-in/firebase-sign-in-ui'
 
 import { createNamespacedHelpers } from "vuex";
 import Auth from '@/components/auth'
+import { setTimeout } from 'timers';
 const { mapState, mapActions } = createNamespacedHelpers(
  "auth"
 );
@@ -56,14 +57,16 @@ export default {
   },
   methods: {
     onFailedAuthentication() {
-      this.loggingIn = false;
+      this.loggingIn = false
+
+      if(this.$route.name === "sign-up") setTimeout(this.replaceSignInText, 10)   
     },
     async onLoggedIn({ onboardingData }) {
 
-      var userDoc = await db.collection('users').doc(this.uid).get();
+      var userDoc = await db.collection('users').doc(this.uid).get()
 
       if(!userDoc.exists){
-        var user = await firebase.auth().currentUser;
+        var user = await firebase.auth().currentUser
 
         var userObj = {
           uid: user.uid,
@@ -73,21 +76,21 @@ export default {
           lastSignInTime: user.metadata.lastSignInTime,
           creationTime: user.metadata.creationTime,
           groups: ['Appsocially'],
-        };
+        }
 
         await db.collection("users")
           .doc(user.uid)
           .set(userObj)
           .then(function() {
-            console.log("Document successfully written!");
+            console.log("Document successfully written!")
           })
           .catch(function(error) {
-            console.error("Error writing document: ", error);
-          });
+            console.error("Error writing document: ", error)
+          })
       }
 
 
-      this.$router.push('/top');
+      this.$router.push('/top')
 
       /*
       if (!!onboardingData) {
@@ -97,6 +100,12 @@ export default {
       }
       */
     },
+    replaceSignInText () {
+      var titles = document.getElementsByClassName("firebaseui-title")
+      for(var i=0; i<titles.length; i++){
+        titles[i].innerText = titles[i].innerText.replace("Sign in", "Sign up")
+      }
+    }
     /*signOut() {
       await firebase.auth().signOut();
     }*/

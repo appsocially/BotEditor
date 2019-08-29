@@ -267,7 +267,7 @@ entity.getContentByConditionId = function(scenario, id) {
     if (scenario[i].nodeType === "single" || scenario[i].nodeType === "point") {
       if (scenario[i].conditions) {
         content = scenario[i].conditions.filter(e => {
-          return e.id === id;
+          return e.id === id
         })[0]
 
         if (content) return scenario[i];
@@ -277,7 +277,7 @@ entity.getContentByConditionId = function(scenario, id) {
       for (var s_i = 0; s_i < selections.length; s_i++) {
         if (selections[s_i].conditions) {
           content = selections[s_i].conditions.filter(e => {
-            return e.id === id;
+            return e.id === id
           })[0]
 
           if (content) return selections[s_i];
@@ -287,31 +287,31 @@ entity.getContentByConditionId = function(scenario, id) {
   }
 }
 
-// entity.getNodeByConditionId = function(scenario, id) {
-//   var content;
-//   for (var i = 0; i < scenario.length; i++) {
-//     if (scenario[i].nodeType === "single" || scenario[i].nodeType === "point") {
-//       if (scenario[i].conditions) {
-//         content = scenario[i].conditions.filter(e => {
-//           return e.id === id;
-//         })[0];
+entity.getNodeByConditionId = function(scenario, id) {
+  var content;
+  for (var i = 0; i < scenario.length; i++) {
+    if (scenario[i].nodeType === "single" || scenario[i].nodeType === "point") {
+      if (scenario[i].conditions) {
+        content = scenario[i].conditions.filter(e => {
+          return e.id === id;
+        })[0];
 
-//         if (content) return scenario[i];
-//       }
-//     } else {
-//       var selections = scenario[i].selections;
-//       for (var s_i = 0; s_i < selections.length; s_i++) {
-//         if (selections[s_i].conditions) {
-//           content = selections[s_i].conditions.filter(e => {
-//             return e.id === id;
-//           })[0];
+        if (content) return scenario[i];
+      }
+    } else {
+      var selections = scenario[i].selections;
+      for (var s_i = 0; s_i < selections.length; s_i++) {
+        if (selections[s_i].conditions) {
+          content = selections[s_i].conditions.filter(e => {
+            return e.id === id
+          })[0]
 
-//           if (content) return scenario[i];
-//         }
-//       }
-//     }
-//   }
-// };
+          if (content) return scenario[i];
+        }
+      }
+    }
+  }
+};
 
 entity.getMatchedCondition = function(scenario, conditions, customVarsArray) {
   var matchedCondition

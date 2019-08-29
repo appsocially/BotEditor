@@ -4,12 +4,16 @@
     div.wrap-line.f.fc
       div.line
         div.circle
-    div.window.px12.py12
+    div.window.pt12
       span.window-title.mb12 Condition
-      div.wrap-type-selector
+      div.wrap-type-selector.px12
         v-select(:items="conditionTypes" label="Type" v-model="conditionTypeValue" @change="changeType")
-      div.wrap-condition-content
+      div.wrap-condition-content.px12
         atom-condition-content(ref="conditionContent" :conditionTypeValue='conditionTypeValue' :content='content')
+      div(@click="onDisconnect").wrap-disconnect.f.fc.px12.py10
+        div.f.fm.pr8
+          v-icon.mr4.pb2 unfold_more
+          span Disconnect
 
 </template>
 
@@ -49,6 +53,22 @@
       font-size: 14px;
       font-weight: bold;
     }
+    .wrap-disconnect {
+      cursor: pointer;
+      border-top: solid 0.6px rgba(0, 0, 0, 0.2);
+      i {
+        color: #F99;
+        font-size: 20px;
+        width: 10px;
+      }
+      span {
+        color: #F99;
+        text-align: center;
+        font-weight: bold;
+        display: block;
+        white-space: nowrap;
+      }
+    }
   }
 
   /* animation */
@@ -76,7 +96,6 @@ const { mapState, mapActions } = createNamespacedHelpers(
 import AtomConditionContent from "../atom/AtomConditionContent"
 
 export default {
-  name: 'AtomNodeWindow',
   components: {
     AtomConditionContent
   },
@@ -97,6 +116,11 @@ export default {
       timer: {}
     }
   },
+  computed: {
+    ...mapState([
+      'scenarioArray'
+    ])
+  },
   created: function(){
     
   },
@@ -104,6 +128,9 @@ export default {
 
   },
   methods: {
+    ...mapActions([
+      'removeEdgeCondition'
+    ]),
     setContent(content) {
       this.content = content
       this.conditionTypeValue = this.content.id.split("-")[0]
@@ -132,7 +159,15 @@ export default {
     
     },
     deleteEdge() {
-    
+      
+    },
+    onDisconnect () {
+      this.removeEdgeCondition(this.content.id)
+      this.removeLine(this.content.id)
+      this.closeWindow()
+    },
+    removeLine(id){
+      d3.select('#lines').select(`#line-${id}`).remove();
     }
   }
 };

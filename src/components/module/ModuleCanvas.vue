@@ -1,7 +1,7 @@
 <template lang="pug">
 
   div.wrap-module-canvas#canvasWrapper
-    div#canvas
+    div(:class="letEdit")#canvas
       div#lines.wrap-lines
         //item-edge(v-for='item in edgesArray' :id='item.id' :key='item.id' :content='item')
         svg#lineForPreview
@@ -32,6 +32,9 @@
   overflow: scroll;
   width: 100%;
   height: calc(100vh - 48px);
+  .not-let-edit {
+    pointer-events: none;
+  }
   #canvas {
     position: relative;
     width: 100000px;
@@ -150,6 +153,10 @@ export default {
       type: Object,
       required: true,
     },
+    letEdit: {
+      type: String,
+      required: true,
+    }
     /*scenarioArray: {
       type: Array,
       required: true,
@@ -176,7 +183,7 @@ export default {
   //   }
   // },
   created: async function(){
-
+    
     await this.loadScenarioByProjectId(this.projectId)
     console.log('module-canvas (scenarioArray)', this.scenarioArray)
 
@@ -206,9 +213,8 @@ export default {
       this.completeLoadingLine = true;
 
       // startNodeのところまでスクロール
-      var canvasWrapper = document.querySelector('#canvasWrapper');
-      canvasWrapper.scrollTop = 200;
-      canvasWrapper.scrollTop = 100000/2 - window.innerHeight/2;
+      var canvasWrapper = document.querySelector('#canvasWrapper')
+      canvasWrapper.scrollTop = 100000/2 - window.innerHeight/2
     }
     //this.edgesArray = pointsBetweenNodes;
 

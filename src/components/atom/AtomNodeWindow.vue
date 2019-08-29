@@ -67,7 +67,6 @@
       span {
         color: #ff9a0a;
         text-align: center;
-        list-style: none;
         display: block;
         white-space: nowrap;
       }
@@ -345,18 +344,18 @@ export default {
       e.stopPropagation()
 
       // 繋がっているエッジをcanvasから削除
-      var connectedNodes = entity.getNodesThatConnectTo(window.scenarioArray, this.content.id);
+      var connectedNodes = entity.getNodesThatConnectTo(window.scenarioArray, this.content.id)
       for(var i=0; i<connectedNodes.length; i++){
-        this.removeLine(connectedNodes[i].id);
+        this.removeLine(connectedNodes[i].id)
         // disconnect
       }
 
       if(this.content.nodeType == 'single') {
-        this.removeLine(this.content.id);
+        this.removeLine(this.content.id)
       }else{
-        var selections = this.content.selections;
+        var selections = this.content.selections
         for(var i=0; i<selections.length; i++){
-          this.removeLine(selections[i].id);
+          this.removeLine(selections[i].id)
         }
       }
 

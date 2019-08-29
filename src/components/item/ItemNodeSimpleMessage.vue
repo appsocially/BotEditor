@@ -3,7 +3,7 @@
   div(ref='dragDiv' :style='{top: `${content.gui.position.y}px`, left: `${content.gui.position.x}px`}' @click='focus' @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-simple-message.node
     div.wrap-text.f.fm.pl16.pr16.pt7.pb6
       span.text {{content.text}}
-      textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent="addNewNode").text
+      textarea(v-model='message' :style='textareaStyle' @keyup='up' @keydown.enter.exact.prevent="addNewNode").text
       div.wrap-starter.f.fh
         atom-connect-starter(:nodeId='content.id' :id='starterId')
     div.wrap-num
@@ -226,18 +226,17 @@ export default {
       window.isHoveringOnNode = false
       window.nodeHovering = ''
     },
-    down(e){
+    up(e){
       this.preNodeSize.width = this.$el.offsetWidth
       this.preNodeSize.height = this.$el.offsetHeight
 
       this.content.text = e.target.value
 
       this.$nextTick(this.fixSize)
-
+      
       // コンテンツのセーブ
       clearTimeout(this.timer)
       this.timer = setTimeout(this.updateNodeContent, 400)
-
     },
     fixSize(){
       this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8

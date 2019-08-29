@@ -78,6 +78,16 @@ export const mutations = {
         console.log('delete');
       })
   },
+  deleteOneSelection(state, id) {
+    var nodeId = id.split("-")[0]
+    for(var i=0; i < state.scenarioArray.length; i++) {
+      if(state.scenarioArray[i].id === nodeId) {
+        state.scenarioArray[i].selections = state.scenarioArray[i].selections.filter((s) => {
+          return (s.id !== id)
+        })
+      }
+    }
+  },
   updateNode(state, value) {
     for(var i=0; i<state.scenarioArray.length; i++){
       if(state.scenarioArray[i].id == value.id){
@@ -88,10 +98,9 @@ export const mutations = {
   disconnectNode(state, value){
     for(var i=0; i<state.scenarioArray.length; i++){
       if(state.scenarioArray[i].nodeType=='single' || state.scenarioArray[i].nodeType=='point'){
-        
-        if(state.scenarioArray[i].next==value){
-          delete state.scenarioArray[i].next;
-        } 
+        // if(state.scenarioArray[i].next==value){
+        //   delete state.scenarioArray[i].next
+        // } 
         if(state.scenarioArray[i].conditions){
           state.scenarioArray[i].conditions = state.scenarioArray[i].conditions.filter((e) => {
             return (e.next !== value)
@@ -103,9 +112,9 @@ export const mutations = {
 
         var selections = state.scenarioArray[i].selections
         for(var j=0; j<selections.length; j++){
-          if(selections[j].next==value){
-            delete selections[j].next
-          }
+          // if(selections[j].next==value){
+          //   delete selections[j].next
+          // }
           if(selections[j].conditions){
             state.scenarioArray[i].selections[j].conditions = selections[j].conditions.filter((e) => {
               return (e.next !== value)
@@ -117,7 +126,6 @@ export const mutations = {
       }
     }
   },
-
   addHistory(state, value){
     if(state.scenarioArray.length == 0) return;
     if(state.scenarioHistory.length > 10) state.scenarioHistory.shift();
@@ -128,7 +136,6 @@ export const mutations = {
     state.scenarioHistory.push(scenario)
     //console.log('scenarioHistory:', state.scenarioHistory)
   },
-
   async saveScenario(state, value){
     
     var projectId = location.pathname.split('/')[2]
@@ -190,7 +197,6 @@ export const mutations = {
   },
   setCustomVar(state, value){
     var content = entity.getContent(scenarioArray, value.nodeId)
-    
     // content.customVariable.location = value.location
     // content.customVariable.varType = value.varType
     content.customVariable = {
@@ -248,6 +254,28 @@ export const mutations = {
       }
     })
   },
+  removeEdgeCondition(state, id){
+    for(var i=0; i<state.scenarioArray.length; i++){
+      if(state.scenarioArray[i].nodeType=='single' || state.scenarioArray[i].nodeType=='point'){
+        if(state.scenarioArray[i].conditions){
+          state.scenarioArray[i].conditions = state.scenarioArray[i].conditions.filter((e) => {
+            return (e.id !== id)
+          })
+          if(!state.scenarioArray[i].conditions[0]) delete state.scenarioArray[i].conditions
+        }
+      } else if (state.scenarioArray[i].nodeType=='group'){
+        var selections = state.scenarioArray[i].selections
+        for(var j=0; j<selections.length; j++){
+          if(selections[j].conditions){
+            state.scenarioArray[i].selections[j].conditions = selections[j].conditions.filter((e) => {
+              return (e.id !== id)
+            })
+            if(!state.scenarioArray[i].selections[j].conditions[0]) delete state.scenarioArray[i].selections[j].conditions
+          }
+        }
+      }
+    }
+  },
   setConditionOption(state, value){
     var content = entity.getConditionByConditionId(scenarioArray, value.conditionId)
     content.option = value.option
@@ -256,17 +284,20 @@ export const mutations = {
 
 export const actions = {
   async loadScenarioByProjectId({commit}, projectId) {
-    commit('addHistory')
-    const scenarioArray = await db.collection("projects")
-      .doc(projectId)
-      .collection('scenario')
-      .get()
-      .then(function(doc) {
-        return doc.docs.map(function(doc){
-          return doc.data()
+    // commit('addHistory')
+    return new Promise(async resolve => {
+      const scenarioArray = await db.collection("projects")
+        .doc(projectId)
+        .collection('scenario')
+        .get()
+        .then(function(doc) {
+          return doc.docs.map(function(doc){
+            return doc.data()
+          })
         })
-      })
-    commit('replaceScenario', scenarioArray)
+      commit('replaceScenario', scenarioArray)
+      resolve(scenarioArray)
+    })
   },
   async pushContentToScenario({commit}, content){
     commit('addNodeToScenario', content)
@@ -276,6 +307,10 @@ export const actions = {
   async deleteNode({commit}, id){
     commit('deleteNode', id)
     commit('addHistory')
+  },
+  deleteOneSelection({commit}, id){
+    commit('deleteOneSelection', id)
+    commit('saveScenario')
   },
   async updateNode({commit}, content){
     commit('updateNode', content)
@@ -320,6 +355,10 @@ export const actions = {
   },
   updateEdgeCondition({commit}, new_condition_id){
     commit('updateEdgeCondition', new_condition_id)
+    commit('saveScenario')
+  },
+  removeEdgeCondition({commit}, id){
+    commit('removeEdgeCondition', id)
     commit('saveScenario')
   }
 };

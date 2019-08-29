@@ -3,9 +3,20 @@
   div(@click='focus'  @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-selection.node
     div.wrap-text.f.fm.px16.pt7.pb6
       span.text {{content.text}}
-      textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent).text
+      textarea(
+        v-model='message'
+        :style='textareaStyle'
+        @keyup='up'
+        @keydown.enter.exact.prevent).text
     div.wrap-selections.px16.pb2
-      atom-node-selection(v-for='item in selections' :id='item.id' :key='item.id' :content='item' ref='item.id' @loadAllEdges='loadAllEdges').atom-node-simple-message
+      atom-node-selection(
+        v-for='item in content.selections'
+        :id='item.id'
+        :key='item.id'
+        :content='item'
+        ref='item.id'
+        @loadAllEdges='loadAllEdges'
+        @updateNodeContent='updateNodeContent').atom-node-simple-message
     div.wrap-add-selection.px16.pb4
       span(@click='addSelection').pl4 + Add Selection
     div.wrap-num
@@ -125,6 +136,7 @@ export default {
       preNodeSize: {},
       textareaStyle: '',
       scaleUp: '',
+      timer: {}
     }
   },
   created: function(){
@@ -165,8 +177,7 @@ export default {
       this.content.selections.push(selectionContent)
 
       //this.fixSize()
-      setTimeout(this.fixSize, 100)
-
+      setTimeout(this.fixSize, 10)
     },
     over(){
       if(window.isDragingConnector){
@@ -180,13 +191,17 @@ export default {
       window.isHoveringOnNode = false
       window.nodeHovering = ''
     },
-    down(e){
+    up(e){
       this.preNodeSize.height = this.$el.offsetHeight
 
       this.content.text = e.target.value
 
       //this.fixSize()
       this.$nextTick(this.fixSize)
+
+      // コンテンツのセーブ
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNodeContent, 400)
     },
     fixSize(){
       this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
@@ -209,10 +224,13 @@ export default {
       if(gapOfHeight!=0) this.loadAllEdges()
       this.loadAllEdges()
     },
-    loadAllEdges(){
+    loadAllEdges () {
       this.$emit('loadAllEdges')
     },
-    focus(){
+    updateNodeContent () {
+      this.$emit('updateNode',  this.content)
+    },
+    focus () {
       $('.focused').removeClass('focused')
       this.$el.classList.add('focused')
       $('#previewLineForGoTo').removeClass('show')
@@ -220,7 +238,7 @@ export default {
       $('.node-window-active').removeClass('node-window-active')
       this.$refs.toolWindow.$el.classList.add("node-window-active")
     },
-    callRemoveSelectionMessage(id){
+    callRemoveSelectionMessage (id) {
       this.$emit('removeSelectionMessage', id);
     },
   },

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span class='title'>Welcome to Bot Editor !!</span>
+    <span class='title-welcome'>Welcome to Bot Editor !!</span>
     <div id="firebaseui-auth-container"/>
     <v-progress-circular 
       v-show="!isSignInUILoaded"
@@ -16,6 +16,7 @@ import { firebase } from '@/components/firebaseInit'
 import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
 const ui = new firebaseui.auth.AuthUI(firebase.auth())
+
 export default {
   data() {
     return {
@@ -31,16 +32,18 @@ export default {
     setupSignInUi() {
       const vInstance = this
       const uiConfig = {
+        credentialHelper: firebaseui.auth.CredentialHelper.NONE,
         callbacks: {
           uiShown() {
             vInstance.isSignInUILoaded = true
           },
           signInSuccess: () => false
+          // signInSuccessWithAuthResult: () => false
         },
         signInOptions: [
           // Leave the lines as is for the providers you want to offer your users.
-          //firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-          firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+          // firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          // firebase.auth.FacebookAuthProvider.PROVIDER_ID,
           // firebase.auth.TwitterAuthProvider.PROVIDER_ID,
           // firebase.auth.GithubAuthProvider.PROVIDER_ID,
           firebase.auth.EmailAuthProvider.PROVIDER_ID
@@ -72,5 +75,12 @@ export default {
 /* Collapse height of firebase ui loading spinner container */
 .mdl-card.firebaseui-container {
   min-height: 2px;
+}
+.title-welcome {
+  position: relative;
+  top: -20px;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 0.6px;
 }
 </style>

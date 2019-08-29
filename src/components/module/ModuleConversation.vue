@@ -1,24 +1,31 @@
 <template lang="pug">
 
   div.wrap-module-conversation
-    item-preview-header(ref='preview_header' @initConversation='initConversation').mb
-    div.wrap-message-bubbles
-      item-conversation-bubble(v-for='item in messageBubbles' :id='item.id' :key='item.id' :content='item')
+    item-preview-header(
+      ref="preview_header"
+      @initConversation="initConversation"
+      @togglePreview="togglePreview").mb
+    div(ref="bubbleWrap").wrap-message-bubbles
+      item-conversation-bubble(
+        v-for="item in messageBubbles"
+        :id="item.id"
+        :content="item"
+        :icon="project.botIcon")
     div.wrap-user-input
       item-conversation-input-free-text(
-        :placeholder='placeholder'
-        :nextEvent='nextEventOfFreeText'
-        :currentEvent='currentEvent'
-        @fireEventOfConversation='fireEventOfConversation'
-        @sendMessage='sendMessage'
-        @resetInputFreeText='resetInputFreeText')
+        :placeholder="placeholder"
+        :nextEvent="nextEventOfFreeText"
+        :currentEvent="currentEvent"
+        @fireEventOfConversation="fireEventOfConversation"
+        @sendMessage="sendMessage"
+        @resetInputFreeText="resetInputFreeText")
       item-conversation-input-selection(
-        v-if='selections[0]'
-        :selections='selections'
-        :currentEvent='currentEvent'
-        ref='user_input_selection'
-        @fireEventOfConversation='fireEventOfConversation'
-        @resetSelections='resetSelections'
+        v-if="selections[0]"
+        :selections="selections"
+        :currentEvent="currentEvent"
+        ref="user_input_selection"
+        @fireEventOfConversation="fireEventOfConversation"
+        @resetSelections="resetSelections"
         @sendMessage='sendMessage')
 
 </template>
@@ -39,6 +46,12 @@ $inputHeihgt: 100px;
     /*height: calc(100% - #{$inputHeihgt});*/
     margin: 0 auto;
     overflow: scroll;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+  .wrap-message-bubbles::-webkit-scrollbar {
+    display: none;
   }
   .wrap-user-input {
     width: 100%;
@@ -60,6 +73,7 @@ import ItemConversationBubble from "../item/ItemConversationBubble"
 
 import ItemConversationInputFreeText from "../item/ItemConversationInputFreeText"
 import ItemConversationInputSelection from "../item/ItemConversationInputSelection"
+import { setTimeout } from 'timers';
 
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
  "scenario"
@@ -98,15 +112,23 @@ export default {
       'customVars'
     ]),
   },
+  watch: {
+    messageBubbles (newBubble) {
+      this.scrollToButtom()
+    },
+    selections () {
+      setTimeout(this.scrollToButtom, 0)
+    }
+  },
   created: function(){
-    
+    // debugger
   },
   mounted: async function(){
     // はじめのノードをscenarioArrayから取得して表示しようとしているところ
 
-    console.log('module-conversation (scenarioArray)', this.scenarioArray);
+    console.log('module-conversation (scenarioArray)', this.scenarioArray)
 
-    this.initConversation();
+    // this.initConversation()
 
     //var content = this.scenarioArray[0];
     //this.messageBubbles.push(content);
@@ -211,11 +233,12 @@ export default {
         case 'goto':
 
           (async () => {
-            await sleep(1200)
-            if(event.conditions) {
-              var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
-              this.fireEventOfConversation(matchedCondition.next)
-            }
+            // await sleep(1200)
+            this.fireEventOfConversation(event.toId)
+            // if(event.conditions) {
+            //   var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
+            //   this.fireEventOfConversation(matchedCondition.next)
+            // }
           })()
 
         break
@@ -223,9 +246,18 @@ export default {
 
       this.currentEvent = event.id
     },
-    resetInputFreeText(){
+    resetInputFreeText () {
       this.placeholder = 'Message'
       this.nextEventOfFreeText = ''
+    },
+    scrollToButtom () {
+      if (this.$refs.bubbleWrap) {
+        var bubbleWrap = this.$refs.bubbleWrap
+        bubbleWrap.scrollTop = bubbleWrap.scrollHeight //(bubbleWrap.scrollHeight - bubbleWrap.offsetHeight)
+      }
+    },
+    togglePreview () {
+      this.$emit("togglePreview")
     }
   },
   computed: {

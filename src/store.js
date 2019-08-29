@@ -1,10 +1,11 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import * as scenario from "./store/scenario";
-import * as auth from "./store/auth";
-import * as edges from "./store/edges";
+import Vue from "vue"
+import Vuex from "vuex"
+import * as project from "./store/project"
+import * as scenario from "./store/scenario"
+import * as auth from "./store/auth"
+import * as edges from "./store/edges"
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
 console.log('store:', scenario);
 
@@ -13,6 +14,11 @@ export default new Vuex.Store({
   mutations: {},
   actions: {},
   modules: {
+    project: {
+      namespaced: true,
+      ...project,
+      //state: scenario.state
+    },
     scenario: {
       namespaced: true,
       ...scenario,

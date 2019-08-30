@@ -7,7 +7,11 @@
         @toggleModal="toggleModal"
         @loadCanvas="loadCanvas"
         @enableEdit="enableEdit")
-      module-canvas(v-if='!!project && !!scenario' :project='project' :letEdit="letEdit")
+      module-canvas(
+        ref="canvas"
+        v-if='!!project && !!scenario'
+        :project='project'
+        :letEdit="letEdit")
       div(v-show="showPreview").wrap-preview
         module-conversation(
           ref="conversation"
@@ -100,11 +104,19 @@ export default {
       scenario: null,
       showPreview: true,
       showModal: false,
-      letEdit: "let-edit"
+      letEdit: "let-edit",
+      letInitConversation: true
     }
   },
+  watch:{
+    $route (to, from){
+      this.letInitConversation = true
+      this.loadCanvas()
+      // this.$refs.conversation.initConversation()
+    }
+  }, 
   created: async function () {
-    if(this.uid) this.loadCanvas()
+    this.loadCanvas()
   },
   mounted: function () {
     
@@ -131,7 +143,7 @@ export default {
       await this.loadProject(this.$route.params.id)
       if(this.project.author === this.uid){
         this.updateEditTime (this.project.id)
-      } else if (this.uid) {
+      } else {
         this.letEdit = "not-let-edit"
       }
       await this.loadScenarioByProjectId(this.project.id)
@@ -139,7 +151,11 @@ export default {
 
       this.loadAllCustomVars()
 
-      if(this.$refs.conversation) this.$refs.conversation.initConversation()
+      if(this.$refs.conversation && this.letInitConversation){
+        this.$refs.conversation.initConversation()
+        this.letInitConversation = false
+      }
+      if(this.$refs.canvas) this.$refs.canvas.scrollToStartNode()
 
       $('#nowLoading').fadeOut(400)
     },

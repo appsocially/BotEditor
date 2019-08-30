@@ -324,7 +324,7 @@ entity.getMatchedCondition = function(scenario, conditions, customVarsArray) {
     switch (conditionType) {
       case "custom_var":
         if (!conditions[i].option) break
- 
+        
         var customVar = customVarsArray.filter((e) => {
           return (conditions[i].option.customVarName === e.location)
         })[0]

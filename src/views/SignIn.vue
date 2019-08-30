@@ -33,17 +33,23 @@
 </template>
 
 <script>
-import firebase from "firebase";
-import db from "@/components/firebaseInit";
+import firebase from "firebase"
+import db from "@/components/firebaseInit"
 
 import FirebaseSignInUi from '@/components/sign-in/firebase-sign-in-ui'
 
-import { createNamespacedHelpers } from "vuex";
+import { createNamespacedHelpers } from "vuex"
 import Auth from '@/components/auth'
-import { setTimeout } from 'timers';
-const { mapState, mapActions } = createNamespacedHelpers(
+import { setTimeout } from 'timers'
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
  "auth"
-);
+)
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
+ "project"
+)
+const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers(
+ "scenario"
+)
 
 export default {
   components: {
@@ -56,10 +62,15 @@ export default {
     }
   },
   methods: {
+    ...mapActionsProject([
+      'loadProject',
+      'copyProject'
+    ]),
+    ...mapActionsScenario([
+      'loadScenarioByProjectId'
+    ]),
     onFailedAuthentication() {
       this.loggingIn = false
-
-      if(this.$route.name === "sign-up") setTimeout(this.replaceSignInText, 10)   
     },
     async onLoggedIn({ onboardingData }) {
 
@@ -74,8 +85,7 @@ export default {
           email: user.email,
           photoUrl: user.photoURL,
           lastSignInTime: user.metadata.lastSignInTime,
-          creationTime: user.metadata.creationTime,
-          groups: ['Appsocially'],
+          creationTime: user.metadata.creationTime
         }
 
         await db.collection("users")
@@ -87,8 +97,19 @@ export default {
           .catch(function(error) {
             console.error("Error writing document: ", error)
           })
-      }
 
+        if(this.$route.params.projectId) {
+          var project = await this.loadProject(this.$route.params.projectId)
+          var scenarioArray = await this.loadScenarioByProjectId(this.$route.params.projectId)
+          
+          await this.copyProject({
+            uid: user.uid,
+            userDisplayName: user.displayName,
+            scenario: scenarioArray,
+            project: project
+          })
+        }
+      }
 
       this.$router.push('/top')
 
@@ -100,25 +121,25 @@ export default {
       }
       */
     },
-    replaceSignInText () {
-      var titles = document.getElementsByClassName("firebaseui-title")
-      for(var i=0; i<titles.length; i++){
-        titles[i].innerText = titles[i].innerText.replace("Sign in", "Sign up")
-      }
-    }
     /*signOut() {
       await firebase.auth().signOut();
     }*/
   },
   computed: {
-    ...mapState([
+    ...mapStateAuth([
       'uid',
     ]),
+    ...mapStateProject([
+      'project',
+    ]),
+    ...mapStateScenario([
+      'scenarioArray',
+    ])
   }
 }
 </script>
 
-<style>
+<style scoped>
 img {
   width: 100%;
 }

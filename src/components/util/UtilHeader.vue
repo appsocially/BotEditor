@@ -37,6 +37,8 @@
         font-weight: bold;
         font-size: 18px;
         color: #2a2a2a;
+        letter-spacing: 0.4px;
+        cursor: pointer;
       }
     }
     .icon-center {

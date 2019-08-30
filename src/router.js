@@ -40,6 +40,11 @@ export default new Router({
       component: SignIn
     },
     {
+      path: "/sign-up/:projectId",
+      name: "sign-up",
+      component: SignIn
+    },
+    {
       path: "/canvas/:id",
       name: "canvas",
       component: Canvas
@@ -51,12 +56,12 @@ export default new Router({
     },
     {
       path: "/preview/:id",
-      name: "conversation",
+      name: "preview",
       component: Conversation
     },
     {
       path: "/chat/:id",
-      name: "conversation",
+      name: "chat",
       component: Conversation
     },
     // for v1

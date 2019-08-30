@@ -212,9 +212,7 @@ export default {
       this.loadAllEdges();
       this.completeLoadingLine = true;
 
-      // startNodeのところまでスクロール
-      var canvasWrapper = document.querySelector('#canvasWrapper')
-      canvasWrapper.scrollTop = 100000/2 - window.innerHeight/2
+      this.scrollToStartNode()
     }
     //this.edgesArray = pointsBetweenNodes;
 
@@ -665,7 +663,15 @@ export default {
       }, nodeClickHandler);
 
     },
-    createRandomUniqueStr(){
+    scrollToStartNode() {
+      // startNodeのところまでスクロール
+      var canvasWrapper = document.querySelector('#canvasWrapper')
+      if (canvasWrapper) {
+        canvasWrapper.scrollLeft = 0
+        canvasWrapper.scrollTop = 100000/2 - window.innerHeight/2
+      }
+    },
+    createRandomUniqueStr() {
       return Math.random().toString(36).slice(-4)
     }
   },

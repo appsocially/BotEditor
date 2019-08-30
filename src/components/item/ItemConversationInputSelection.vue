@@ -53,7 +53,8 @@ export default {
   },
   computed: {
     ...mapState([
-      'scenarioArray'
+      'scenarioArray',
+      'customVars'
     ])
   },
   created: function(){
@@ -73,7 +74,7 @@ export default {
       this.$emit('resetSelections')
 
       var conditions = entity.getConditions(this.scenarioArray, id)
-      var matchedCondition= entity.getMatchedCondition(this.scenarioArray, conditions)
+      var matchedCondition= entity.getMatchedCondition(this.scenarioArray, conditions, this.customVars)
       
       this.$emit('fireEventOfConversation', matchedCondition.next)
       

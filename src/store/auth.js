@@ -1,6 +1,6 @@
 import { firebase } from '@/components/firebaseInit'
-import firestore from '@/components/firebaseInit'
-//import { collections } from '@/components/vars'
+//import firestore from '@/components/firebaseInit'
+import { firestore } from '@/components/firebaseInit'
 
 export const state = () => ({
   userDisplayName: null,

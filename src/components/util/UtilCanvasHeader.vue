@@ -3,7 +3,7 @@
   div(v-if="project").wrap-util
     div.util-content.f.fc
       div.icon-left.f.fm
-        //span test-l
+        span(@click="$router.push('/openbots')").logo BotEditor
       div.label.f.fm
         span {{project.title}}
         v-icon(
@@ -12,15 +12,15 @@
           color='#2a2a2a').settings settings
       div.icon-right.f.fm
         //span test-r
-        div(v-if="!uid")
-          
+        div(v-if="!uid && project.pulishedAsFormat").wrap-get-started.f.fm
+          span(@click="toSignIn").sign-in.mr16 Sign In
+          span(@click="toSignUpWithBot").sign-up.px10.py6 Sign Up with this Bot
         div(v-else-if="project.author !== uid && uid && project.pulishedAsFormat")
           div(@click="onImport").import-button.f.fm.pl2.pr12.py3
             v-icon play_for_work
             span Import this Bot
     div(v-if="project.author !== uid").notify-unauthed.f.fh
       span You don't have the right to edit.
-
 
 </template>
 
@@ -54,11 +54,34 @@
       position: absolute;
       left: 0;
       height: 100%;
+      .logo {
+        font-weight: bold;
+        font-size: 18px;
+        color: #2a2a2a;
+        letter-spacing: 0.4px;
+        cursor: pointer;
+      }
     }
     .icon-right {
       position: absolute;
       right: 0;
       height: 100%;
+      .wrap-get-started {     
+        .sign-up {
+          background: #FF9A0A;
+          border-radius: 3px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #FFF;
+          letter-spacing: 0.4px;
+          cursor: pointer;
+        }
+        .sign-in {
+          font-size: 12px;
+          font-weight: 500;
+          color: #FF9A0A;
+        }
+      }
       .import-button {        
         background: #FF9A0A;
         cursor: pointer;
@@ -71,7 +94,8 @@
         span {
           color: #FFF;
           font-size: 12px;
-          font-weight: bold;
+          font-weight: 500;
+          letter-spacing: 0.4px;
         }
       }
     }
@@ -90,14 +114,15 @@
 <script>
 import { createNamespacedHelpers } from "vuex"
 import { setTimeout } from 'timers';
-const { mapState: mapStateScenario } = createNamespacedHelpers(
- "scenario"
+
+const { mapState: mapStateAuth } = createNamespacedHelpers(
+ "auth"
 )
 const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
  "project"
 )
-const { mapState: mapStateAuth } = createNamespacedHelpers(
- "auth"
+const { mapState: mapStateScenario } = createNamespacedHelpers(
+ "scenario"
 )
 
 export default {
@@ -109,7 +134,7 @@ export default {
     }
   },
   created: function (){
-    
+
   },
   methods: {
     ...mapActionsProject([
@@ -117,6 +142,13 @@ export default {
     ]),
     toggleModal () {
       this.$emit('toggleModal')
+    },
+    toSignIn () {
+      this.$router.push("/sign-in")
+    },
+    toSignUpWithBot () {
+      var projectId = this.$route.params.id
+      this.$router.push(`/sign-up/${projectId}`)
     },
     async onImport () {
       $('#nowLoading').fadeIn(400)
@@ -128,34 +160,25 @@ export default {
         project: this.project        
       })
       
-      this.$router.push("/top")
       this.$router.push(`/canvas/${newProjectId}`)
 
-      this.$emit("loadCanvas")
       this.$emit("enableEdit")
 
       alert("The scenario has been imported as your new Bot!!")
-
-      setTimeout(() => {
-        var canvasWrapper = document.querySelector('#canvasWrapper')
-        if (canvasWrapper) {
-          canvasWrapper.scrollLeft = 0
-          canvasWrapper.scrollTop = 100000/2 - window.innerHeight/2
-        }
-      }, 800)
       
     }
   },
   computed: {
-    ...mapStateScenario([
-      'scenarioArray',
-    ]),
     ...mapStateAuth([
       'uid',
+      'isSigningOut',
       'userDisplayName'
     ]),
     ...mapStateProject([
       'project',
+    ]),
+    ...mapStateScenario([
+      'scenarioArray',
     ])
   }
 };

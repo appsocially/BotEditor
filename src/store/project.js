@@ -72,7 +72,7 @@ export const actions = {
         editedAt: new Date(),
         publishedAsFormat: false
       }
-
+      
       var copiedProject = await db.collection("projects").add(projectObj).then((d) => { return d } )
 
       var newScenario = data.scenario.map(node => {

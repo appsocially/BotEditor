@@ -16,9 +16,8 @@
 </template>
 
 <style lang="scss">
-
 .wrap-item-node-simple-message {
-  background: #FFF;
+  background: #fff;
   position: absolute;
   border-radius: 12px;
   .wrap-text {
@@ -54,7 +53,7 @@
     left: 2px;
     top: -22px;
     span {
-      color: #AAA;
+      color: #aaa;
       font-size: 12px;
     }
   }
@@ -75,7 +74,7 @@
 
   &.focused {
     z-index: 102 !important;
-    box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
     .wrap-delete {
       display: block;
     }
@@ -87,11 +86,9 @@
     z-index: 201;
   }
 }
-
 </style>
 
 <script>
-
 import { createNamespacedHelpers } from "vuex"
 
 import nodeController from "../nodeController"
@@ -100,12 +97,10 @@ import AtomConnectStarter from "../atom/AtomConnectStarter"
 import AtomDeleteNode from "../atom/AtomDeleteNode"
 import AtomNodeWindow from "../atom/AtomNodeWindow"
 
-const { mapMutations } = createNamespacedHelpers(
- "edges"
-);
+const { mapMutations } = createNamespacedHelpers("edges")
 
 export default {
-  name: 'ItemNodeSimpleMessage',
+  name: "ItemNodeSimpleMessage",
   components: {
     AtomConnectStarter,
     AtomDeleteNode,
@@ -114,72 +109,63 @@ export default {
   props: {
     content: {
       type: Object,
-      required: true,
+      required: true
     }
   },
   data() {
     return {
-      starterId: '',
-      message: '',
+      starterId: "",
+      message: "",
       nodeTextSize: {},
       preNodeSize: {},
-      textareaStyle: '',
-      scaleUp: '',
-      timer: {},
+      textareaStyle: "",
+      scaleUp: "",
+      timer: {}
     }
   },
-  created: function(){
-
-    this.starterId = `connectStarter-${this.content.id}`;
-    this.message = this.content.text;
-
+  created: function() {
+    this.starterId = `connectStarter-${this.content.id}`
+    this.message = this.content.text
   },
-  mounted: function(){
+  mounted: function() {
+    var id = this.content.id
+    var pos = this.content.gui.position
+    let node = d3
+      .select(`#${id}`)
+      .data([{ pos: pos, id: id }])
+      .style("top", `${pos.y}px`)
+      .style("left", `${pos.x}px`)
 
-    var id = this.content.id;
-    var pos = this.content.gui.position;
-    var node = d3.select(`#${id}`)
-      .data([{pos: pos, id: id}])
-      .style('top', `${pos.y}px`)
-      .style('left', `${pos.x}px`);
-
-    const coordinate = this.getCoordinates();
+    const coordinate = this.getCoordinates()
     this.set({
       id: this.content.id,
       next: this.content.next,
       ...coordinate
-    });
+    })
 
-    node.call(nodeController.dragOnNode);
+    node.call(nodeController.dragOnNode)
 
-    const node = d3.select(this.$refs.dragDiv);
+    node = d3.select(this.$refs.dragDiv)
     //node.call(this.setUpDrag());
 
+    this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
+    this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
 
-    this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
-    this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight;
+    this.textareaStyle = `width: ${this.nodeTextSize.width}px; height: ${this.nodeTextSize.height}px;`
 
-    this.textareaStyle = `width: ${this.nodeTextSize.width}px; height: ${this.nodeTextSize.height}px;`;
-
-    
-    var textarea = this.$el.children[0].children[1];
-    textarea.select();
-
-
+    var textarea = this.$el.children[0].children[1]
+    textarea.select()
   },
   methods: {
-    ...mapMutations([
-      'set'
-    ]),
+    ...mapMutations(["set"]),
     // setUpDrag(){
     //   return d3.behavior.drag()
-    //     .origin(function(d) { 
-    //       return d; 
+    //     .origin(function(d) {
+    //       return d;
     //     })
     //     //.on("dragstart", dragstartedOnNode)
     //     .on("drag", (d) => {
-          
-          
+
     //       this.content.gui.position.x += d3.event.dx;
     //       this.content.gui.position.y += d3.event.dy;
     //     })
@@ -193,91 +179,90 @@ export default {
     //     });
 
     // },
-    getCoordinates(){
-
+    getCoordinates() {
       const node = this.$refs.dragDiv
 
       const startPointOffset = 9
-      
+
       const left = {
         x: node.offsetLeft,
-        y: node.offsetTop + node.clientHeight/2
+        y: node.offsetTop + node.clientHeight / 2
       }
 
       const right = {
         x: node.offsetLeft + node.clientWidth,
-        y: node.offsetTop + node.clientHeight/2
+        y: node.offsetTop + node.clientHeight / 2
       }
 
-      const coordinate = {left: left, right: right}
+      const coordinate = { left: left, right: right }
 
       return coordinate
-
     },
-    over(){
-      if(window.isDragingConnector){
-        this.scaleUp = 'scale-up'
+    over() {
+      if (window.isDragingConnector) {
+        this.scaleUp = "scale-up"
         window.isHoveringOnNode = true
         window.nodeHovering = this.content
       }
     },
-    leave(){
-      this.scaleUp = ''
+    leave() {
+      this.scaleUp = ""
       window.isHoveringOnNode = false
-      window.nodeHovering = ''
+      window.nodeHovering = ""
     },
-    up(e){
+    up(e) {
       this.preNodeSize.width = this.$el.offsetWidth
       this.preNodeSize.height = this.$el.offsetHeight
 
       this.content.text = e.target.value
 
       this.$nextTick(this.fixSize)
-      
+
       // コンテンツのセーブ
       clearTimeout(this.timer)
       this.timer = setTimeout(this.updateNodeContent, 400)
     },
-    fixSize(){
+    fixSize() {
       this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
       this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
       this.textareaStyle = `
         width: ${this.nodeTextSize.width}px;
         height: ${this.nodeTextSize.height}px;
-        `;
+        `
 
       var gapOfWidth = this.$el.offsetWidth - this.preNodeSize.width
       var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height
 
-      this.content.gui.position.y -= gapOfHeight/2
+      this.content.gui.position.y -= gapOfHeight / 2
 
       var id = this.content.id
       var pos = this.content.gui.position
-      var node = d3.select(`#${id}`)
-        .data([{pos: pos, id: id}])
-        .style('top', `${pos.y}px`)
-        .style('left', `${pos.x}px`)
+      var node = d3
+        .select(`#${id}`)
+        .data([{ pos: pos, id: id }])
+        .style("top", `${pos.y}px`)
+        .style("left", `${pos.x}px`)
 
-      if(gapOfWidth!=0 || gapOfHeight>0) this.$emit('loadAllEdges')
+      if (gapOfWidth != 0 || gapOfHeight > 0) this.$emit("loadAllEdges")
       //this.$emit('fixEdgeOfNormalNode', this.content);
     },
-    updateNodeContent(){
-      this.$emit('updateNode',  this.content)
+    updateNodeContent() {
+      this.$emit("updateNode", this.content)
     },
-    focus(){
-      $('.focused').removeClass('focused')
-      this.$el.classList.add('focused')
-      $('#previewLineForGoTo').removeClass('show')
+    focus() {
+      $(".focused").removeClass("focused")
+      this.$el.classList.add("focused")
+      $("#previewLineForGoTo").removeClass("show")
 
-      $('.node-window-active').removeClass('node-window-active')
+      $(".node-window-active").removeClass("node-window-active")
       this.$refs.toolWindow.$el.classList.add("node-window-active")
     },
-    callRemoveNormalMessageNode(id){
-      this.$emit('removeNormalMessageNode',  id)
+    callRemoveNormalMessageNode(id) {
+      this.$emit("removeNormalMessageNode", id)
     },
-    addNewNode(){
+    addNewNode() {
       console.log("add")
     }
-  },
-};
+  }
+}
 </script>

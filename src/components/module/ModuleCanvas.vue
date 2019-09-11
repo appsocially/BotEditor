@@ -23,7 +23,6 @@
 </template>
 
 <style lang="scss">
-
 .wrap-module-canvas {
   position: relative;
   top: 0;
@@ -73,9 +72,18 @@
       width: 100000px;
       max-width: 100000px;
       height: 100000px;
-      background: #F7F7F7;
+      background: #f7f7f7;
       background-size: 52px 52px;
-      background-image: linear-gradient(to right, rgba(100,100,100,0.1) 0.5px, transparent 1px), linear-gradient(to bottom, rgba(100,100,100,0.1) 0.3px, transparent 1px);
+      background-image: linear-gradient(
+          to right,
+          rgba(100, 100, 100, 0.1) 0.5px,
+          transparent 1px
+        ),
+        linear-gradient(
+          to bottom,
+          rgba(100, 100, 100, 0.1) 0.3px,
+          transparent 1px
+        );
     }
     #modalOverlay {
       display: none;
@@ -84,7 +92,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.4);
     }
   }
   .wrap-preview {
@@ -94,29 +102,26 @@
     bottom: 16px;
     width: 300px;
     height: 440px;
-    filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
+    filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
   }
 }
-
 </style>
 
 <script>
 import db from "../firebaseInit"
 
 import { createNamespacedHelpers } from "vuex"
-import Auth from '@/components/auth'
-const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
- "auth"
-)
-const { mapState, mapActions } = createNamespacedHelpers(
- "scenario"
-)
-const { mapGetters: mapEdgesGetters } = createNamespacedHelpers(
- "edges"
-)
+import Auth from "@/components/auth"
+const {
+  mapState: mapStateAuth,
+  mapActions: mapActionsAuth
+} = createNamespacedHelpers("auth")
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
+const { mapGetters: mapEdgesGetters } = createNamespacedHelpers("edges")
 
 import entity from "../entity"
 import exportECA from "../exportECA"
+import exportUPIL from "../exportUPIL"
 
 import ModuleConversation from "./ModuleConversation"
 
@@ -130,12 +135,11 @@ import ItemNodeOpenQuestion from "../item/ItemNodeOpenQuestion"
 import ItemNodeGoTo from "../item/ItemNodeGoTo"
 
 import ItemEdge from "../item/ItemEdge"
-import { newExpression } from 'babel-types';
-import { isArray } from 'util';
-
+import { newExpression } from "babel-types"
+import { isArray } from "util"
 
 export default {
-  name: 'ModuleCanvas',
+  name: "ModuleCanvas",
   components: {
     Auth,
     ModuleConversation,
@@ -151,11 +155,11 @@ export default {
   props: {
     project: {
       type: Object,
-      required: true,
+      required: true
     },
     letEdit: {
       type: String,
-      required: true,
+      required: true
     }
     /*scenarioArray: {
       type: Array,
@@ -170,7 +174,7 @@ export default {
       openQuestionNodes: [],
       goToNodes: [],
       edgesArray: [],
-      completeLoadingLine: false,
+      completeLoadingLine: false
     }
   },
   // watch: {
@@ -182,10 +186,9 @@ export default {
   //     }
   //   }
   // },
-  created: async function(){
-    
+  created: async function() {
     await this.loadScenarioByProjectId(this.projectId)
-    console.log('module-canvas (scenarioArray)', this.scenarioArray)
+    console.log("module-canvas (scenarioArray)", this.scenarioArray)
 
     // これ多分やっちゃいけないやつ
     window.scenarioArray = this.scenarioArray
@@ -205,294 +208,329 @@ export default {
     this.selectionNodes = entity.getSelectionNodes(this.scenarioArray)
     this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray)
     this.goToNodes = entity.getGoToNodes(this.scenarioArray)
-    
   },
-  updated: function(){
-    if(!this.completeLoadingLine){
-      this.loadAllEdges();
-      this.completeLoadingLine = true;
+  updated: function() {
+    if (!this.completeLoadingLine) {
+      this.loadAllEdges()
+      this.completeLoadingLine = true
 
       this.scrollToStartNode()
     }
     //this.edgesArray = pointsBetweenNodes;
-
   },
   methods: {
     ...mapActions([
-      'loadScenarioByProjectId',
-      'pushContentToScenario',
-      'connectSingleNode',
-      'connectGroupNode',
-      'connectNode',
-      'updateNode',
-      'deleteNode',
-      'disconnectNode',
-      'updateEdgeCondition'
+      "loadScenarioByProjectId",
+      "pushContentToScenario",
+      "connectSingleNode",
+      "connectGroupNode",
+      "connectNode",
+      "updateNode",
+      "deleteNode",
+      "disconnectNode",
+      "updateEdgeCondition"
     ]),
-    update(){
-      this.project = this.project;
+    update() {
+      this.project = this.project
     },
-    loadAllEdges(){
+    loadAllEdges() {
       this.edgesArray = []
 
-      var scenario = this.scenarioArray;
+      var scenario = this.scenarioArray
 
-      var points = [];
-      for(var i=0; i<scenario.length; i++){
-        if(scenario[i].nodeType=='single'  || scenario[i].nodeType=='point'){ //&& scenario[i].next){
-          points = points.concat(this.getCoordinatesOfSingleNode(scenario[i]));
-        }else if(scenario[i].nodeType=='group'){
-          points = points.concat(this.getCoordinatesOfGroupNode(scenario[i]));
+      var points = []
+      for (var i = 0; i < scenario.length; i++) {
+        if (
+          scenario[i].nodeType == "single" ||
+          scenario[i].nodeType == "point"
+        ) {
+          //&& scenario[i].next){
+          points = points.concat(this.getCoordinatesOfSingleNode(scenario[i]))
+        } else if (scenario[i].nodeType == "group") {
+          points = points.concat(this.getCoordinatesOfGroupNode(scenario[i]))
         } // if
       } // for
 
-      var pointsBetweenNodes = points;
-      
-      for(var i=0; i<pointsBetweenNodes.length; i++){
+      var pointsBetweenNodes = points
+
+      for (var i = 0; i < pointsBetweenNodes.length; i++) {
         // var points = pointsBetweenNodes[i];
-        this.addEdge(pointsBetweenNodes[i].from, pointsBetweenNodes[i].to, pointsBetweenNodes[i].id);
+        this.addEdge(
+          pointsBetweenNodes[i].from,
+          pointsBetweenNodes[i].to,
+          pointsBetweenNodes[i].id
+        )
       }
       this.edgesArray = this.edgesArray
     },
-    addEdge(from, to, id){
+    addEdge(from, to, id) {
       this.edgesArray.push({
         from: from,
         to: to,
         id: id
       })
-      if(this.$refs[id] && this.$refs[id][0]) this.$refs[id][0].draw()
+      if (this.$refs[id] && this.$refs[id][0]) this.$refs[id][0].draw()
       // this.edgesArray = this.edgesArray
     },
     // セレクターからノードを追加した時に、そのノードを繋げるエッジを追加する
-    addEdgeFromSelector(fromId, toId, dragStartedPosition, position){
+    addEdgeFromSelector(fromId, toId, dragStartedPosition, position) {
       var fromNodeEdges = entity.getConditions(this.scenarioArray, fromId)
-      var elseEdge = fromNodeEdges.filter((e) => {
-        return (e.type === "else")
+      var elseEdge = fromNodeEdges.filter(e => {
+        return e.type === "else"
       })[0]
-      
-      if(elseEdge){
+
+      if (elseEdge) {
         var uniqueStr = this.createRandomUniqueStr()
-        this.connectNode({fromId: fromId, toId: toId, condition: "default", id: `default-${uniqueStr}-${fromId}`})
-        this.addEdge(dragStartedPosition, position, `default-${uniqueStr}-${fromId}`)
+        this.connectNode({
+          fromId: fromId,
+          toId: toId,
+          condition: "default",
+          id: `default-${uniqueStr}-${fromId}`
+        })
+        this.addEdge(
+          dragStartedPosition,
+          position,
+          `default-${uniqueStr}-${fromId}`
+        )
       } else {
-        this.connectNode({fromId: fromId, toId: toId, condition: "else", id: `else-${fromId}`})
-        this.addEdge(dragStartedPosition, position, `else-${fromId}`)        
+        this.connectNode({
+          fromId: fromId,
+          toId: toId,
+          condition: "else",
+          id: `else-${fromId}`
+        })
+        this.addEdge(dragStartedPosition, position, `else-${fromId}`)
       }
     },
-    updateEdge(from, to, id){
-      for(var i=0; i<this.edgesArray.length; i++){
-        if(this.edgesArray[i].id === id){
+    updateEdge(from, to, id) {
+      for (var i = 0; i < this.edgesArray.length; i++) {
+        if (this.edgesArray[i].id === id) {
           this.edgesArray[i].from = from
           this.edgesArray[i].to = to
           this.$refs[id][0].draw()
         }
       }
     },
-    updateEdgeType(newType, edgeContent){
-      
+    updateEdgeType(newType, edgeContent) {
       // すでに対象のnodeにelseが紐づいている場合、そのコンディションをdefaultに変更する
-      if(newType === "else"){
-        var content = entity.getContentByConditionId(this.scenarioArray, edgeContent.id)
-        
-        var elseCondition = content.conditions.filter((e) => { return (e.id.split("-")[0] === "else") })[0]
-        if(elseCondition){
-          var targetEdgeContent = this.edgesArray.filter((e) => { return (elseCondition.id === e.id) })[0]
+      if (newType === "else") {
+        var content = entity.getContentByConditionId(
+          this.scenarioArray,
+          edgeContent.id
+        )
+
+        var elseCondition = content.conditions.filter(e => {
+          return e.id.split("-")[0] === "else"
+        })[0]
+        if (elseCondition) {
+          var targetEdgeContent = this.edgesArray.filter(e => {
+            return elseCondition.id === e.id
+          })[0]
           this.updateEdgeType("default", targetEdgeContent)
         }
       }
 
       // nodeに紐づくconditionsの配列をアップデート
-      
+
       this.$refs[edgeContent.id][0].removeLine()
 
       var idArray = edgeContent.id.split("-")
 
       // else以外からelseになる場合、idの部分（**-abcde-**）だけ消す
-      if(/*newType === "else" && */idArray[0] !== "else") {
-        idArray = idArray.filter((e, i) => { return i !==  1 })
+      if (/*newType === "else" && */ idArray[0] !== "else") {
+        idArray = idArray.filter((e, i) => {
+          return i !== 1
+        })
       }
 
-      idArray[0] = (newType === "else")? "else": `${newType}-${this.createRandomUniqueStr()}`
+      idArray[0] =
+        newType === "else"
+          ? "else"
+          : `${newType}-${this.createRandomUniqueStr()}`
       var newConditionId = idArray.join("-")
-      
-      this.updateEdgeCondition({id: edgeContent.id, new_condition_id: newConditionId})
 
-      this.edgesArray = this.edgesArray.map((e) => {
-        if(edgeContent.id === e.id){
+      this.updateEdgeCondition({
+        id: edgeContent.id,
+        new_condition_id: newConditionId
+      })
+
+      this.edgesArray = this.edgesArray.map(e => {
+        if (edgeContent.id === e.id) {
           e.id = newConditionId
           return e
         } else {
           return e
         }
       })
-
     },
-    removeEdge(id){
-      this.edgesArray = this.edgesArray.filter((e) => {
+    removeEdge(id) {
+      this.edgesArray = this.edgesArray.filter(e => {
         return e.id !== id
       })
     },
-    removeEdgesThatConnectNodeOf(nodeId){
+    removeEdgesThatConnectNodeOf(nodeId) {
       var fromEdges = entity.getEdgesThatConnectFrom(this.scenarioArray, nodeId)
       var toEdges = entity.getEdgesThatConnectTo(this.scenarioArray, nodeId)
-      var edgesToRemove = fromEdges.concat(toEdges).map((e) => {
+      var edgesToRemove = fromEdges.concat(toEdges).map(e => {
         return e.id
         // return `${e.type}-${e.fromNodeId}`
       })
-      for(var i=0; i<edgesToRemove.length; i++){
-        var lines = d3.select('#lines')
+      for (var i = 0; i < edgesToRemove.length; i++) {
+        var lines = d3.select("#lines")
         lines.select(`#line-${edgesToRemove[i]}`).remove()
       }
-      this.edgesArray = this.edgesArray.filter((e) => {
-        return (!edgesToRemove.includes(e.id))
+      this.edgesArray = this.edgesArray.filter(e => {
+        return !edgesToRemove.includes(e.id)
       })
     },
-    openEdgeWindow(content){
+    openEdgeWindow(content) {
       // this.$refs.edgeWindow.closeWindow()
       this.$refs.edgeWindow.updatePosition({
-        x: (content.to.x + content.from.x)/2,
-        y: (content.to.y + content.from.y)/2
+        x: (content.to.x + content.from.x) / 2,
+        y: (content.to.y + content.from.y) / 2
       })
       this.$refs.edgeWindow.setContent(content)
       setTimeout(this.$refs.edgeWindow.activateWindow, 10)
     },
-    closeToolWindows(){
-       $('.node-window-active').removeClass('node-window-active')
+    closeToolWindows() {
+      $(".node-window-active").removeClass("node-window-active")
       this.$refs.edgeWindow.closeWindow()
     },
-    getCoordinatesOfSingleNode(event){
-
+    getCoordinatesOfSingleNode(event) {
       var points = []
 
       var node = document.getElementById(event.id)
 
-      if(event.conditions){
-
-        for(var i=0; i<event.conditions.length; i++){
+      if (event.conditions) {
+        for (var i = 0; i < event.conditions.length; i++) {
           var nextNode = document.getElementById(event.conditions[i].next)
 
           var from = {}
           var to = {}
 
-          if(event.type == 'start-point'){
+          if (event.type == "start-point") {
             var startPointOffset = -2
-          }else{
+          } else {
             var startPointOffset = 9
           }
 
-          if(node&&nextNode){
+          if (node && nextNode) {
             from.x = node.offsetLeft + node.clientWidth + startPointOffset
-            from.y = node.offsetTop + node.clientHeight/2
+            from.y = node.offsetTop + node.clientHeight / 2
 
             to.x = nextNode.offsetLeft
-            to.y = nextNode.offsetTop + nextNode.clientHeight/2
-            
+            to.y = nextNode.offsetTop + nextNode.clientHeight / 2
+
             points.push({
               from: from,
               to: to,
-              id: event.conditions[i].id,//`${event.conditions[i].type}-${event.id}`,
+              id: event.conditions[i].id, //`${event.conditions[i].type}-${event.id}`,
               type: event.conditions[i].type
             })
             //return {from: from, to: to, id: scenario[i].id}
           }
         }
-
       } // event.conditions
 
       return points
-
     },
-    getCoordinatesOfGroupNode(event){
-
+    getCoordinatesOfGroupNode(event) {
       var points = []
 
       var selections = event.selections
-      
-      for(var j=0; j<selections.length; j++){
+
+      for (var j = 0; j < selections.length; j++) {
         // if(selections[j].next){
         var conditions = selections[j].conditions
-        if(conditions){
-
+        if (conditions) {
           var from = {}
 
           var childNode = document.getElementById(selections[j].id)
           var childNodePos = $(childNode).position()
-          var parentNodePos = $(childNode).closest('.item-node-selection').position()
+          var parentNodePos = $(childNode)
+            .closest(".item-node-selection")
+            .position()
           var widthOffset = $(childNode).width()
-          var heightOffset = $(childNode).height()/2
+          var heightOffset = $(childNode).height() / 2
 
           var startPointOffset = 9
 
-          if(parentNodePos&&childNodePos){
-            from.x = parentNodePos.left + childNodePos.left + widthOffset + startPointOffset
+          if (parentNodePos && childNodePos) {
+            from.x =
+              parentNodePos.left +
+              childNodePos.left +
+              widthOffset +
+              startPointOffset
             from.y = parentNodePos.top + childNodePos.top + heightOffset
 
-            for(var k=0; k<conditions.length; k++){
+            for (var k = 0; k < conditions.length; k++) {
               var nextNode = document.getElementById(conditions[k].next)
 
-              if(nextNode){
+              if (nextNode) {
                 var to = {}
 
                 to.x = nextNode.offsetLeft
-                to.y = nextNode.offsetTop + nextNode.clientHeight/2
+                to.y = nextNode.offsetTop + nextNode.clientHeight / 2
 
                 points.push({
                   from: from,
                   to: to,
-                  id: conditions[k].id,//`${conditions[k].type}-${selections[j].id}`,
+                  id: conditions[k].id, //`${conditions[k].type}-${selections[j].id}`,
                   type: conditions[k].type
                 })
               }
             }
           }
-
         }
-
       } // for
 
       return points
-
     },
-    fixEdgeOfNormalNode(event){
+    fixEdgeOfNormalNode(event) {
       var points = this.getCoordinatesOfSingleNode(event)
-      if(points[0]) this.addEdge(points[0].from, points[0].to, points[0].id)
+      if (points[0]) this.addEdge(points[0].from, points[0].to, points[0].id)
     },
-    connectNodeForNodeController(fromId, toId){
+    connectNodeForNodeController(fromId, toId) {
       this.connectNode(fromId, toId)
       this.loadAllEdges()
     },
-    updateNodePosition(id, pos){
+    updateNodePosition(id, pos) {
       var content = entity.getContent(this.scenarioArray, id)
       content.gui.position = pos
       this.updateNode(content)
     },
-    addNormalMessage(position, dragStartedPosition, dragStartedId){
+    addNormalMessage(position, dragStartedPosition, dragStartedId) {
       this.project.nodeNum++
 
       var topOffset = 15
-      
+
       var content = {
         author: this.uid,
         id: `simpleTmp${this.project.nodeNum}`,
-        type: 'normal',
-        nodeType: 'single',
+        type: "normal",
+        nodeType: "single",
         num: this.project.nodeNum,
-        text: 'Normal Message',
+        text: "Normal Message",
         gui: {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
+          }
         }
       }
 
       this.normalMessageNodes.push(content)
 
-      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.addEdgeFromSelector(
+        dragStartedId,
+        content.id,
+        dragStartedPosition,
+        position
+      )
 
       this.pushContentToScenario(content)
     },
-    removeNormalMessageNode(id){
+    removeNormalMessageNode(id) {
       this.normalMessageNodes = this.normalMessageNodes.filter(e => {
         return e.id !== id
       })
@@ -501,9 +539,8 @@ export default {
       this.deleteNode(id)
       this.disconnectNode(id)
     },
-    addSelectionMessage(position, dragStartedPosition, dragStartedId){
-
-      this.project.nodeNum++;
+    addSelectionMessage(position, dragStartedPosition, dragStartedId) {
+      this.project.nodeNum++
 
       var topOffset = 53
 
@@ -511,28 +548,39 @@ export default {
         author: this.uid,
         id: `selectionTmp${this.project.nodeNum}`,
         num: this.project.nodeNum,
-        type: 'selection',
-        nodeType: 'group',
-        text: 'What is your choice?',//+idRand,
-        addedSelectionsCounter : 1,
+        type: "selection",
+        nodeType: "group",
+        text: "What is your choice?", //+idRand,
+        addedSelectionsCounter: 1,
         selections: [
-          {label: 'Selection', id: `selectionTmp${this.project.nodeNum}-selection0`},
-          {label: 'Selection', id: `selectionTmp${this.project.nodeNum}-selection1`},
+          {
+            label: "Selection",
+            id: `selectionTmp${this.project.nodeNum}-selection0`
+          },
+          {
+            label: "Selection",
+            id: `selectionTmp${this.project.nodeNum}-selection1`
+          }
         ],
         gui: {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
+          }
+        }
       }
 
       this.selectionNodes.push(content)
 
-      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.addEdgeFromSelector(
+        dragStartedId,
+        content.id,
+        dragStartedPosition,
+        position
+      )
 
       this.pushContentToScenario(content)
-      
+
       /*
       // ノードがselectionだった場合
       if(dragStartedId.indexOf('selection')>-1){
@@ -541,153 +589,160 @@ export default {
         this.connectSingleNode({fromId: dragStartedId, toId: content.id});
       }
       */
-
     },
-    removeSelectionMessage(id){
+    removeSelectionMessage(id) {
       this.selectionNodes = this.selectionNodes.filter(e => {
         return e.id !== id
       })
       this.removeEdgesThatConnectNodeOf(id)
 
-      this.deleteNode(id);
-      this.disconnectNode(id);
+      this.deleteNode(id)
+      this.disconnectNode(id)
     },
-    addOpenQuestionMessage(position, dragStartedPosition, dragStartedId){
+    addOpenQuestionMessage(position, dragStartedPosition, dragStartedId) {
+      var topOffset = 33
 
-      var topOffset = 33;
+      this.project.nodeNum++
 
-      this.project.nodeNum++;
-      
       var content = {
         author: this.uid,
         id: `openquestionTmp${this.project.nodeNum}`,
         num: this.project.nodeNum,
-        type: 'openquestion',
-        nodeType: 'single',
-        text: 'What is question?',//+idRand,
-        expectedAnswer: 'type your answer...',
+        type: "openquestion",
+        nodeType: "single",
+        text: "What is question?", //+idRand,
+        expectedAnswer: "type your answer...",
         gui: {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
-      };
-      
-      this.openQuestionNodes.push(content);
+          }
+        }
+      }
 
-      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.openQuestionNodes.push(content)
 
-      this.pushContentToScenario(content);
+      this.addEdgeFromSelector(
+        dragStartedId,
+        content.id,
+        dragStartedPosition,
+        position
+      )
 
+      this.pushContentToScenario(content)
     },
-    removeOpenQuestionNode(id){
+    removeOpenQuestionNode(id) {
       this.openQuestionNodes = this.openQuestionNodes.filter(e => {
         return e.id !== id
       })
       this.removeEdgesThatConnectNodeOf(id)
 
-      this.deleteNode(id);
-      this.disconnectNode(id);
+      this.deleteNode(id)
+      this.disconnectNode(id)
     },
 
     // これはノード選択後に呼び出す
-    addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum){
+    addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum) {
+      var topOffset = 23
 
-      var topOffset = 23;
+      this.project.nodeNum++
 
-      this.project.nodeNum++;
-      
       var content = {
         author: this.uid,
         id: `goToTmp${this.project.nodeNum}`,
         toId: targetId,
         num: this.project.nodeNum,
-        type: 'goto',
-        nodeType: 'single',
+        type: "goto",
+        nodeType: "single",
         text: targetNum,
         gui: {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
-      };
-      
-      this.goToNodes.push(content);
+          }
+        }
+      }
 
-      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.goToNodes.push(content)
 
-      this.pushContentToScenario(content);
+      this.addEdgeFromSelector(
+        dragStartedId,
+        content.id,
+        dragStartedPosition,
+        position
+      )
 
+      this.pushContentToScenario(content)
     },
-    removeGoToNode(id){
+    removeGoToNode(id) {
       this.goToNodes = this.goToNodes.filter(e => {
         return e.id !== id
       })
 
       this.removeEdgesThatConnectNodeOf(id)
-      
-      this.deleteNode(id);
-      this.disconnectNode(id);
+
+      this.deleteNode(id)
+      this.disconnectNode(id)
     },
-    selectToNodeByGoTo(position, dragStartedPosition, dragStartedId){
+    selectToNodeByGoTo(position, dragStartedPosition, dragStartedId) {
       // 1. モーダルを出してノード選択モードにする。
       // 2. 各ノードのfocusメソッドでノード選択モードならGoToに紐づけるという処理を書く。
-      $('#modalOverlay').fadeToggle(400);
+      $("#modalOverlay").fadeToggle(400)
 
-      var nodes = document.getElementsByClassName('node');
-      
-      var nodeClickHandler = function(e){
-        
-        var position = e.data.position;
-        var dragStartedPosition = e.data.dragStartedPosition;
-        var dragStartedId = e.data.dragStartedId;
+      var nodes = document.getElementsByClassName("node")
 
-        var targetNum = parseInt(this.dataset.num);
-        var targetId = this.dataset.id;
+      var nodeClickHandler = function(e) {
+        var position = e.data.position
+        var dragStartedPosition = e.data.dragStartedPosition
+        var dragStartedId = e.data.dragStartedId
 
-        window.addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum);
+        var targetNum = parseInt(this.dataset.num)
+        var targetId = this.dataset.id
 
-        var nodes = document.getElementsByClassName('node');
-        $(nodes).off('click');
+        window.addGoTo(
+          position,
+          dragStartedPosition,
+          dragStartedId,
+          targetId,
+          targetNum
+        )
 
-        $('#modalOverlay').fadeToggle(400);
+        var nodes = document.getElementsByClassName("node")
+        $(nodes).off("click")
 
-      };
+        $("#modalOverlay").fadeToggle(400)
+      }
 
-      $(nodes).click({
-        position: position,
-        dragStartedPosition: dragStartedPosition,
-        dragStartedId: dragStartedId
-      }, nodeClickHandler);
-
+      $(nodes).click(
+        {
+          position: position,
+          dragStartedPosition: dragStartedPosition,
+          dragStartedId: dragStartedId
+        },
+        nodeClickHandler
+      )
     },
     scrollToStartNode() {
       // startNodeのところまでスクロール
-      var canvasWrapper = document.querySelector('#canvasWrapper')
+      var canvasWrapper = document.querySelector("#canvasWrapper")
       if (canvasWrapper) {
         canvasWrapper.scrollLeft = 0
-        canvasWrapper.scrollTop = 100000/2 - window.innerHeight/2
+        canvasWrapper.scrollTop = 100000 / 2 - window.innerHeight / 2
       }
     },
     createRandomUniqueStr() {
-      return Math.random().toString(36).slice(-4)
+      return Math.random()
+        .toString(36)
+        .slice(-4)
     }
   },
   computed: {
-    ...mapState([
-      'scenarioArray',
-    ]),
-    ...mapStateAuth([
-      'uid'
-    ]),
-    ...mapEdgesGetters([
-      'edges'
-    ]),
+    ...mapState(["scenarioArray"]),
+    ...mapStateAuth(["uid"]),
+    ...mapEdgesGetters(["edges"]),
     projectId() {
-      return this.project.id;
+      return this.project.id
     }
   }
-};
+}
 </script>

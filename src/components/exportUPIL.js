@@ -8,15 +8,8 @@ const exportScenarioAsUPIL = (scenarioArray) => {
     console.log(JSON.stringify(scenarioArray, null, 4))
 
     let upil = []
-    for (let node of scenarioArray) {
-        let { type, id, text } = node
-        id = id.replace('-', '_')   // Should be fixed by BotEditor
-        if (type === 'normal') {
-            upil = upil.concat(createDialog(id, createTemplate(id, text)))
-        }
-    }
-    const startId = getStartId(scenarioArray)
-    upil = upil.concat(createDialog(MAIN_DIALOG, createCalls(startId, scenarioArray)))
+    upil = upil.concat(createAllDialogs(scenarioArray))
+    upil = upil.concat(createMainDialog(MAIN_DIALOG, scenarioArray))
     upil = upil.concat(createRun(MAIN_RUN, MAIN_DIALOG))
 
     console.log(pretty(upil))
@@ -61,6 +54,67 @@ const getElsePart = (conditions) => {
     return elsePart[0]
 }
 
+const createAllDialogs = (scenarioArray) => {
+    let upil = []
+
+    for (let node of scenarioArray) {
+        let { type, id, text, customVariable, selections } = node
+        id = id.replace(/-/g, '_')   // Should be fixed by BotEditor
+        switch (type) {
+            case 'normal':
+                upil = upil.concat(createDialog(id, createTemplate(id, text)))
+                break
+            case 'openquestion':
+                upil = upil.concat(createDialog(id, createOpenQuestion(id, text, customVariable)))
+                break
+            case 'selection':
+                upil = upil.concat(createDialog(id, createSelection(id, text, customVariable, selections)))
+                break
+            case 'goto':
+            case 'start-point':
+                // ignore
+                break
+            default:
+                console.log(`Error: Unknown type ${type}`)
+        }
+    }
+
+    return upil
+}
+
+const createMainDialog = (name, scenarioArray) => {
+    let upil = []
+    const startId = getStartId(scenarioArray)
+    upil = upil.concat(createDialog(name, createCalls(startId, scenarioArray)))
+    return upil
+}
+
+const cleanseConditions = (conditions) => {
+    conditions = conditions === undefined ? [] : conditions
+
+    conditions = conditions.filter(condition => {
+        const { type } = condition
+        return type !== 'default'
+    })
+
+    // Workaround for BotEditor error
+    conditions = conditions.filter(condition => {
+        const { next } = condition
+        const node = getNodeFromId(next, scenarioArray)
+        return node !== undefined
+    })
+
+    conditions = conditions.filter(condition => {
+        const { type, option } = condition
+        if (type === 'custom_var') {
+            return option !== undefined
+        }
+        return true
+    })
+
+    return conditions
+}
+
 const createCalls = (nodeId, scenarioArray) => {
     let statements = []
 
@@ -71,82 +125,41 @@ const createCalls = (nodeId, scenarioArray) => {
 
     let { id, type, conditions } = node
 
-    conditions = conditions === undefined ? [] : conditions
-    conditions = conditions.filter(condition => {
-        const { type } = condition
-        return type !== 'default'
-    })
-    // Workaround for BotEditor error
-    conditions = conditions.filter(condition => {
-        const { next } = condition
-        const node = getNodeFromId(next, scenarioArray)
-        return node !== undefined
-    })
+    conditions = cleanseConditions(conditions)
 
-    switch (type) {
-        case 'start-point': {
-            switch (conditions.length) {
-                case 0:
-                    break
-                case 1: {
-                    const condition = conditions[0]
-                    const { next, type } = condition
-                    if (type === 'else') {
-                        statements = statements.concat(createCalls(next, scenarioArray))
-                    }
-                }
-                    break
-                default: {
-                    const ifPart = getIfPart(conditions)
-                    const { next: ifNext } = ifPart
-                    statements = statements.concat(createIf('', createCalls(ifNext, scenarioArray)))
-
-                    const elifParts = getElifParts(conditions)
-                    for (let condition of elifParts) {
-                        const { next: elifNext } = condition
-                        statements = statements.concat(createElif('', createCalls(elifNext, scenarioArray)))
-                    }
-
-                    const elsePart = getElsePart(conditions)
-                    const { next: elseNext } = elsePart
-                    statements = statements.concat(createElse(createCalls(elseNext, scenarioArray)))
-                }
-            }
-        }
+    switch (conditions.length) {
+        case 0:
+            statements = statements.concat(createCallIfRequired(type, id))
             break
-        case 'normal': {
-            switch (conditions.length) {
-                case 0:
-                    id = id.replace('-', '_')   // Should be fixed by BotEditor
-                    statements = statements.concat(createCall(id))
-                    break
-                case 1: {
-                    const condition = conditions[0]
-                    const { next, type } = condition
-                    if (type === 'else') {
-                        statements = statements.concat(createCalls(next, scenarioArray))
-                    }
-                }
-                    break
-                default: {
-                    const ifPart = getIfPart(conditions)
-                    const { next: ifNext } = ifPart
-                    statements = statements.concat(createIf('', createCalls(ifNext, scenarioArray)))
-
-                    const elifParts = getElifParts(conditions)
-                    for (let condition of elifParts) {
-                        const { next: elifNext } = condition
-                        statements = statements.concat(createElif('', createCalls(elifNext, scenarioArray)))
-                    }
-
-                    const elsePart = getElsePart(conditions)
-                    const { next: elseNext } = elsePart
-                    statements = statements.concat(createElse(createCalls(elseNext, scenarioArray)))
-                }
-            }
-        }
+        case 1: // else
+            statements = statements.concat(createCallSequence(type, id, conditions[0], scenarioArray))
             break
+        default:
+            statements = statements.concat(createIfCalls(conditions, scenarioArray))
     }
+
+    return statements
+}
+
+const createCallIfRequired = (type, id) => {
+    if (type === 'start-point') {
+        // not required
+        return []
+    }
+    if (type === 'goto') {
+        // ignore - No equivalent construct in UPIL
+        return []
+    }
+
+    id = id.replace(/-/g, '_')   // Should be fixed by BotEditor
+    return createCall(id)
+}
+
+const createCallSequence = (type, id, condition, scenarioArray) => {
+    let statements = []
+
+    statements = statements.concat(createCallIfRequired(type, id))
+    statements = statements.concat(createCalls(condition.next, scenarioArray))
 
     return statements
 }
@@ -165,16 +178,38 @@ const createDialog = (name, statements) => {
     return statement
 }
 
+const createIfCalls = (conditions, scenarioArray) => {
+    let statements = []
+
+    const ifPart = getIfPart(conditions)
+    const { next: ifNext, option } = ifPart
+    statements = statements.concat(createIf(option, createCalls(ifNext, scenarioArray)))
+
+    const elifParts = getElifParts(conditions)
+    for (let condition of elifParts) {
+        const { next: elifNext, option } = condition
+        statements = statements.concat(createElif(option, createCalls(elifNext, scenarioArray)))
+    }
+
+    const elsePart = getElsePart(conditions)
+    const { next: elseNext } = elsePart
+    statements = statements.concat(createElse(createCalls(elseNext, scenarioArray)))
+
+    return statements
+}
+
 const createIf = (condition, statements) => {
     let statement = []
-    statement.push(`IF ${condition}`)
+    const { customVarName: left, operator, comparedValue: right } = condition
+    statement.push(`IF ${left} ${operator} "${right}"`)
     statement = statement.concat(statements)
     return statement
 }
 
 const createElif = (condition, statements) => {
     let statement = []
-    statement.push(`ELIF ${condition}`)
+    const { customVarName: left, operator, comparedValue: right } = condition
+    statement.push(`ELIF ${left} ${operator} "${right}"`)
     statement = statement.concat(statements)
     return statement
 }
@@ -203,6 +238,30 @@ const createTemplate = (name, body) => {
     return statement
 }
 
+const createOpenQuestion = (name, body, variable) => {
+    const { location, varType } = variable
+    let statement = []
+    statement.push(`TEMPLATE ${name}`)
+    statement.push(`"${body}"`)
+    statement.push(`>>${location}:${varType.toLowerCase()}`)
+    statement.push('/TEMPLATE')
+    return statement
+}
+
+const createSelection = (name, body, variable, selections) => {
+    const { location, varType } = variable
+    let statement = []
+    statement.push(`SELECT ${name}`)
+    statement.push(`"${body}"`)
+    for (const selection of selections) {
+        const { label } = selection
+        statement.push(`-("${label}", ${label})`)
+    }
+    statement.push(`>>${location}:${varType.toLowerCase()}`)
+    statement.push('/SELECT')
+    return statement
+}
+
 const pretty = (statements) => {
     const INDENT_AMOUNT = 2
     const indentLeft = (indent) => {
@@ -219,6 +278,9 @@ const pretty = (statements) => {
     let upil = ''
     let indent = 0
     for (let statement of statements) {
+
+        console.log(statement)
+
         const firstWord = statement.split(' ')[0]
         switch (firstWord) {
             case 'DIALOG':

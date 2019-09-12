@@ -13,6 +13,8 @@ const exportScenarioAsUPIL = (scenarioArray) => {
     upil = upil.concat(createRun(MAIN_RUN, MAIN_DIALOG))
 
     console.log(pretty(upil))
+
+    return upil
 }
 
 const getStartId = (scenarioArray) => {
@@ -127,12 +129,13 @@ const createCalls = (nodeId, scenarioArray) => {
 
     conditions = cleanseConditions(conditions)
 
+    statements = statements.concat(createCallIfRequired(type, id, scenarioArray))
     switch (conditions.length) {
         case 0:
-            statements = statements.concat(createCallIfRequired(type, id, scenarioArray))
+            // Do nothing
             break
         case 1: // else
-            statements = statements.concat(createCallSequence(type, id, conditions[0], scenarioArray))
+            statements = statements.concat(createCalls(conditions[0].next, scenarioArray))
             break
         default:
             statements = statements.concat(createIfCalls(conditions, scenarioArray))
@@ -190,15 +193,6 @@ const createIfCallsForSelection = (id, scenarioArray) => {
     return statements.concat(createIfCalls(ifCallConditions, scenarioArray))
 }
 
-const createCallSequence = (type, id, condition, scenarioArray) => {
-    let statements = []
-
-    statements = statements.concat(createCallIfRequired(type, id))
-    statements = statements.concat(createCalls(condition.next, scenarioArray))
-
-    return statements
-}
-
 const createCall = (name) => {
     let statement = []
     statement.push(`...${name}`)
@@ -237,7 +231,9 @@ const createIf = (condition, statements) => {
     let statement = []
     const { customVarName: left, operator, comparedValue: right } = condition
     statement.push(`IF ${left} ${operator} "${right}"`)
+    statement.push('DIALOG')
     statement = statement.concat(statements)
+    statement.push('/DIALOG')
     return statement
 }
 
@@ -245,14 +241,18 @@ const createElif = (condition, statements) => {
     let statement = []
     const { customVarName: left, operator, comparedValue: right } = condition
     statement.push(`ELIF ${left} ${operator} "${right}"`)
+    statement.push('DIALOG')
     statement = statement.concat(statements)
+    statement.push('/DIALOG')
     return statement
 }
 
 const createElse = (statements) => {
     let statement = []
     statement.push('ELSE')
+    statement.push('DIALOG')
     statement = statement.concat(statements)
+    statement.push('/DIALOG')
     statement.push('/IF')
     return statement
 }

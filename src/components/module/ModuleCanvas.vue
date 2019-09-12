@@ -122,6 +122,7 @@ const { mapGetters: mapEdgesGetters } = createNamespacedHelpers("edges")
 import entity from "../entity"
 import exportECA from "../exportECA"
 import exportUPIL from "../exportUPIL"
+import lintScenario from "../lintScenario"
 
 import ModuleConversation from "./ModuleConversation"
 

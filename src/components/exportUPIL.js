@@ -129,7 +129,7 @@ const createCalls = (nodeId, scenarioArray) => {
 
     switch (conditions.length) {
         case 0:
-            statements = statements.concat(createCallIfRequired(type, id))
+            statements = statements.concat(createCallIfRequired(type, id, scenarioArray))
             break
         case 1: // else
             statements = statements.concat(createCallSequence(type, id, conditions[0], scenarioArray))
@@ -141,7 +141,9 @@ const createCalls = (nodeId, scenarioArray) => {
     return statements
 }
 
-const createCallIfRequired = (type, id) => {
+const createCallIfRequired = (type, id, scenarioArray) => {
+    let statements = []
+
     if (type === 'start-point') {
         // not required
         return []
@@ -151,8 +153,41 @@ const createCallIfRequired = (type, id) => {
         return []
     }
 
-    id = id.replace(/-/g, '_')   // Should be fixed by BotEditor
-    return createCall(id)
+    let correctedId = id.replace(/-/g, '_')   // Should be fixed by BotEditor
+    statements = statements.concat(createCall(correctedId))
+
+    if (type === 'selection') {
+        statements = statements.concat(createIfCallsForSelection(id, scenarioArray))
+    }
+
+    return statements
+}
+
+const createIfCallsForSelection = (id, scenarioArray) => {
+    let statements = []
+
+    const node = getNodeFromId(id, scenarioArray)
+    const { customVariable, selections } = node
+
+    let ifCallConditions = []
+    for (const [index, selection] of selections.entries()) {
+        const { conditions, label } = selection
+        const ifCallCondition = index === 0 ? {
+            type: 'else',
+            next: conditions[0].next
+        } : {
+                type: 'custom_var',
+                next: conditions[0].next,
+                option: {
+                    customVarName: customVariable.location,
+                    operator: '==',
+                    comparedValue: label
+                }
+            }
+        ifCallConditions.push(ifCallCondition)
+    }
+
+    return statements.concat(createIfCalls(ifCallConditions, scenarioArray))
 }
 
 const createCallSequence = (type, id, condition, scenarioArray) => {
@@ -278,9 +313,6 @@ const pretty = (statements) => {
     let upil = ''
     let indent = 0
     for (let statement of statements) {
-
-        console.log(statement)
-
         const firstWord = statement.split(' ')[0]
         switch (firstWord) {
             case 'DIALOG':

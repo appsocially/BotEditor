@@ -81,7 +81,6 @@ const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
 
 
 export default {
-  name: 'ModuleConversation',
   components: {
     ItemPreviewHeader,
     ItemConversationBubble,

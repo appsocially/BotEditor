@@ -185,36 +185,36 @@ entity.getEdgesThatConnectFrom = function(scenario, id) {
 };
 
 entity.getConditions = function(scenario, id) {
-  var conditions = [];
+  var conditions = []
 
   if (id.indexOf("selection") !== 0) {
     var targetNode = scenario.filter(e => {
-      return id == e.id;
-    })[0];
+      return id == e.id
+    })[0]
 
     if (targetNode.nodeType == "single" || targetNode.nodeType == "point") {
       if (targetNode.conditions) {
         conditions = targetNode.conditions.map(e => {
-          var c = e;
-          c.fromNodeId = targetNode.id;
-          return c;
-        });
+          var c = e
+          c.fromNodeId = targetNode.id
+          return c
+        })
       }
     }
   } else {
-    var selectionGroupId = id.split("-")[0];
+    var selectionGroupId = id.split("-")[0]
     var selections = scenario.filter(e => {
       return selectionGroupId == e.id
-    })[0].selections;
+    })[0].selections
 
     for (var j = 0; j < selections.length; j++) {
       if (selections[j].id === id && selections[j].conditions) {
-        conditions = selections[j].conditions;
+        conditions = selections[j].conditions
       }
     }
   }
 
-  return conditions;
+  return conditions
 };
 
 entity.getConditionByConditionId = function(scenario, id) {

@@ -1,12 +1,17 @@
 <template lang="pug">
 
   Auth(:on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn")
-    div(slot-scope="{signOut}").wrap-canvas-page
+    div(slot-scope="{signOut}").wrap-canvas-page.f
       util-canvas-header(
         v-if="project"
         @toggleModal="toggleModal"
+        @toggleDrawer="toggleDrawer"
         @loadCanvas="loadCanvas"
-        @enableEdit="enableEdit")
+        @enableEdit="enableEdit"
+        :showDrawer="showDrawer")
+      module-canvas-drawer(
+        :showDrawer="showDrawer"
+        @toggleDrawer="toggleDrawer")
       module-canvas(
         ref="canvas"
         v-if='!!project && !!scenario'
@@ -31,9 +36,10 @@
 <style lang="scss">
 
 .wrap-canvas-page {
+  padding-top: 48px;
   .wrap-preview {
     position: fixed;
-    z-index: 101;
+    z-index: 103;
     right: 16px;
     bottom: 16px;
     width: 300px;
@@ -80,6 +86,7 @@ import UtilHeader from "../components/util/UtilHeader"
 import UtilCanvasHeader from "../components/util/UtilCanvasHeader"
 import ModuleCanvas from "../components/module/ModuleCanvas"
 import ModuleConversation from "../components/module/ModuleConversation"
+import ModuleCanvasDrawer from "../components/module/ModuleCanvasDrawer"
 import ModuleModal from "../components/module/ModuleModal"
 
 import ItemPreviewHeader from "../components/item/ItemPreviewHeader"
@@ -93,6 +100,7 @@ export default {
     UtilCanvasHeader,
     ModuleCanvas,
     ModuleConversation,
+    ModuleCanvasDrawer,
     ModuleModal,
     ItemPreviewHeader
   },
@@ -104,6 +112,7 @@ export default {
       scenario: null,
       showPreview: true,
       showModal: false,
+      showDrawer: false,
       letEdit: "let-edit",
       letInitConversation: true
     }
@@ -180,6 +189,10 @@ export default {
 
       alert("Bot Setting has been updated!")
       this.toggleModal()
+    },
+    toggleDrawer () {
+      console.log("toggleDrawer")
+      this.showDrawer = !this.showDrawer
     }
   },
   computed: {

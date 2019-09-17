@@ -28,7 +28,6 @@
   position: relative;
   top: 0;
   left: 0;
-  margin-top: 48px;
   overflow: scroll;
   width: 100%;
   height: calc(100vh - 48px);

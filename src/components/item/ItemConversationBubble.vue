@@ -53,9 +53,7 @@
     display: none;
   }
   .wrap-bubble {
-    .text {
-      background: #FFEB52;
-    }
+    background: #FFEB52;
   }
 }
 

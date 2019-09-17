@@ -3,13 +3,17 @@
   div(v-if="project").wrap-util
     div.util-content.f.fc
       div.icon-left.f.fm
-        span(@click="$router.push('/openbots')").logo BotEditor
+        v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
+        v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
+        // span(@click="$router.push('/openbots')").logo BotEditor
       div.label.f.fm
-        span {{project.title}}
-        v-icon(
+        div(@click="toggleModal" v-if="project.author === uid").bot-icon.f.fh
+          img(:src="project.botIcon")
+        span.ml8 {{project.title}}
+        // v-icon(
           @click="toggleModal"
           v-if="project.author === uid"
-          color='#2a2a2a').settings settings
+          color='#FF9A0A').settings.pb2 settings
       div.icon-right.f.fm
         //span test-r
         div(v-if="!uid && project.pulishedAsFormat").wrap-get-started.f.fm
@@ -34,25 +38,39 @@
   width: 100%;
   height: 48px;
   border-bottom: solid .6px rgba(0,0,0,0.2);
-  background: #f8f8f8;
+  background: #FFF;
+  /*background: #f8f8f8;*/
   z-index: 1;
   .util-content {
     position: relative;
     margin: 0 auto;
-    width: 90%;
-    max-width: 1048px;
+    /*width: 90%;*/
+    /*max-width: 1048px;*/
     height: 100%;
     .label {
-      .settings {
-        font-size: 20px;
-        width: 30px;
-        color: #FF9A0A !important;
+      .bot-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        /*border: solid 0.8px rgba(0,0,0,0.8);*/
+        overflow: hidden;
         cursor: pointer;
+        img {
+          object-fit: cover;
+          min-width: 100%;
+          min-height: 100%;
+        }
       }
+      // .settings {
+      //   font-size: 20px;
+      //   width: 30px;
+      //   /*color: #FF9A0A !important;*/
+      //   cursor: pointer;
+      // }
     }
     .icon-left {
       position: absolute;
-      left: 0;
+      left: 12px;
       height: 100%;
       .logo {
         font-weight: bold;
@@ -64,7 +82,7 @@
     }
     .icon-right {
       position: absolute;
-      right: 0;
+      right: 12px;
       height: 100%;
       .wrap-get-started {     
         .sign-up {
@@ -127,14 +145,15 @@ const { mapState: mapStateScenario } = createNamespacedHelpers(
 
 export default {
   props: {
-    
+    showDrawer: {
+      type: Boolean,
+      required: true
+    }
   },
   data() {
     return {
+      
     }
-  },
-  created: function (){
-
   },
   methods: {
     ...mapActionsProject([
@@ -165,7 +184,9 @@ export default {
       this.$emit("enableEdit")
 
       alert("The scenario has been imported as your new Bot!!")
-      
+    },
+    toggleDrawer () {
+      this.$emit("toggleDrawer")
     }
   },
   computed: {

@@ -24,7 +24,7 @@
       height: 100%;
       border-radius: 50%;
       overflow: hidden;
-      border: solid #999 3px;
+      border: solid #999 2px;
       img {
         object-fit: cover;
         min-height: 100%;
@@ -86,8 +86,8 @@ export default {
     // アップロードした画像を表示
     createImage (file) {
       // 画像リサイズ後の最大値の幅
-      const THUMBNAIL_WIDTH = 260
-      const THUMBNAIL_HEIGHT = 260
+      const THUMBNAIL_WIDTH = 200
+      const THUMBNAIL_HEIGHT = 200
 
       // var imgCanvas = this.$refs.imgCanvas
       var image = new Image()

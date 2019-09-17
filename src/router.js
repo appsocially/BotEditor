@@ -1,11 +1,12 @@
-import Vue from "vue";
-import Router from "vue-router";
+import Vue from "vue"
+import Router from "vue-router"
 
-import Index from "./views/Index.vue";
-import Canvas from "./views/Canvas.vue";
-import Conversation from "./views/Conversation.vue";
-import SignIn from "./views/SignIn.vue";
-import Top from "./views/Top.vue";
+import Index from "./views/Index.vue"
+import Canvas from "./views/Canvas.vue"
+import Conversation from "./views/Conversation.vue"
+import SignIn from "./views/SignIn.vue"
+import Top from "./views/Top.vue"
+import Bots from "./views/Bots.vue"
 
 Vue.use(Router);
 
@@ -24,8 +25,23 @@ export default new Router({
       component: Top
     },
     {
+      path: "/openbots",
+      name: "openbots",
+      component: Bots
+    },
+    {
       path: "/sign-in",
       name: "sign-in",
+      component: SignIn
+    },
+    {
+      path: "/sign-up",
+      name: "sign-up",
+      component: SignIn
+    },
+    {
+      path: "/sign-up/:projectId",
+      name: "sign-up",
       component: SignIn
     },
     {
@@ -33,6 +49,22 @@ export default new Router({
       name: "canvas",
       component: Canvas
     },
+    {
+      path: "/canvas_preview/:id",
+      name: "canvas_preview",
+      component: Canvas
+    },
+    {
+      path: "/preview/:id",
+      name: "preview",
+      component: Conversation
+    },
+    {
+      path: "/chat/:id",
+      name: "chat",
+      component: Conversation
+    },
+    // for v1
     {
       path: "/conversation/:id",
       name: "conversation",

@@ -1,6 +1,6 @@
 import { firebase } from '@/components/firebaseInit'
-import firestore from '@/components/firebaseInit'
-//import { collections } from '@/components/vars'
+//import firestore from '@/components/firebaseInit'
+import { firestore } from '@/components/firebaseInit'
 
 export const state = () => ({
   userDisplayName: null,
@@ -37,7 +37,7 @@ export const mutations = {
   },
   updateAuthStatus(state, user) {
     const isLoggedIn = !!user
-    state.userDisplayName = isLoggedIn ? user.displayName : null
+    state.userDisplayName = isLoggedIn ? user.displayName : "No Name"
     state.uid = isLoggedIn ? user.uid : null
     state.isAuthenticating = false
     state.isLoggedIn = isLoggedIn

@@ -33,16 +33,23 @@
 </template>
 
 <script>
-import firebase from "firebase";
-import db from "@/components/firebaseInit";
+import firebase from "firebase"
+import db from "@/components/firebaseInit"
 
 import FirebaseSignInUi from '@/components/sign-in/firebase-sign-in-ui'
 
-import { createNamespacedHelpers } from "vuex";
+import { createNamespacedHelpers } from "vuex"
 import Auth from '@/components/auth'
-const { mapState, mapActions } = createNamespacedHelpers(
+import { setTimeout } from 'timers'
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
  "auth"
-);
+)
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
+ "project"
+)
+const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers(
+ "scenario"
+)
 
 export default {
   components: {
@@ -55,15 +62,22 @@ export default {
     }
   },
   methods: {
+    ...mapActionsProject([
+      'loadProject',
+      'copyProject'
+    ]),
+    ...mapActionsScenario([
+      'loadScenarioByProjectId'
+    ]),
     onFailedAuthentication() {
-      this.loggingIn = false;
+      this.loggingIn = false
     },
     async onLoggedIn({ onboardingData }) {
 
-      var userDoc = await db.collection('users').doc(this.uid).get();
+      var userDoc = await db.collection('users').doc(this.uid).get()
 
       if(!userDoc.exists){
-        var user = await firebase.auth().currentUser;
+        var user = await firebase.auth().currentUser
 
         var userObj = {
           uid: user.uid,
@@ -71,23 +85,33 @@ export default {
           email: user.email,
           photoUrl: user.photoURL,
           lastSignInTime: user.metadata.lastSignInTime,
-          creationTime: user.metadata.creationTime,
-          groups: ['Appsocially'],
-        };
+          creationTime: user.metadata.creationTime
+        }
 
         await db.collection("users")
           .doc(user.uid)
           .set(userObj)
           .then(function() {
-            console.log("Document successfully written!");
+            console.log("Document successfully written!")
           })
           .catch(function(error) {
-            console.error("Error writing document: ", error);
-          });
+            console.error("Error writing document: ", error)
+          })
+
+        if(this.$route.params.projectId) {
+          var project = await this.loadProject(this.$route.params.projectId)
+          var scenarioArray = await this.loadScenarioByProjectId(this.$route.params.projectId)
+          
+          await this.copyProject({
+            uid: user.uid,
+            userDisplayName: user.displayName,
+            scenario: scenarioArray,
+            project: project
+          })
+        }
       }
 
-
-      this.$router.push('/top');
+      this.$router.push('/top')
 
       /*
       if (!!onboardingData) {
@@ -102,14 +126,20 @@ export default {
     }*/
   },
   computed: {
-    ...mapState([
+    ...mapStateAuth([
       'uid',
     ]),
+    ...mapStateProject([
+      'project',
+    ]),
+    ...mapStateScenario([
+      'scenarioArray',
+    ])
   }
 }
 </script>
 
-<style>
+<style scoped>
 img {
   width: 100%;
 }

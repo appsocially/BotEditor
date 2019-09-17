@@ -3,15 +3,28 @@
   div(@click='focus'  @mouseover='over' @mouseleave='leave' :class='scaleUp' :data-num='content.num' :data-id='content.id').wrap-item-node-selection.node
     div.wrap-text.f.fm.px16.pt7.pb6
       span.text {{content.text}}
-      textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent).text
+      textarea(
+        v-model='message'
+        :style='textareaStyle'
+        @keyup='up'
+        @keydown.enter.exact.prevent).text
     div.wrap-selections.px16.pb2
-      atom-node-selection(v-for='item in selections' :id='item.id' :key='item.id' :content='item' ref='item.id' @loadAllEdges='loadAllEdges').atom-node-simple-message
+      atom-node-selection(
+        v-for='item in content.selections'
+        :id='item.id'
+        :key='item.id'
+        :content='item'
+        ref='item.id'
+        @loadAllEdges='loadAllEdges'
+        @updateNodeContent='updateNodeContent').atom-node-simple-message
     div.wrap-add-selection.px16.pb4
       span(@click='addSelection').pl4 + Add Selection
     div.wrap-num
       span {{content.num}}
-    div.wrap-delete
+    // div.wrap-delete
       atom-delete-node(:content='content' @callRemoveSelectionMessage='callRemoveSelectionMessage')
+    div.wrap-node-window.f.fc
+      atom-node-window(:content='content' ref="toolWindow" @delete='callRemoveSelectionMessage')
 
 </template>
 
@@ -67,6 +80,13 @@
     right: 2px;
     top: -22px;
   }
+  .wrap-node-window {
+    position: absolute;
+    bottom: 0px;
+    top: calc(100% + 10px);
+    width: 100%;
+    z-index: 101;
+  }
 
   transition: transform 400ms ease, z-index 400ms ease, box-shadow 200ms ease;
   &.scale-up {
@@ -75,6 +95,7 @@
   }
 
   &.focused {
+    z-index: 102;
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     .wrap-delete {
       display: block;
@@ -91,13 +112,15 @@ import nodeController from "../nodeController";
 import AtomNodeSelection from "../atom/AtomNodeSelection";
 import AtomConnectStarter from "../atom/AtomConnectStarter";
 import AtomDeleteNode from "../atom/AtomDeleteNode";
+import AtomNodeWindow from "../atom/AtomNodeWindow";
 
 export default {
   name: 'ItemNodeSelection',
   components: {
     AtomConnectStarter,
     AtomNodeSelection,
-    AtomDeleteNode
+    AtomDeleteNode,
+    AtomNodeWindow
   },
   props: {
     content: {
@@ -113,102 +136,109 @@ export default {
       preNodeSize: {},
       textareaStyle: '',
       scaleUp: '',
+      timer: {}
     }
   },
   created: function(){
 
-    this.selections = this.content.selections;
-    this.message = this.content.text;
+    this.selections = this.content.selections
+    this.message = this.content.text
 
   },
   mounted: function(){
 
-    var id = this.content.id;
-    var pos = this.content.gui.position;
+    var id = this.content.id
+    var pos = this.content.gui.position
     var node = d3.select(`#${id}`)
       .data([{pos: pos, id: id}])
       .style('top', `${pos.y}px`)
-      .style('left', `${pos.x}px`);
+      .style('left', `${pos.x}px`)
 
-    node.call(nodeController.dragOnNode);
+    node.call(nodeController.dragOnNode)
     
-    this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
-    this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight;
+    this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
+    this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
 
     this.textareaStyle = `width: ${this.nodeTextSize.width}px; height: ${this.nodeTextSize.height}px;`;
 
   },
-  watch: {
-    message: function(newVal, oldVal){
-      
-    }
-  },
   methods: {
     addSelection(){
-      var id = this.content.id;
-      var count = this.content.addedSelectionsCounter++;
+      var id = this.content.id
+      var count = this.content.addedSelectionsCounter++
 
       var selectionContent = {
         id: `${id}-${count}`,
         label: 'Selection'
-      };
+      }
 
-      this.preNodeSize.height = this.$el.offsetHeight;
+      this.preNodeSize.height = this.$el.offsetHeight
 
-      this.content.selections.push(selectionContent);
+      this.content.selections.push(selectionContent)
 
-      //this.fixSize();
-      setTimeout(this.fixSize, 100);
+      //this.fixSize()
+      setTimeout(this.fixSize, 10)
     },
     over(){
       if(window.isDragingConnector){
-        this.scaleUp = 'scale-up';
-        window.isHoveringOnNode = true;
-        window.nodeHovering = this.content;
+        this.scaleUp = 'scale-up'
+        window.isHoveringOnNode = true
+        window.nodeHovering = this.content
       }
     },
     leave(){
-      this.scaleUp = '';
-      window.isHoveringOnNode = false;
-      window.nodeHovering = '';
+      this.scaleUp = ''
+      window.isHoveringOnNode = false
+      window.nodeHovering = ''
     },
-    down(e){
-      this.preNodeSize.height = this.$el.offsetHeight;
+    up(e){
+      this.preNodeSize.height = this.$el.offsetHeight
 
-      this.content.text = e.target.value;
+      this.content.text = e.target.value
 
-      //this.fixSize();
-      setTimeout(this.fixSize, 100);
+      //this.fixSize()
+      this.$nextTick(this.fixSize)
+
+      // コンテンツのセーブ
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNodeContent, 400)
     },
     fixSize(){
-      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
-      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight;
+      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
+      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
       this.textareaStyle = `
         width: ${this.nodeTextSize.width}px;
         height: ${this.nodeTextSize.height}px;
         `;
 
-      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height;
-      this.content.gui.position.y -= gapOfHeight/2;
+      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height
+      this.content.gui.position.y -= gapOfHeight/2
 
-      var id = this.content.id;
-      var pos = this.content.gui.position;
+      var id = this.content.id
+      var pos = this.content.gui.position
       var node = d3.select(`#${id}`)
         .data([{pos: pos, id: id}])
         .style('top', `${pos.y}px`)
-        .style('left', `${pos.x}px`);
+        .style('left', `${pos.x}px`)
 
-      if(gapOfHeight!=0) this.loadAllEdges();
+      if(gapOfHeight!=0) this.loadAllEdges()
+      this.loadAllEdges()
     },
-    loadAllEdges(){
-      this.$emit('loadAllEdges');
+    loadAllEdges () {
+      this.$emit('loadAllEdges')
     },
-    focus(){
-      $('.focused').removeClass('focused');
-      this.$el.classList.add('focused');
-      $('#previewLineForGoTo').removeClass('show');
+    updateNodeContent () {
+      this.$emit('updateNode',  this.content)
     },
-    callRemoveSelectionMessage(id){
+    focus () {
+      $('.focused').removeClass('focused')
+      this.$el.classList.add('focused')
+      $('#previewLineForGoTo').removeClass('show')
+
+      $('.node-window-active').removeClass('node-window-active')
+      this.$refs.toolWindow.$el.classList.add("node-window-active")
+    },
+    callRemoveSelectionMessage (id) {
       this.$emit('removeSelectionMessage', id);
     },
   },

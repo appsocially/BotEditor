@@ -3,8 +3,10 @@
   div(@click='focus' @mouseover='over' @mouseleave='leave' :class='scaleUp').wrap-item-node-go-to.node
     div.wrap-to-num.f.fh
       span {{content.text}}
-    div.wrap-delete
+    // div.wrap-delete
       atom-delete-node(:content='content' @callRemoveGoToNode='callRemoveGoToNode')
+    div.wrap-node-window.f.fc
+      atom-node-window(:content='content' ref="toolWindow" @delete='callRemoveGoToNode')
     
 </template>
 
@@ -21,15 +23,21 @@
     width: 100%;
     height: 100%;
   }
-  
   .wrap-delete {
     display: none;
     position: absolute;
     left: 9px;
     top: -22px;
   }
+  .wrap-node-window {
+    position: absolute;
+    bottom: 0px;
+    top: calc(100% + 10px);
+    width: 100%;
+  }
 
   &.focused {
+    z-index: 102 !important;
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     .wrap-delete {
       display: block;
@@ -47,18 +55,20 @@
 
 <script>
 
-import nodeController from "../nodeController";
+import nodeController from "../nodeController"
 
-import AtomConnectStarter from "../atom/AtomConnectStarter";
-import AtomDeleteNode from "../atom/AtomDeleteNode";
+import AtomConnectStarter from "../atom/AtomConnectStarter"
+import AtomDeleteNode from "../atom/AtomDeleteNode"
+import AtomNodeWindow from "../atom/AtomNodeWindow"
 
-import entity from "../entity";
+import entity from "../entity"
 
 export default {
   name: 'ItemNodeSimpleMessage',
   components: {
     AtomConnectStarter,
     AtomDeleteNode,
+    AtomNodeWindow
   },
   props: {
     content: {
@@ -112,11 +122,17 @@ export default {
       $('#previewLineForGoTo').addClass('show');
 
       var toNode = entity.getContent(window.scenarioArray, this.content.toId);
-      this.showPreviewLineForGoTo(
-        this.content.gui.position,
-        toNode.gui.position,
-        this.content.toId
-      );
+
+      if(toNode){
+        this.showPreviewLineForGoTo(
+          this.content.gui.position,
+          toNode.gui.position,
+          this.content.toId
+        )
+      }
+
+      $('.node-window-active').removeClass('node-window-active')
+      this.$refs.toolWindow.$el.classList.add("node-window-active")
     },
     callRemoveGoToNode(id){
       this.$emit('removeGoToNode', id);

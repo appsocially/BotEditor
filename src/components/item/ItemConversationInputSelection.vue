@@ -75,7 +75,7 @@ export default {
 
       var node = entity.getContent(this.scenarioArray, this.currentEvent)  
       if(node.customVariable) this.insertValueIntoCustomVar({id: node.customVariable.location, value: label})
-      debugger
+      
       var conditions = entity.getConditions(this.scenarioArray, id)
       var matchedCondition= entity.getMatchedCondition(this.scenarioArray, conditions, this.customVars)
       

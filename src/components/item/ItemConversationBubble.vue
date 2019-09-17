@@ -1,11 +1,10 @@
 <template lang="pug">
 
-  div(:class='reverse').wrap-item-conversation-bubble.f.fm.mt12.mb14
-    div(:class='fadeIn').wrap-bot-icon
+  div(:class='reverse').wrap-item-conversation-bubble.f.mt12.mb14
+    div(:class='fadeIn').wrap-bot-icon.mt2
       img(:src="icon")
-      // img(src='@/assets/logo.png')
-    div(ref="bubble" :class='fadeIn').wrap-bubble.mr8
-      span.text.px8.py6 {{bubbleValue}}
+    div(ref="bubble" :class='fadeIn').wrap-bubble.mr8.px8.py6
+      span.text {{bubbleValue}}
       
 </template>
 
@@ -29,14 +28,16 @@
   .wrap-bubble {
     position: relative;
     max-width: 70%;
+    display: inline-block;
+    background: #F0F0F0;
+    border-radius: 6px;
+    word-break: break-all;
 
     transition: all 400ms ease;
     top: 40px;
     opacity: 0;
     .text {
-      display: inline-block;
-      background: #F0F0F0;
-      border-radius: 3px;
+      
       font-size: 12px;
     }
   }
@@ -113,7 +114,7 @@ export default {
     replaceCustomVar (text) {
       var resultText
       
-      if (text.match(/\${[A-Za-z0-9]+}/)){
+      if (text.match(/\${[A-Za-z0-9]+}/)){ // customVarの文字列かどうか
         while (true) {
           var containedCustomVarName = text.match(/\${[A-Za-z0-9]+}/)[0].split("{")[1].split("}")[0]
           var matchedCustomVar = this.customVars.filter((e) => {
@@ -137,14 +138,65 @@ export default {
       return resultText
     },
     detectURL (text) {
-      const regex = /http(:\/\/[-_.!~*¥'()a-zA-Z0-9;\/?:¥@&=+¥$,%#]+)/      
+      // URLの文字列かどうか
+      const regex = /https*(:\/\/[-_.!~*¥'()a-zA-Z0-9;\/?:¥@&=+¥$,%#]+)/
 
       if(text.match(regex)){
         var span = document.createElement("span")
         var textArrayWithoutURL = text.split(text.match(regex)[0])
+
+        var splitAllRegex = (text) => {
+
+
+        }
+
+        var textArray = [text]
+
+        while (true) {
+          if (textArray[textArray.length-1].match(regex)) {
+            var splitPointURL = textArray[textArray.length-1].match(regex)[0]
+            var bottomTextArray = textArray[textArray.length-1].split(splitPointURL)
+			
+            bottomTextArray.splice(1, 0, splitPointURL)
+			
+            textArray.pop()
+            textArray = textArray.concat(bottomTextArray)
+          } else {
+            break
+          }
+        }
+
+        var resultHTML = ""
+        for (var i=0; i<textArray.length; i++) {
+          if (textArray[i].match(regex)) {
+            resultHTML += `<a href="${textArray[i]}" target="brank">${textArray[i]}</a>`
+          } else {
+            resultHTML += textArray[i]
+          }
+        }
+        resultHTML = `<span class="text">${resultHTML}</span>`
         
-        this.$refs.bubble.innerHTML =`<span class="text px8 py6">${textArrayWithoutURL[0]}<a href="${text.match(regex)[0]}" target="brank">${text.match(regex)[0]}</a>${textArrayWithoutURL[1]}</span>`
+        this.$refs.bubble.innerHTML = resultHTML
+        
+        // var checkNotParsedURL = (html) => {
+        //   if(html.split("</a>")[1].match(regex)) return true
+        //   return false
+        // }
+
+        // var html = `<span class="text px8 py6">${textArrayWithoutURL[0]}<a href="${text.match(regex)[0]}" target="brank">${text.match(regex)[0]}</a>${textArrayWithoutURL[1]}</span>`
+        // while(true){
+        //   if(checkNotParsedURL(html)){
+
+        //   } else {
+        //     break
+        //   }
+        // }
+
+        // var html = `<span class="text px8 py6">${textArrayWithoutURL[0]}<a href="${text.match(regex)[0]}" target="brank">${text.match(regex)[0]}</a>${textArrayWithoutURL[1]}</span>`
+        // this.$refs.bubble.innerHTML = html
+        
       }
+
       
     }
   }

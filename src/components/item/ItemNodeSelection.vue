@@ -95,7 +95,7 @@
   }
 
   &.focused {
-    z-index: 101;
+    z-index: 102;
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     .wrap-delete {
       display: block;

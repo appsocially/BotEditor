@@ -342,11 +342,14 @@ entity.getMatchedCondition = function(scenario, conditions, customVarsArray) {
               if ( eval(operationStr) ) matchedCondition = conditions[i]
             }
           break
+          case "Number":
+            var operationStr = `${customVar.value} ${option.operator} ${option.comparedValue}`
+            if ( eval(operationStr) ) matchedCondition = conditions[i]
+          break
         }
         
       break
-      case "default":
-      break;
+     
     }
   }
 

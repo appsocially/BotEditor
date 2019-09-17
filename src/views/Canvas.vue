@@ -33,7 +33,7 @@
 .wrap-canvas-page {
   .wrap-preview {
     position: fixed;
-    z-index: 200;
+    z-index: 101;
     right: 16px;
     bottom: 16px;
     width: 300px;

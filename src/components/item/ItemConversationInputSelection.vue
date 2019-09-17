@@ -73,6 +73,9 @@ export default {
     callNextEvent(label, id){
       this.$emit('resetSelections')
 
+      var node = entity.getContent(this.scenarioArray, this.currentEvent)  
+      if(node.customVariable) this.insertValueIntoCustomVar({id: node.customVariable.location, value: label})
+      debugger
       var conditions = entity.getConditions(this.scenarioArray, id)
       var matchedCondition= entity.getMatchedCondition(this.scenarioArray, conditions, this.customVars)
       
@@ -84,7 +87,7 @@ export default {
       }
       this.$emit('sendMessage', message)
 
-      this.insertValueIntoCustomVar({id: this.currentEvent.id, value: label})
+      // this.insertValueIntoCustomVar({id: this.currentEvent.id, value: label})
     },
   }
 };

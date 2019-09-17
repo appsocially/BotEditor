@@ -225,9 +225,9 @@ export const mutations = {
     // return state.customVars
   },
   insertValueIntoCustomVar(state, value){
-    state.customVars = state.customVars.map((e) => {
+    return state.customVars = state.customVars.map((e) => {
       var customVar = e
-      if(e.id === value.id) customVar.value = value.value
+      if(e.location === value.id) customVar.value = value.value
       return customVar
     })
   },

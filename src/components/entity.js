@@ -318,7 +318,7 @@ entity.getMatchedCondition = function(scenario, conditions, customVarsArray) {
   var elseCondition = conditions.filter(e => {
     return e.type === "else";
   })[0]
-
+  // debugger
   for (var i = 0; i < conditions.length; i++) {
     var conditionType = conditions[i].type;
     switch (conditionType) {
@@ -328,7 +328,7 @@ entity.getMatchedCondition = function(scenario, conditions, customVarsArray) {
         var customVar = customVarsArray.filter((e) => {
           return (conditions[i].option.customVarName === e.location)
         })[0]
-
+        
         if (!customVar || !conditions[i].option) break
 
         var option = conditions[i].option

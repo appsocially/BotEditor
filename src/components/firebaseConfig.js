@@ -18,6 +18,15 @@ export default {
 //   messagingSenderId: "762202280051"
 // };
 
+// export default {
+//   apiKey: "AIzaSyC0VOO9oTOxKTH2uoVVMeJOzFNz5Paiw5s",
+//   authDomain: "bot-editor-dev.firebaseapp.com",
+//   databaseURL: "https://bot-editor-dev.firebaseio.com",
+//   projectId: "bot-editor-dev",
+//   storageBucket: "bot-editor-dev.appspot.com",
+//   messagingSenderId: "962503874281"
+// };
+
 export default {
   apiKey: "AIzaSyC0VOO9oTOxKTH2uoVVMeJOzFNz5Paiw5s",
   authDomain: "bot-editor-dev.firebaseapp.com",

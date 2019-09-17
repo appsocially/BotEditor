@@ -16,7 +16,6 @@
     div.wrap-node-window.f.fc
       atom-node-window(:content='content' ref="toolWindow" @delete='callRemoveOpenQuestionNode')
 
-
 </template>
 
 <style lang="scss">
@@ -218,14 +217,13 @@ export default {
       this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
       this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
       this.textareaStyle = `
-        width: ${this.nodeTextSize.width}px
-        height: ${this.nodeTextSize.height}px
+        width: ${this.nodeTextSize.width}px;
+        height: ${this.nodeTextSize.height}px;
         `
 
       var gapOfWidth = this.$el.offsetWidth - this.preNodeSize.width
       var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height
 
-      console.log(gapOfWidth)
 
       this.content.gui.position.y -= gapOfHeight/2
 

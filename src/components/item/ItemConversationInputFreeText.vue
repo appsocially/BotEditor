@@ -38,6 +38,9 @@
 </style>
 
 <script>
+
+import entity from "../entity"
+
 import { createNamespacedHelpers } from "vuex";
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
  "scenario"
@@ -66,6 +69,12 @@ export default {
       freeText: '',
     }
   },
+  computed: {
+    ...mapState([
+      'scenarioArray',
+      'customVars'
+    ])
+  },
   watch: {
     freeText: function(newVal, oldVal){
       this.freeText = newVal;
@@ -83,12 +92,22 @@ export default {
     ]),
     sendFreeText(){
 
-      if(this.freeText=='') return;
+      if(this.freeText=='') return
 
-      console.log('call:', this.nextEvent);
+      // console.log('call:', this.nextEvent)
 
       if(this.nextEvent!=''){
-        this.callNextEvent(this.freeText, this.nextEvent);
+        var node = entity.getContent(this.scenarioArray, this.currentEvent)
+        
+        if(node.customVariable) this.insertValueIntoCustomVar({id: node.customVariable.location, value: this.freeText})
+        
+        var conditions = entity.getConditions(this.scenarioArray, this.currentEvent)
+        var matchedCondition= entity.getMatchedCondition(this.scenarioArray, conditions, this.customVars)
+        
+        this.callNextEvent(this.freeText, matchedCondition.next)
+
+        // this.$emit('fireEventOfConversation', matchedCondition.next)
+        // this.callNextEvent(this.freeText, this.nextEvent)
       }/*else{
         var message = {
           text: this.freeText,

@@ -220,16 +220,16 @@ export default {
       case 'openquestion':
         this.lists = [
           {
-            label: 'Custom Action',
-            icon: 'add_comment',
-            id: 'show-custom-action',
-            func: this.toggleCustomActionMenu
-          },
-          {
             label: 'Custom Var as Answer',
             icon: 'monetization_on',
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
+          },
+          {
+            label: 'Custom Action',
+            icon: 'add_comment',
+            id: 'show-custom-action',
+            func: this.toggleCustomActionMenu
           },
           {
             label: 'Delete Node',
@@ -312,7 +312,7 @@ export default {
     createVar() {
       this.addCustomVar({
         nodeId: this.content.id,
-        location: `var-${this.content.id}`,
+        location: `variable${this.content.num}`,
         varType: this.varTypes[0]
       })
       this.customVarLocationValue = this.content.customVariable.location
@@ -329,7 +329,7 @@ export default {
     createAction() {
       this.addCustomAction({
         nodeId: this.content.id,
-        customAction: `ca-${this.content.id}`
+        customAction: `ca${this.content.num}`
       })
       this.customActionValue = this.content.customAction
       this.hasCustomAction = true

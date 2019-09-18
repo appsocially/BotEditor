@@ -7,13 +7,16 @@
       v-icon(v-if="showChild") keyboard_arrow_up
     div(v-if="showChild").wrap-drawer-list-content
       div(v-if="list.type === 'custom_variable'").custom-vars
+        div(v-for="item in customVars").var-list.pl24.pr10.pt12.pb4
+          span.var-title {{item.location + ` <${item.varType}>`}}
+          v-text-field(label="Value" :value="item.value" placeholder="Null")
         // そもそもここで変種できる必要あるかな？
-        div(v-for="item in customVars").var-list.pl20.pr10.pt12
+        //div(v-for="item in customVars").var-list.pl20.pr10.pt12
           v-text-field(label="Name" :value="item.location").pt8
           v-select(:items="varTypes" label="Type" :value="item.varType")
           v-text-field(label="Value" :value="item.value" placeholder="Null")
       div(v-if="list.type === 'exports'").exports
-        div(v-for="li in exportsItems" @click="exportScenario(li)").exports-list.pl20.pr10.py12
+        div(v-for="li in exportsItems" @click="exportScenario(li)").exports-list.pl24.pr10.py12
           span {{li}}
 
 </template>
@@ -35,16 +38,19 @@
     /*background: #F8F8F8;*/
     .var-list {
       border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
-      .custom-vars {
-        border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
-        .var-name {
-          font-size: 16px;
-        }
-        .v-input {
-          margin: 0;
-          padding: 0;
-        }        
+      .var-title {
+        font-size: 16px;
       }
+      // .custom-vars {
+      //   border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
+      //   .var-name {
+      //     font-size: 16px;
+      //   }
+      //   .v-input {
+      //     margin: 0;
+      //     padding: 0;
+      //   }        
+      // }
     }
     .exports {
       .exports-list {

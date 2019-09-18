@@ -1,7 +1,7 @@
 <template lang="pug">
 
   div.wrap-item-conversation-selection.f.flex-wrap.px8.py10
-    div(v-for='item in selections').selection.mr6.mt6.mb12
+    div(v-for='item in selections').selection.mr6.mb12
       span(@click='callNextEvent(item.label, item.id)').px12.py8 {{item.label}}
 
 </template>
@@ -15,6 +15,7 @@
   .selection {
     display: inline-block;
     span {
+      display: block;
       color: #2a2a2a;
       background: #FFEB52;
       border-radius: 12px;

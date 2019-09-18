@@ -9,7 +9,7 @@
       div.label.f.fm
         div(@click="toggleModal" v-if="project.author === uid").bot-icon.f.fh
           img(:src="project.botIcon")
-        span.ml8 {{project.title}}
+        span.line-clamp-1.ml8 {{project.title}}
         // v-icon(
           @click="toggleModal"
           v-if="project.author === uid"
@@ -60,6 +60,9 @@
           min-width: 100%;
           min-height: 100%;
         }
+      }
+      span {
+        max-width: 100px;
       }
       // .settings {
       //   font-size: 20px;

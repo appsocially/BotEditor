@@ -9,7 +9,7 @@
       div(v-if="list.type === 'custom_variable'").custom-vars
         div(v-for="item in customVars").var-list.pl24.pr10.pt12.pb4
           span.var-title {{item.location + ` <${item.varType}>`}}
-          v-text-field(label="Value" :value="item.value" placeholder="Null")
+          v-text-field(label="Value" :value="item.value" placeholder="Null" @keyup="upField(item.location ,$event)")
         // そもそもここで変種できる必要あるかな？
         //div(v-for="item in customVars").var-list.pl20.pr10.pt12
           v-text-field(label="Name" :value="item.location").pt8
@@ -83,7 +83,8 @@ export default {
     return {
       showChild: false,
       varTypes: ['String', 'Number'],
-      exportsItems: ["Export for Upil"]
+      exportsItems: ["Export for Upil"],
+      variableValue: ""
     }
   },
   computed: {
@@ -92,6 +93,9 @@ export default {
       'customVars'
     ]),
   },
+  watch: {
+    
+  },
   created: function(){
     
   },
@@ -99,8 +103,14 @@ export default {
 
   },
   methods: {
+    ...mapActions([
+      'insertValueIntoCustomVar'
+    ]),
     toggleChild () {
       this.showChild = !this.showChild
+    },
+    upField (id, event) {
+      this.insertValueIntoCustomVar({id: id, value: event.target.value})
     },
     exportScenario (target) {
       console.log("export for", target)

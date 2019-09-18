@@ -5,7 +5,7 @@
       div.f.fm
         div.wrap-icon.mr12
           img(:src="project.botIcon")
-        span.title {{project.title}}
+        span.title.line-clamp-1 {{project.title}}
       span.edit-time {{project.time}}
     div.wrap-discription
       span.line-clamp3 {{project.discription}}
@@ -35,6 +35,7 @@
     }
     .title {
       font-size: 24px;
+      max-width: 200px;
     }
     .edit-time {
       display: block;

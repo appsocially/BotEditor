@@ -327,7 +327,7 @@ export default {
     createVar() {
       this.addCustomVar({
         nodeId: this.content.id,
-        location: `variable${this.content.num}`,
+        location: `cv${this.content.num}`,
         varType: this.varTypes[0]
       })
       this.customVarLocationValue = this.content.customVariable.location

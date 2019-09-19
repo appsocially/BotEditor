@@ -113,10 +113,10 @@ export default {
   },
   watch: {
     messageBubbles (newBubble) {
-      this.scrollToButtom()
+      setTimeout(this.scrollToButtom, 10)
     },
     selections () {
-      setTimeout(this.scrollToButtom, 0)
+      setTimeout(this.scrollToButtom, 10)
     }
   },
   created: function(){

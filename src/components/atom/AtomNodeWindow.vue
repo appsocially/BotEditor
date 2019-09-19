@@ -10,7 +10,11 @@
         div(v-if="item.id === 'show-custom-vars' && showCustomVar" :class="String(showCustomVar)").child-list
           div(v-if="hasCustomVar")
             div.wrap-id.pt8
-              v-text-field(label="Name" :value="content.customVariable.location" v-model="customVarLocationValue")
+              v-text-field(
+                label="Name"
+                :value="content.customVariable.location"
+                v-model="customVarLocationValue"
+                ref="varNameInput")
             div.wrap-selector
               v-select(:items="varTypes" label="Type" :value="content.customVariable.varType" v-model="customVarTypeValue")
           div(v-else).wrap-no-custom-var
@@ -270,10 +274,21 @@ export default {
       this.windowStatus = (newVal)? 'active' : ''
     },
     customVarLocationValue(newVal, oldVal){
-      if(newVal !== oldVal && oldVal !== ""){
-        clearTimeout(this.timer)
-        this.timer = setTimeout(this.updateVar, 1000)
+
+      // invalidな変数名を検知
+      try {
+        if(newVal !== "") eval(`var ${newVal}`)
+        if(newVal !== oldVal && oldVal !== "" && newVal !== ""){
+          clearTimeout(this.timer)
+          this.timer = setTimeout(this.updateVar, 1000)
+        }
+      } catch(e) {
+        console.log("invalid")
+        this.$nextTick(() => { this.customVarLocationValue = this.content.customVariable.location })
+        return
       }
+
+      
     },
     customVarTypeValue(newVal, oldVal){
       if(newVal !== oldVal && oldVal !== ""){

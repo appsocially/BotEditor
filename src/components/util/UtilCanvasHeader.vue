@@ -25,7 +25,7 @@
         div(v-else-if="project.author !== uid && uid && project.pulishedAsFormat")
           div(@click="onImport").import-button.f.fm.pl2.pr12.py3
             v-icon play_for_work
-            span Import this Bot
+            span Clone this Bot
     div(v-if="project.author !== uid").notify-unauthed.f.fh
       span You don't have the right to edit.
 

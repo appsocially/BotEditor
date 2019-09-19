@@ -71,6 +71,12 @@ import { createNamespacedHelpers } from "vuex"
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
  "scenario"
 )
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
+ "project"
+)
+
+import exportUPIL from "../exportUPIL"
+import lintScenario from "../lintScenario"
 
 export default {
   props: {
@@ -91,6 +97,9 @@ export default {
     ...mapState([
       'scenarioArray',
       'customVars'
+    ]),
+    ...mapStateProject([
+      'project'
     ]),
   },
   watch: {
@@ -113,7 +122,27 @@ export default {
       this.insertValueIntoCustomVar({id: id, value: event.target.value})
     },
     exportScenario (target) {
-      console.log("export for", target)
+      switch(target){
+        case "Export for Upil":
+          var validateUpil = window.lintScenarioForUPILOutput(this.scenarioArray)
+          if(validateUpil.result === "success") {
+            var upilText = window.exportScenarioAsUPIL(this.scenarioArray)
+            this.download (`${this.project.title}.txt`, upilText)
+          }
+        break
+      }
+    },
+    download (filename, text) {
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
     }
   }
 };

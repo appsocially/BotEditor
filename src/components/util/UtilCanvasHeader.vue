@@ -3,8 +3,11 @@
   div(v-if="project").wrap-util
     div.util-content.f.fc
       div.icon-left.f.fm
-        v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
-        v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
+        div.mr8
+          v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
+          v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
+        div
+          v-icon(@click="$router.push('/top')" color="#FF9A0A") home
         // span(@click="$router.push('/openbots')").logo BotEditor
       div.label.f.fm
         div(@click="toggleModal" v-if="project.author === uid").bot-icon.f.fh

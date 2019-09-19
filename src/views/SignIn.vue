@@ -16,13 +16,14 @@
               md4 
               class="text-xs-center fc">
               <!--img src="../assets/pickll_logo_row.svg"-->
-              <v-progress-circular 
-                v-if="loggingIn"
-                :size="50"
-                color="primary"
-                indeterminate
-                class="mt-3 fc"
-              />
+              <div v-if="loggingIn" class="wrap-now-loading f fh">
+                <v-progress-circular 
+                  :size="50"
+                  color="primary"
+                  indeterminate
+                  class="mt-3 fc"
+                />
+              </div>
               <FirebaseSignInUi v-else/>
             </v-flex>
           </v-layout>
@@ -150,5 +151,13 @@ img {
 
 .v-icon {
   width: 50px;
+}
+
+.wrap-now-loading {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
 }
 </style>

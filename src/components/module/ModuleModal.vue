@@ -13,7 +13,7 @@
           v-icon.mr6 file_copy
           span.line-clamp-1 {{copyMessage}}
         div.wrap-save-button.f.fc.pb12
-          span(@click="onSave").save-button.px4.py6.f.fh save
+          span(@click="onSave").save-button.px4.py6.f.fh Save
 
 </template>
 
@@ -72,7 +72,7 @@
         font-weight: bold;
         text-align: center;
         background: #FF9A0A;
-        color: #2A2A2A;
+        color: #fff;
         border-radius: 3px;
         filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
       }

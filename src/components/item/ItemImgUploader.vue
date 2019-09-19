@@ -5,7 +5,7 @@
       div.img-wrapper.f.fh
         img(v-show="uploadedImage" :src="uploadedImage")
       div.wrap-change-icon.f.fh
-        v-icon cached
+        v-icon(color="#fff") cached
     input(type="file" v-on:change="onFileChange" ref="imgInput" style="display: none")
     canvas(id="imgCanvas" ref="imgCanvas" width="0" height="0" style="display: none")
 

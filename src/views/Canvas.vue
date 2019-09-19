@@ -14,13 +14,13 @@
         @toggleDrawer="toggleDrawer")
       module-canvas(
         ref="canvas"
-        v-if='!!project && !!scenario'
+        v-if='!!project && !!scenarioArray'
         :project='project'
         :letEdit="letEdit")
       div(v-show="showPreview").wrap-preview
         module-conversation(
           ref="conversation"
-          v-if='!!project && !!scenario'
+          v-if='!!project && !!scenarioArray'
           :project='project'
           @togglePreview="togglePreview")
       div(v-show="!showPreview" @click="togglePreview").wrap-preview-float-icon.f.fh
@@ -107,9 +107,7 @@ export default {
   //props: ['labels', 'projects'],
   data() {
     return {
-      // project: null,
-      // scenarioArray: null,
-      scenario: null,
+      // scenario: null,
       showPreview: true,
       showModal: false,
       showDrawer: false,
@@ -156,7 +154,7 @@ export default {
         this.letEdit = "not-let-edit"
       }
       await this.loadScenarioByProjectId(this.project.id)
-      this.scenario = this.scenarioArray
+      // this.scenario = this.scenarioArray
 
       this.loadAllCustomVars()
 

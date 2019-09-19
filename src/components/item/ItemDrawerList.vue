@@ -125,24 +125,27 @@ export default {
       switch(target){
         case "Export for Upil":
           var validateUpil = window.lintScenarioForUPILOutput(this.scenarioArray)
+          
           if(validateUpil.result === "success") {
             var upilText = window.exportScenarioAsUPIL(this.scenarioArray)
-            this.download (`${this.project.title}.txt`, upilText)
+            this.download(`${this.project.title}.txt`, upilText)
+          }else{
+            alert(`Export Error ${validateUpil.errors[0]}`)
           }
         break
       }
     },
     download (filename, text) {
-      var element = document.createElement('a');
-      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-      element.setAttribute('download', filename);
+      var element = document.createElement('a')
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+      element.setAttribute('download', filename)
 
-      element.style.display = 'none';
-      document.body.appendChild(element);
+      element.style.display = 'none'
+      document.body.appendChild(element)
 
-      element.click();
+      element.click()
 
-      document.body.removeChild(element);
+      document.body.removeChild(element)
     }
   }
 };

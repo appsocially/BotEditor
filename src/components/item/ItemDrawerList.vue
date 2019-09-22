@@ -89,7 +89,7 @@ export default {
     return {
       showChild: false,
       varTypes: ['String', 'Number'],
-      exportsItems: ["Export for Upil"],
+      exportsItems: [this.$t("canvas.drawer.menu.exports.upil_label")],
       variableValue: ""
     }
   },
@@ -123,7 +123,7 @@ export default {
     },
     exportScenario (target) {
       switch(target){
-        case "Export for Upil":
+        case this.$t("canvas.drawer.menu.exports.upil_label"):
           var validateUpil = window.lintScenarioForUPILOutput(this.scenarioArray)
           
           if(validateUpil.result === "success") {

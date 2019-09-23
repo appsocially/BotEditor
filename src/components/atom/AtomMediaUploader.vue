@@ -1,30 +1,29 @@
 <template lang="pug">
 
-  div.wrap-img-uploader.py20
-    div(@click="pickImg").uploaded-img.f.fc
+  div.wrap-media-uploader
+    div.uploaded-img.f.fc
       div.img-wrapper.f.fh
         img(v-show="uploadedImage" :src="uploadedImage")
-      div.wrap-change-icon.f.fh
+      div(@click="pickImg").wrap-change-icon.f.fh
         v-icon(color="#fff") cached
-    input(type="file" v-on:change="onFileChange" ref="imgInput" style="display: none")
+    input(type="file" v-on:change="onFileChange" ref="imgInput" accept="image/*" style="display: none")
     canvas(id="imgCanvas" ref="imgCanvas" width="0" height="0" style="display: none")
 
 </template>
 
 <style lang="scss" scoped>
 
-.wrap-img-uploader {
+.wrap-media-uploader {
+  width: 100%;
+  height: 100%;
   .uploaded-img {
     position: relative;
     margin: 0 auto;
-    width: 120px;
-    height: 120px;
+    width: 100%;
+    height: 100%;
     .img-wrapper {
       width: 100%;
       height: 100%;
-      border-radius: 50%;
-      overflow: hidden;
-      border: solid #999 2px;
       img {
         object-fit: cover;
         min-height: 100%;
@@ -35,10 +34,12 @@
       position: absolute;
       width: 30px;
       height: 30px;
-      right: 10px;
-      bottom: 2px;
+      right: 8px;
+      bottom: 8px;
+      cursor: pointer;
       background: #FF9A0A;
       border-radius: 50%;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
       i {
         color: #2a2a2a;
         font-size: 18px;
@@ -86,10 +87,11 @@ export default {
     // アップロードした画像を表示
     createImage (file) {
       // 画像リサイズ後の最大値の幅
-      const THUMBNAIL_WIDTH = 200
-      const THUMBNAIL_HEIGHT = 200
+      const THUMBNAIL_WIDTH = 800
+      const THUMBNAIL_HEIGHT = 800
 
       var imgCanvas = this.$refs.imgCanvas
+
       var image = new Image()
       var reader = new FileReader()
       reader.onload = (e) => {
@@ -107,7 +109,9 @@ export default {
             width = THUMBNAIL_HEIGHT * ratio
             height = THUMBNAIL_HEIGHT
           }
+          
           // var canvas = document.getElementById("imgCanvas")
+          // var imgCanvas = document.createElement("canvas")
           imgCanvas.setAttribute("width", width)
           imgCanvas.setAttribute("height", height)
 
@@ -131,12 +135,13 @@ export default {
       // ストレージオブジェクト作成
       var storageRef = strage.ref()
       // ファイルのパスを設定
-      var mountainsRef = storageRef.child(`icon/${this.imgId}.jpg`)
+      var mountainsRef = storageRef.child(`media/${this.imgId}.jpg`)
       // ファイルを適用してファイルアップロード開始
       // mountainsRef.put(this.imageFile).then(snapshot => {
       mountainsRef.putString(base64.split(',')[1], 'base64').then(snapshot => {
         snapshot.ref.getDownloadURL().then(downloadURL => {
           this.uploadedImage = downloadURL
+          this.$emit("updateNodeContent", this.uploadedImage)
           console.log('imageUrl', downloadURL)
         })
       })

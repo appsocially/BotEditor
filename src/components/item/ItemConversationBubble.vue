@@ -3,8 +3,10 @@
   div(:class='reverse').wrap-item-conversation-bubble.f.mt12.mb14
     div(:class='fadeIn').wrap-bot-icon.mt2
       img(:src="icon")
-    div(ref="bubble" :class='fadeIn').wrap-bubble.mr8.px8.py6
+    div(v-if="content.type !== 'media'" ref="bubble" :class='fadeIn').wrap-bubble.mr8.px8.py6
       span.text {{bubbleValue}}
+    div(v-if="content.type === 'media'" ref="bubble" :class='fadeIn').wrap-media-bubble.f.fh.mr8
+      img(:src="content.mediaURI")
       
 </template>
 
@@ -39,6 +41,16 @@
     .text {
       
       font-size: 12px;
+    }
+  }
+  .wrap-media-bubble {
+    max-width: 70%;
+    overflow: hidden;
+    border-radius: 12px;
+
+    transition: all 400ms ease;
+    img {
+      object-fit: contain;
     }
   }
 

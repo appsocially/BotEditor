@@ -229,6 +229,25 @@ export default {
 
         break
 
+        case 'media':
+          
+          (async () => {
+            await sleep(1200)
+
+            this.sendMessage(event)
+
+            $('.focused').removeClass('focused')
+            var node = document.getElementById(event.id)
+            if(node) node.classList.add('focused')
+            
+            if(event.conditions) {
+              var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
+              this.fireEventOfConversation(matchedCondition.next)
+            }
+          })()
+
+        break
+
         case 'goto':
 
           (async () => {

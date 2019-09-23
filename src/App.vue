@@ -51,9 +51,12 @@ import VueI18n from 'vue-i18n'
 
 const localeText = require('./components/localeText.json')
 
+
+var localeLang = (navigator.language === "ja")? "ja" : "en"
+
 Vue.use(VueI18n)
 const i18n = new VueI18n({
-  locale: 'ja', // デフォルト言語はjaにしておくが、ブラウザの言語を拾ってきてここに入れる => 言語変更されたら書き換える
+  locale: localeLang, // デフォルト言語はjaにしておくが、ブラウザの言語を拾ってきてここに入れる => 言語変更されたら書き換える
   messages: localeText
 })
 

@@ -244,6 +244,23 @@ export default {
         ];
       break;
 
+      case 'media':
+        this.lists = [
+          {
+            label: 'Custom Action',
+            icon: 'add_comment',
+            id: 'show-custom-action',
+            func: this.toggleCustomActionMenu
+          },
+          {
+            label: 'Delete Node',
+            icon: 'delete',
+            id: 'delete-node',
+            func: this.deleteNode
+          }
+        ];
+      break;
+
       case 'goto':
         this.lists = [
           {

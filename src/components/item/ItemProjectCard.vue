@@ -5,8 +5,11 @@
       div.f.fm
         div.wrap-icon.mr12
           img(:src="project.botIcon")
-        span.title.line-clamp-1 {{project.title}}
-      span.edit-time {{project.time}}
+        div.wrap-bot-title
+          span.bot-title.line-clamp-1 {{project.title}}
+          span.edit-time {{project.time}}
+      div.wrap-button.f.fm
+        v-icon(@click="deleteBot" color="#F99" size="20") delete
     div.wrap-discription
       span.line-clamp3 {{project.discription}}
 
@@ -33,12 +36,18 @@
         min-width: 100%;
       }
     }
-    .title {
-      font-size: 24px;
-      max-width: 200px;
+    .wrap-bot-title {
+      .bot-title {
+        font-size: 18px;
+        max-width: 200px;
+      }
+      .edit-time {
+        display: block;
+        font-size: 12px;
+      }
     }
-    .edit-time {
-      display: block;
+    .wrap-button {
+      color: #F00;
     }
   }
 }
@@ -48,6 +57,11 @@
 
 <script>
 
+import { createNamespacedHelpers } from "vuex"
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
+ "project"
+)
+
 export default {
   props: {
     project: {
@@ -55,17 +69,22 @@ export default {
       required: true
     }
   },
-  data () {
-    return {
-      
-    }
-  },
   created () {
     
   },
   methods: {
+    ...mapActionsProject([
+      'deleteProject'
+    ]),
     toCanvas () {
       this.$router.push(`/canvas/${this.project.id}`);
+    },
+    deleteBot (e) {
+      e.stopPropagation()
+      if(confirm(`Do you really delete ${this.project.title}?`)){
+        this.deleteProject(this.project.id)
+        this.$emit("deleteProjectCard", this.project.id)
+      }
     }
   }
 }

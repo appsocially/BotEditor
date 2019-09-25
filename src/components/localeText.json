@@ -1,0 +1,68 @@
+{
+  "en": {
+    "canvas": {
+      "nodes": {
+        "normal": {
+          "default_label": "Message"
+        },
+        "selection": {
+          "default_label": "What is your choice?",
+          "expected_answer_selections": ["Selection1", "Selection2"]
+        },
+        "open_question": {
+          "default_label": "What is question?",
+          "expected_answer_placeholder": "Ex. Your Name"
+        },
+        "node_selector": {
+          "normal": {"label": "Message"},
+          "selection": {"label": "Selection"},
+          "open_question": {"label": "Open Question"},
+          "go_to": {"label": "Go To"}
+        }
+      },
+      "drawer": {
+        "menu": {
+          "custom_variable": {
+            "label": "Custom Variable"
+          },
+          "exports": {
+            "label": "Exports",
+            "upil_label": "Export for Upil"
+          }
+        }
+      }
+    }
+  },
+  "ja": {
+    "nodes": {
+      "normal": {
+        "default_label": "メッセージ"
+      },
+      "selection": {
+        "default_label": "質問文",
+        "expected_answer_selections": ["選択肢1", "選択肢2"]
+      },
+      "open_question": {
+        "default_label": "質問文",
+        "expected_answer_placeholder": "Ex. お名前"
+      },
+      "node_selector": {
+        "normal": {"label": "メッセージ"},
+        "selection": {"label": "選択肢"},
+        "open_question": {"label": "オープンクエスチョン"},
+        "go_to": {"label": "ジャンプ"}
+      }
+    },
+    "canvas": {
+      "drawer": {
+        "menu": {
+          "custom_variable": {"label": "カスタム変数"},
+          "exports": {
+            "label": "エクスポート",
+            "upil_label": "Upilにエクスポート"
+          }
+        }
+      }
+    }
+  }
+}

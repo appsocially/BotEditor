@@ -13,6 +13,7 @@ export const mutations = {
   },
   addNodeToScenario(state, value) {
     state.scenarioArray.push(value)
+    window.scenarioArray = state.scenarioArray
   },
   updateNext(state, value) {
 

@@ -3,8 +3,11 @@
   div(v-if="project").wrap-util
     div.util-content.f.fc
       div.icon-left.f.fm
-        v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
-        v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
+        div.mr8
+          v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
+          v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
+        div
+          v-icon(@click="$router.push('/top')" color="#FF9A0A") home
         // span(@click="$router.push('/openbots')").logo BotEditor
       div.label.f.fm
         div(@click="toggleModal" v-if="project.author === uid").bot-icon.f.fh
@@ -22,7 +25,7 @@
         div(v-else-if="project.author !== uid && uid && project.pulishedAsFormat")
           div(@click="onImport").import-button.f.fm.pl2.pr12.py3
             v-icon play_for_work
-            span Import this Bot
+            span Clone this Bot
     div(v-if="project.author !== uid").notify-unauthed.f.fh
       span You don't have the right to edit.
 

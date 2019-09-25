@@ -11,7 +11,7 @@
         div.wrap-projects.mt20.pb40
           // Data Update for v2
           // span(@click="addConditionToAllNodes") update          
-          item-project-card(v-for="item in projects" :project="item")
+          item-project-card(v-for="item in projects" :project="item" @deleteProjectCard="deleteProjectCard")
 
 
 </template>
@@ -39,8 +39,8 @@
       font-size: 12px;
       font-weight: bold;
       text-align: center;
-      background: #FFEB52;
-      color: #2A2A2A;
+      background: #ff9a0a;
+      color: #fff;
       border-radius: 3px;
       filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
     }
@@ -67,7 +67,6 @@ import UtilHeader from "../components/util/UtilHeader"
 import ItemProjectCard from "../components/item/ItemProjectCard"
 
 export default {
-  name: 'Canvas',
   components: {
     Auth,
     UtilHeader,
@@ -260,10 +259,12 @@ export default {
         }
         console.log("nodes", nodes)
       }
+    },
+    deleteProjectCard(id) {
+      this.projects = this.projects.filter((e) => {
+        return (e.id !== id)
+      })
     }
-    /*deleteBot() {
-
-    }*/
   },
   watch: {
     botName: function(newVal, oldVal){

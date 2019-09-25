@@ -46,8 +46,8 @@ export default {
     return {
       drawerWidthStyle: "width: 0px;",
       lists: [
-        {title: "Custom Variables", type: "custom_variable"},
-        {title: "Exports", type: "exports"}
+        {title: this.$t("canvas.drawer.menu.custom_variable.label"), type: "custom_variable"},
+        {title: this.$t("canvas.drawer.menu.exports.label"), type: "exports"}
       ]
     }
   },
@@ -62,7 +62,7 @@ export default {
     }
   },
   created: function(){
-    // debugger
+    
   },
   mounted: async function(){
 

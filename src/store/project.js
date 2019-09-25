@@ -92,11 +92,22 @@ export const actions = {
 
       resolve(copiedProject.id)
     })
+  },
+  async deleteProject({commit}, id) {
+    var nodeIds = await db.collection("projects").doc(id).collection("scenario").get().then((d) => {
+      return d.docs.map((doc) => {
+        return doc.id
+      })
+    })
+    for(var i=0; i<nodeIds.length; i++){
+      db.collection("projects").doc(id).collection("scenario").doc(nodeIds[i]).delete()
+    }
+    await db.collection("projects").doc(id).delete()
   }
 }
 
 export const getters = {
   getFunction() {
-    console.log("getter test")   
+    console.log("getter test")
   }
 }

@@ -8,13 +8,19 @@
         svg#previewLineForGoTo
         item-edge(v-for='item in edgesArray' :content='item' :ref='item.id' :key="item.key" @openEdgeWindow="openEdgeWindow")
         //item-edge(v-for='item in edges' :content='item')
-      item-node-selector(@addNormalMessage='addNormalMessage' @addSelectionMessage='addSelectionMessage' @addOpenQuestionMessage='addOpenQuestionMessage' @selectToNodeByGoTo='selectToNodeByGoTo')
+      item-node-selector(
+        @addNormalMessage='addNormalMessage'
+        @addSelectionMessage='addSelectionMessage'
+        @addOpenQuestionMessage='addOpenQuestionMessage'
+        @addMediaMessage='addMediaMessage'
+        @selectToNodeByGoTo='selectToNodeByGoTo')
       item-edge-window(ref="edgeWindow" @updateEdgeType="updateEdgeType")
 
       item-node-start-point(v-if='startPointNode' :content='startPointNode')
       item-node-simple-message(v-for='item in normalMessageNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeNormalMessageNode='removeNormalMessageNode' @loadAllEdges='loadAllEdges' @fixEdgeOfNormalNode='fixEdgeOfNormalNode').item-node-simple-message
       item-node-selection(v-for='item in selectionNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeSelectionMessage='removeSelectionMessage' @loadAllEdges='loadAllEdges').item-node-selection
       item-node-open-question(v-for='item in openQuestionNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeOpenQuestionNode='removeOpenQuestionNode' @loadAllEdges='loadAllEdges').item-node-open-question
+      item-node-media(v-for='item in mediaNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeMediaNode='removeMediaNode' @loadAllEdges='loadAllEdges').item-node-media
       item-node-go-to(v-for='item in goToNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeGoToNode='removeGoToNode' @loadAllEdges='loadAllEdges').item-node-go-to
       
       div(@click="closeToolWindows")#canvasBg
@@ -126,6 +132,7 @@ import ItemNodeStartPoint from "../item/ItemNodeStartPoint"
 import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage"
 import ItemNodeSelection from "../item/ItemNodeSelection"
 import ItemNodeOpenQuestion from "../item/ItemNodeOpenQuestion"
+import ItemNodeMedia from "../item/ItemNodeMedia"
 import ItemNodeGoTo from "../item/ItemNodeGoTo"
 
 import ItemEdge from "../item/ItemEdge"
@@ -144,6 +151,7 @@ export default {
     ItemNodeSimpleMessage,
     ItemNodeSelection,
     ItemNodeOpenQuestion,
+    ItemNodeMedia,
     ItemNodeGoTo,
     ItemEdge
   },
@@ -167,6 +175,7 @@ export default {
       normalMessageNodes: [],
       selectionNodes: [],
       openQuestionNodes: [],
+      mediaNodes: [],
       goToNodes: [],
       edgesArray: [],
       completeLoadingLine: false,
@@ -203,6 +212,7 @@ export default {
     this.normalMessageNodes = entity.getNormalNodes(this.scenarioArray)
     this.selectionNodes = entity.getSelectionNodes(this.scenarioArray)
     this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray)
+    this.mediaNodes = entity.getMediaNodes(this.scenarioArray)
     this.goToNodes = entity.getGoToNodes(this.scenarioArray)
     
   },
@@ -589,7 +599,44 @@ export default {
       this.deleteNode(id);
       this.disconnectNode(id);
     },
+    addMediaMessage(position, dragStartedPosition, dragStartedId){
 
+      var topOffset = 60
+
+      this.project.nodeNum++
+      
+      var content = {
+        author: this.uid,
+        id: `mediaTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'media',
+        nodeType: 'single',
+        text: 'No data',
+        mediaURI: 'https://firebasestorage.googleapis.com/v0/b/bot-editor-dev.appspot.com/o/public%2Fno-file.png?alt=media&token=7b5fec93-0838-496d-a70b-fee89334df17',
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          },
+        },
+      }
+      
+      this.mediaNodes.push(content)
+
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+
+      this.pushContentToScenario(content)
+
+    },
+    removeMediaNode(id){
+      this.mediaNodes = this.mediaNodes.filter(e => {
+        return e.id !== id
+      })
+      this.removeEdgesThatConnectNodeOf(id)
+
+      this.deleteNode(id)
+      this.disconnectNode(id)
+    },
     // これはノード選択後に呼び出す
     addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum){
 

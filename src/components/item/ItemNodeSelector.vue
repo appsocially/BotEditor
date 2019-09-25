@@ -11,8 +11,9 @@
 
 .wrap-item {
   z-index: 100;
-  background: #FFF;
+  background: #FF9A0A;
   position: absolute;
+  min-width: 116px;
   border-radius: 12px;
   box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
   .wrap-selectors {
@@ -21,7 +22,9 @@
       p {
         margin: 0;
         text-align: center;
-        color: #FF9A0A;
+        color: #FFF;
+        font-weight: 500;
+        letter-spacing: 0.6px;
       }
     }
   }
@@ -30,6 +33,7 @@
 </style>
 
 <script>
+import { setTimeout } from 'timers';
 
 export default {
   name: 'ItemNodeSelector',
@@ -46,65 +50,102 @@ export default {
   },
   created: function(){
 
-    this.selection = [
-      {label: 'Message', type: 'normal'},//method: this.callAddSimpleMessage},
-      {label: 'Selection', type: 'selection'},//method: this.addSelectionMessage},
-      {label: 'Open Question', type: 'openquestion'},//method: this.addSelectionMessage},
-      {label: 'Go To', type: 'goto'},//method: this.addSelectionMessage},
-    ];
+    // this.selection = [
+    //   {label: 'Message', type: 'normal'},
+    //   {label: 'Selection', type: 'selection'},
+    //   {label: 'Open Question', type: 'openquestion'},
+    //   {label: 'Go To', type: 'goto'},
+    // ]
 
-    //this.position = {x: 100, y: 49964};
+    this.initializeSelection()
 
   },
   mounted: function(){
     
     d3.select('#nodeSelector')
       .style('top', `${this.position.y}px`)
-      .style('left', `${this.position.x}px`);
+      .style('left', `${this.position.x}px`)
 
     // 多分これやっちゃいけないやつ
-    window.updateSelectorPosition = this.updatePosition;
+    window.updateSelectorPosition = this.updatePosition
 
   },
   methods: {
+    initializeSelection() {
+      this.selection = [
+        {label: 'Message', type: 'normal'},
+        {label: 'Question', type: 'to_question'},
+        {label: 'Image', type: 'media'},
+        {label: 'Go To', type: 'goto'},
+      ]
+    },
     callAddNode(type){
 
       switch(type){
         case 'normal':
-          this.$emit('addNormalMessage', this.position, this.dragStartedPosition, this.dragStartedId);
-        break;
+          this.$emit('addNormalMessage', this.position, this.dragStartedPosition, this.dragStartedId)
+          this.hideSelf()
+          this.initializeSelection()
+        break
         case 'selection':
-          this.$emit('addSelectionMessage', this.position, this.dragStartedPosition, this.dragStartedId);
-        break;
+          this.$emit('addSelectionMessage', this.position, this.dragStartedPosition, this.dragStartedId)
+          this.hideSelf()
+          this.initializeSelection()
+        break
         case 'openquestion':
-          this.$emit('addOpenQuestionMessage', this.position, this.dragStartedPosition, this.dragStartedId);
-        break;
+          this.$emit('addOpenQuestionMessage', this.position, this.dragStartedPosition, this.dragStartedId)
+          this.hideSelf()
+          this.initializeSelection()
+        break
+        case 'media':
+          this.$emit('addMediaMessage', this.position, this.dragStartedPosition, this.dragStartedId)
+          this.hideSelf()
+          this.initializeSelection()
+        break
         case 'goto':
-          this.$emit('selectToNodeByGoTo', this.position, this.dragStartedPosition, this.dragStartedId);
-        break;
+          this.$emit('selectToNodeByGoTo', this.position, this.dragStartedPosition, this.dragStartedId)
+          this.hideSelf()
+          this.initializeSelection()
+        break
+        case 'to_question':
+          this.selection = [
+            {label: 'Selection', type: 'selection'},
+            {label: 'Open Question', type: 'openquestion'}
+          ]
+          this.$nextTick(this.adjustPosition)
+        break
+        case 'to_action':
+          this.$nextTick(this.adjustPosition)
+        break
+        case 'to_media':
+          this.$nextTick(this.adjustPosition)
+        break
       }
 
-      //this.$emit('addLine', this.dragStartPosition, this.position);
-
-      $('#nodeSelector').hide();
-      $('#lineForPreview').hide();
+      //this.$emit('addLine', this.dragStartPosition, this.position)
 
     },
+    hideSelf() {
+      $('#nodeSelector').hide()
+      $('#lineForPreview').hide()
+    },
     updatePosition(position, fromPosition, fromId){
-      $('#nodeSelector').show();
+      $('#nodeSelector').show()
 
-      var selector = document.getElementById('nodeSelector');
+      this.position = position
+      this.dragStartedPosition = fromPosition
+      this.dragStartedId = fromId
 
-      this.position = position;
-      this.dragStartedPosition = fromPosition;
-      this.dragStartedId = fromId;
-      //this.position.y -= selector.clientHeight/2;
+      this.adjustPosition()
+    },
+    adjustPosition(){
+      var selector = document.getElementById('nodeSelector')
 
       d3.select('#nodeSelector', this.position)
         .style('top', `${this.position.y - selector.clientHeight/2}px`)
-        .style('left', `${this.position.x}px`);
+        .style('left', `${this.position.x}px`)
 
-      $('.focused').removeClass('focused');
+      $('.focused').removeClass('focused')
     }
   }
 };

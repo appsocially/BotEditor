@@ -113,10 +113,10 @@ export default {
   },
   watch: {
     messageBubbles (newBubble) {
-      this.scrollToButtom()
+      setTimeout(this.scrollToButtom, 10)
     },
     selections () {
-      setTimeout(this.scrollToButtom, 0)
+      setTimeout(this.scrollToButtom, 10)
     }
   },
   created: function(){
@@ -224,6 +224,25 @@ export default {
             if(event.conditions) {
               var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
               this.nextEventOfFreeText = matchedCondition.next
+            }
+          })()
+
+        break
+
+        case 'media':
+          
+          (async () => {
+            await sleep(1200)
+
+            this.sendMessage(event)
+
+            $('.focused').removeClass('focused')
+            var node = document.getElementById(event.id)
+            if(node) node.classList.add('focused')
+            
+            if(event.conditions) {
+              var matchedCondition = entity.getMatchedCondition(this.scenarioArray, event.conditions, this.customVars)
+              this.fireEventOfConversation(matchedCondition.next)
             }
           })()
 

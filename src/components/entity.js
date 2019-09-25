@@ -3,17 +3,17 @@ var entity = {};
 
 entity.getContent = function(scenario, id) {
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].id == id) return scenario[i];
+    if (scenario[i].id == id) return scenario[i]
   }
 
-  return false;
-};
+  return false
+}
 
 entity.getStartPointNode = function(scenario) {
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].type == "start-point") return scenario[i];
+    if (scenario[i].type == "start-point") return scenario[i]
   }
-};
+}
 
 entity.getFirstNode = function(scenario) {
   for (var i = 0; i < scenario.length; i++) {
@@ -21,35 +21,41 @@ entity.getFirstNode = function(scenario) {
       var matchedCondition = entity.getMatchedCondition(
         scenario,
         scenario[i].conditions
-      );
-      return entity.getContent(scenario, matchedCondition.next);
+      )
+      return entity.getContent(scenario, matchedCondition.next)
     }
   }
-};
+}
 
 entity.getNormalNodes = function(scenario) {
   return scenarioArray.filter(function(content) {
-    return content.type == "normal";
-  });
-};
+    return content.type == "normal"
+  })
+}
 
 entity.getSelectionNodes = function(scenario) {
   return scenarioArray.filter(function(content) {
-    return content.type == "selection";
-  });
-};
+    return content.type == "selection"
+  })
+}
 
 entity.getOpenQuestionNodes = function(scenario) {
   return scenarioArray.filter(function(content) {
-    return content.type == "openquestion";
-  });
-};
+    return content.type == "openquestion"
+  })
+}
+
+entity.getMediaNodes = function(scenario) {
+  return scenarioArray.filter(function(content) {
+    return content.type == "media"
+  })
+}
 
 entity.getGoToNodes = function(scenario) {
   return scenarioArray.filter(function(content) {
-    return content.type == "goto";
-  });
-};
+    return content.type == "goto"
+  })
+}
 
 entity.getNodesThatConnectTo = function(scenario, id) {
   var nodes = [];
@@ -148,12 +154,12 @@ entity.getEdgesThatConnectTo = function(scenario, id) {
 };
 
 entity.getEdgesThatConnectFrom = function(scenario, id) {
-  var edges = [];
+  var edges = []
 
   var targetNode = scenario.filter(e => {
-    return id == e.id;
-  })[0];
-
+    return id == e.id
+  })[0]
+  
   if (targetNode.nodeType == "single" || targetNode.nodeType == "point") {
     if (targetNode.conditions) {
       var targetConditions = targetNode.conditions;

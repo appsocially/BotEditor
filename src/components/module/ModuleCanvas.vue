@@ -189,10 +189,19 @@ export default {
   //       this.loadAllEdges()
   //     }
   //   }
+  // scenarioArray: function(newVal, oldVal){
+  //   if(!this.completeLoadingLine && this.scenarioArray !== []){
+  //     this.loadAllEdges()
+  //     this.completeLoadingLine = true
+  //     this.scrollToStartNode()
+  //   }
+  // }
   // },
   created: async function(){
     
-    await this.loadScenarioByProjectId(this.projectId)
+    await this.loadScenarioByProjectId(this.$route.params.id)
+
+    console.log('module-canvas (project)', this.project)
     console.log('module-canvas (scenarioArray)', this.scenarioArray)
 
     // これ多分やっちゃいけないやつ
@@ -218,13 +227,15 @@ export default {
   },
   updated: function(){
     if(!this.completeLoadingLine){
-      this.loadAllEdges();
-      this.completeLoadingLine = true;
-
+      setTimeout(this.loadAllEdges, 400) // 権限のないキャンバスを見た時になぜかタイマーつけないとできない
+      // this.loadAllEdges()
+      this.completeLoadingLine = true
       this.scrollToStartNode()
     }
     //this.edgesArray = pointsBetweenNodes;
-
+  },
+  mounted: function() {
+    
   },
   methods: {
     ...mapActions([

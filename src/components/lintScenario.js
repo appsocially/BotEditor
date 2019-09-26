@@ -34,6 +34,9 @@ const lintScenarioForUPILOutput = (scenario) => {
             case 'goto':
                 result = lintGoTo(node, scenario)
                 break
+            case 'media':
+                result = lintMedia(node, scenario)
+                break
             default:
                 result = { warnings: [], errors: [error(num, `Unknown type: ${type}`)] }
         }
@@ -125,8 +128,15 @@ const lintSelection = (node, scenario) => {
 const lintGoTo = (node, scenario) => {
     let result = { warnings: [], errors: [] }
 
-    const toNode = getNodeFromId(node.toId, scenario)
-    result.warnings.push(warning(node.num, `UPIL export does not support GOTO (${toNode.num}). Ignored.`))
+    // Nothing to check
+
+    return result
+}
+
+const lintMedia = (node, scenario) => {
+    let result = { warnings: [], errors: [] }
+
+    // Nothing to check
 
     return result
 }

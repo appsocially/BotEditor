@@ -24,7 +24,7 @@ const exportScenarioAsUPIL = (scenarioArray) => {
 
     console.log(pretty(upil))
 
-    return upil
+    return pretty(upil)
 }
 
 const getGotoTargets = (scenarioArray) => {
@@ -83,7 +83,7 @@ const createAllDialogs = (scenarioArray) => {
     let upil = []
 
     for (let node of scenarioArray) {
-        let { type, id, text, customVariable, selections, toId } = node
+        let { type, id, text, customVariable, selections, mediaURI } = node
         id = id.replace(/-/g, '_')   // Should be fixed by BotEditor
         switch (type) {
             case 'normal':
@@ -98,6 +98,9 @@ const createAllDialogs = (scenarioArray) => {
             case 'goto':
             case 'start-point':
                 // ignore
+                break
+            case 'media':
+                upil = upil.concat(createDialogString(id, createMediaString(id, mediaURI)))
                 break
             default:
                 console.log(`Error: Unknown type ${type}`)
@@ -122,7 +125,7 @@ const createMainDialogString = (name, entities) => {
     return upil
 }
 
-const cleanseConditions = (conditions) => {
+const cleanseConditions = (conditions, scenarioArray) => {
     conditions = conditions === undefined ? [] : conditions
 
     conditions = conditions.filter(condition => {
@@ -158,7 +161,7 @@ const createCalls = (nodeId, scenarioArray) => {
 
     let { id, type, conditions, toId } = node
 
-    conditions = cleanseConditions(conditions)
+    conditions = cleanseConditions(conditions, scenarioArray)
 
     statements = statements.concat(createCallIfRequired(type, id, toId, scenarioArray))
     switch (conditions.length) {
@@ -382,6 +385,15 @@ const createTemplateString = (name, body) => {
     return statement
 }
 
+const createMediaString = (name, mediaURI) => {
+    let statement = []
+    const body = mediaURI.includes('no-file.png') ? 'No Media' : mediaURI
+    statement.push(`TEMPLATE ${name}`)
+    statement.push(`"${body}"`)
+    statement.push('/TEMPLATE')
+    return statement
+}
+
 const createOpenQuestionString = (name, body, variable) => {
     const { location, varType } = variable
     let statement = []
@@ -444,7 +456,7 @@ const createGotoTargetDialogs = (dialogs) => {
     let entityStrings = []
 
     for (const dialog of dialogs) {
-        const { name, statements } = dialog
+        let { name, statements } = dialog
         statements = createStatementStrings(statements)
         entityStrings = entityStrings.concat(createDialogString(name, statements))
     }

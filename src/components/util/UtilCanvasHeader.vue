@@ -7,7 +7,7 @@
           v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
           v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
         div
-          v-icon(@click="$router.push('/top')" color="#FF9A0A") home
+          v-icon#home(@click="$router.push('/top')" color="#FF9A0A") home
         // span(@click="$router.push('/openbots')").logo BotEditor
       div.label.f.fm
         div(@click="toggleModal" v-if="project.author === uid").bot-icon.f.fh
@@ -32,7 +32,6 @@
 </template>
 
 <style lang="scss">
-
 .wrap-util {
   position: fixed;
   top: 0;
@@ -40,8 +39,8 @@
   display: block;
   width: 100%;
   height: 48px;
-  border-bottom: solid .6px rgba(0,0,0,0.2);
-  background: #FFF;
+  border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
+  background: #fff;
   /*background: #f8f8f8;*/
   z-index: 1;
   .util-content {
@@ -90,33 +89,33 @@
       position: absolute;
       right: 12px;
       height: 100%;
-      .wrap-get-started {     
+      .wrap-get-started {
         .sign-up {
-          background: #FF9A0A;
+          background: #ff9a0a;
           border-radius: 3px;
           font-size: 12px;
           font-weight: 500;
-          color: #FFF;
+          color: #fff;
           letter-spacing: 0.4px;
           cursor: pointer;
         }
         .sign-in {
           font-size: 12px;
           font-weight: 500;
-          color: #FF9A0A;
+          color: #ff9a0a;
         }
       }
-      .import-button {        
-        background: #FF9A0A;
+      .import-button {
+        background: #ff9a0a;
         cursor: pointer;
         border-radius: 3px;
         i {
           font-size: 24px;
           width: 30px;
-          color: #FFF !important;
+          color: #fff !important;
         }
         span {
-          color: #FFF;
+          color: #fff;
           font-size: 12px;
           font-weight: 500;
           letter-spacing: 0.4px;
@@ -129,25 +128,21 @@
     top: 100%;
     width: 100%;
     height: 26px;
-    background: #FFEB52;
+    background: #ffeb52;
   }
 }
-
 </style>
 
 <script>
 import { createNamespacedHelpers } from "vuex"
-import { setTimeout } from 'timers';
+import { setTimeout } from "timers"
 
-const { mapState: mapStateAuth } = createNamespacedHelpers(
- "auth"
-)
-const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
- "project"
-)
-const { mapState: mapStateScenario } = createNamespacedHelpers(
- "scenario"
-)
+const { mapState: mapStateAuth } = createNamespacedHelpers("auth")
+const {
+  mapState: mapStateProject,
+  mapActions: mapActionsProject
+} = createNamespacedHelpers("project")
+const { mapState: mapStateScenario } = createNamespacedHelpers("scenario")
 
 export default {
   props: {
@@ -157,56 +152,44 @@ export default {
     }
   },
   data() {
-    return {
-      
-    }
+    return {}
   },
   methods: {
-    ...mapActionsProject([
-      'copyProject'
-    ]),
-    toggleModal () {
-      this.$emit('toggleModal')
+    ...mapActionsProject(["copyProject"]),
+    toggleModal() {
+      this.$emit("toggleModal")
     },
-    toSignIn () {
+    toSignIn() {
       this.$router.push("/sign-in")
     },
-    toSignUpWithBot () {
+    toSignUpWithBot() {
       var projectId = this.$route.params.id
       this.$router.push(`/sign-up/${projectId}`)
     },
-    async onImport () {
-      $('#nowLoading').fadeIn(400)
+    async onImport() {
+      $("#nowLoading").fadeIn(400)
 
       var newProjectId = await this.copyProject({
         uid: this.uid,
         userDisplayName: this.userDisplayName,
         scenario: this.scenarioArray,
-        project: this.project        
+        project: this.project
       })
-      
+
       this.$router.push(`/canvas/${newProjectId}`)
 
       this.$emit("enableEdit")
 
       alert("The scenario has been imported as your new Bot!!")
     },
-    toggleDrawer () {
+    toggleDrawer() {
       this.$emit("toggleDrawer")
     }
   },
   computed: {
-    ...mapStateAuth([
-      'uid',
-      'isSigningOut',
-      'userDisplayName'
-    ]),
-    ...mapStateProject([
-      'project',
-    ]),
-    ...mapStateScenario([
-      'scenarioArray',
-    ])
+    ...mapStateAuth(["uid", "isSigningOut", "userDisplayName"]),
+    ...mapStateProject(["project"]),
+    ...mapStateScenario(["scenarioArray"])
   }
-};
+}
 </script>

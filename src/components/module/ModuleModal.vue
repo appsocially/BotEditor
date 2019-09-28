@@ -3,25 +3,25 @@
   div(@click="onOverlay").wrap-modal.f.fh
     div(@click="onWindow" :class="windowActive").module-content
       div.wrap-settings-content.px20.py12
-        h3.mb12 Bot Settings
+        h3.mb12 {{this.$t("canvas.settings.title")}}
         item-img-uploader(:existingImg="project.botIcon" :imgId="project.id" ref="imgUploader")
-        v-text-field(label="Name" :value="project.title" v-model="projectTitle" color="#FF9A0A")
-        v-textarea(name="input-7-1" label="Discription" v-model="projectDiscription" rows="3" color="#FF9A0A")
-        v-switch(v-model="switchPublishedAsFormat" color="#FF9A0A" label="Publish as Open Scenario").switch
+        v-text-field(:label="projectTitleLabel" :value="project.title" v-model="projectTitle" color="#FF9A0A")
+        v-textarea(name="input-7-1" :label="projectDescriptionLabel" v-model="projectDescription" rows="3" color="#FF9A0A")
+        v-switch(v-model="switchPublishedAsFormat" color="#FF9A0A" :label="togglePublishLabel").switch
         div.mb24
-          h4.mb8 Bot URL
+          h4.mb8 {{this.$t("canvas.settings.bot_url.title")}}
           div(v-clipboard:copy="copyMessage" v-clipboard:success="onCopy").wrap-url.f.fm
             v-icon.mr6 file_copy
             span.line-clamp-1 {{copyMessage}}
         div.mb30
-          h4.mb8 Embed Code
+          h4.mb8 {{this.$t("canvas.settings.embed_code.title")}}
           //div.wrap-embed-code.f.fm
           div(v-clipboard:copy="embedCode" v-clipboard:success="onCopy").wrap-embed-code.f.fm
-            v-icon.mr6 code
+            v-icon.mr6 file_copy
             span.line-clamp-1 {{embedCode}}
             //input(type="text" :value="embedCode" readonly).embed-code.line-clamp-1
         div.wrap-save-button.f.fc.pb12
-          span(@click="onSave").save-button.px4.py6.f.fh Save
+          span(@click="onSave").save-button.px4.py6.f.fh {{this.$t("canvas.settings.save_label")}}
 
 </template>
 
@@ -132,7 +132,10 @@ export default {
     return {
       windowActive: "",
       projectTitle: "",
-      projectDiscription: "",
+      projectTitleLabel: this.$t('canvas.settings.project.title_label'),
+      projectDescription: "",
+      projectDescriptionLabel: this.$t('canvas.settings.project.description_label'),
+      togglePublishLabel: this.$t('canvas.settings.toggle_publish_label'),
       copyMessage: "",
       embedCode: "",
       switchPublishedAsFormat: false,
@@ -141,7 +144,7 @@ export default {
   created: function () {
     this.projectTitle = this.project.title
     this.switchPublishedAsFormat = (this.project.pulishedAsFormat)? this.project.pulishedAsFormat: false
-    this.projectDiscription = (this.project.discription)? this.project.discription: "About this bot..."
+    this.projectDescription = (this.project.discription)? this.project.discription: "About this bot..."
     this.copyMessage = `${location.host}/chat/${this.$route.params.id}`
 
     this.embedCode = `<iframe src="${location.host}/chat/${this.$route.params.id}" width="320px" height="620px"></iframe>`
@@ -167,15 +170,15 @@ export default {
       this.$emit("updateProject", {
         botIcon: this.$refs.imgUploader.getImgUrl(),
         title: this.projectTitle,
-        discription: this.projectDiscription,
+        discription: this.projectDescription,
         pulishedAsFormat: this.switchPublishedAsFormat
       })
     },
     onCopy () {
-      alert("The URL of your bot has been copied.")
+      alert(this.$t("canvas.settings.bot_url.on_copy"))
     },
     onEmbedCode () {
-      alert("Embed Code of your bot has been copied.")
+      alert(this.$t("canvas.settings.embed_code.on_copy"))
     },
   }
 };

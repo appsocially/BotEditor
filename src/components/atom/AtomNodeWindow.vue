@@ -11,25 +11,25 @@
           div(v-if="hasCustomVar")
             div.wrap-id.pt8
               v-text-field(
-                label="Name"
+                :label="customVarInputLabel"
                 :value="content.customVariable.location"
                 v-model="customVarLocationValue"
                 ref="varNameInput")
             div.wrap-selector
-              v-select(:items="varTypes" label="Type" :value="content.customVariable.varType" v-model="customVarTypeValue")
+              v-select(:items="varTypes" :label="customVarSelectorLabel" :value="content.customVariable.varType" v-model="customVarTypeValue")
           div(v-else).wrap-no-custom-var
-            span.no-var.mb10 This node has No Custom Var
+            span.no-var.mb10 {{noCustomActionSentence}}
             div.f.fc
-              span(@click="createVar").button-add Add Custom Var
+              span(@click="createVar").button-add {{noCustomVarAdd}}
           div.child-triangle
         div(v-if="item.id === 'show-custom-action' && showCustomAction" :class="String(showCustomAction)").child-list
           div(v-if="hasCustomAction")
             div.wrap-id.pt8
-              v-text-field(label="Name" :value="content.customAction" v-model="customActionValue")
+              v-text-field(:label="customActionInputLabel" :value="content.customAction" v-model="customActionValue")
           div(v-else).wrap-no-custom-var
-            span.no-var.mb10 This node has No Custom Action
+            span.no-var.mb10 {{noCustomActionSentence}}
             div.f.fc
-              span(@click="createAction").button-add Add Custom Action
+              span(@click="createAction").button-add {{noCustomActionAdd}}
           div.child-triangle
       
 </template>
@@ -175,7 +175,14 @@ export default {
       customVarLocationValue: '',
       customVarTypeValue: '',
       customActionValue: '',
-      timer: {}
+      timer: {},
+      noCustomVarSentence: this.$t("canvas.tool_window.node.custom_var.no_content.sentence"),
+      noCustomVarAdd: this.$t("canvas.tool_window.node.custom_var.no_content.add"),
+      noCustomActionSentence: this.$t("canvas.tool_window.node.custom_action.no_content.sentence"),
+      noCustomActionAdd: this.$t("canvas.tool_window.node.custom_action.no_content.add"),
+      customVarInputLabel: this.$t("canvas.tool_window.node.custom_var.content.input_label"),
+      customVarSelectorLabel: this.$t("canvas.tool_window.node.custom_var.content.type_label"),
+      customActionInputLabel: this.$t("canvas.tool_window.node.custom_action.content.input_label")
     }
   },
   created: function(){
@@ -184,13 +191,13 @@ export default {
       case 'normal':
         this.lists = [
           {
-            label: 'Custom Action',
+            label: this.$t("canvas.tool_window.node.custom_action.label"),
             icon: 'add_comment',
             id: 'show-custom-action',
             func: this.toggleCustomActionMenu
           },
           {
-            label: 'Delete Node',
+            label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
@@ -201,19 +208,19 @@ export default {
       case 'selection':
         this.lists = [
           {
-            label: 'Custom Var as Answer',
+            label: this.$t("canvas.tool_window.node.custom_var.label"),
             icon: 'monetization_on',
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
           {
-            label: 'Custom Action',
+            label: this.$t("canvas.tool_window.node.custom_action.label"),
             icon: 'add_comment',
             id: 'show-custom-action',
             func: this.toggleCustomActionMenu
           },
           {
-            label: 'Delete Node',
+            label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
@@ -224,19 +231,19 @@ export default {
       case 'openquestion':
         this.lists = [
           {
-            label: 'Custom Var as Answer',
+            label: this.$t("canvas.tool_window.node.custom_var.label"),
             icon: 'monetization_on',
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
           {
-            label: 'Custom Action',
+            label: this.$t("canvas.tool_window.node.custom_action.label"),
             icon: 'add_comment',
             id: 'show-custom-action',
             func: this.toggleCustomActionMenu
           },
           {
-            label: 'Delete Node',
+            label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
@@ -247,13 +254,13 @@ export default {
       case 'media':
         this.lists = [
           {
-            label: 'Custom Action',
+            label: this.$t("canvas.tool_window.node.custom_action.label"),
             icon: 'add_comment',
             id: 'show-custom-action',
             func: this.toggleCustomActionMenu
           },
           {
-            label: 'Delete Node',
+            label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
@@ -264,7 +271,7 @@ export default {
       case 'goto':
         this.lists = [
           {
-            label: 'Delete Node',
+            label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode

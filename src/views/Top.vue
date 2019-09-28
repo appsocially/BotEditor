@@ -6,8 +6,8 @@
       div.wrapper.mt80
         div.wrap-add-new-project.py20.f.flex-between
           div.wrap-input.px4
-            input(v-model='botName' placeholder='Bot Name').px4.py8
-          span(@click='createNewBot').create-button.px12.f.fh Create Bot
+            input(v-model='botName' :placeholder='inputBotNamePlaceholder').px4.py8
+          span(@click='createNewBot').create-button.px12.f.fh {{createBotLabel}}
         div.wrap-projects.mt20.pb40
           // Data Update for v2
           // span(@click="addConditionToAllNodes") update          
@@ -78,17 +78,19 @@ export default {
       projects: [],
       botName: '',
       inputBotName: '',
+      inputBotNamePlaceholder: this.$t("top.create_bot.placeholder"),
+      createBotLabel: this.$t("top.create_bot.button_label"),
       letCreate: true,
       headerLeft: {
         to: "/openbots"
       },
       headerRight: [
         {
-          label: "My Bots",
+          label: this.$t("navigation.my_bots"),
           to: "/top"
         },
         {
-          label: "Open Bots",
+          label: this.$t("navigation.open_bots"),
           to: "/openbots"
         }
       ]
@@ -151,7 +153,7 @@ export default {
           userName: user.name,
           botIcon: "https://firebasestorage.googleapis.com/v0/b/bot-editor-dev.appspot.com/o/public%2Fweak_ai.png?alt=media&token=fba07766-397a-41ba-a0b9-a225f6dc69c9",//user.photoUrl,
           title: this.inputBotName,
-          discription: "No Discription",
+          discription: this.$t("top.create_bot.default_content.description"),//"No Discription",
           publishedAsFormat: false,
           createdAt: new Date(),
           editedAt: new Date(),

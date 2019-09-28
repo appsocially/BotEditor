@@ -5,15 +5,15 @@
       div.line
         div.circle
     div.window.pt12
-      span.window-title.mb12 Condition
+      span.window-title.mb12 {{this.$t("canvas.tool_window.condition.title")}}
       div.wrap-type-selector.px12
-        v-select(:items="conditionTypes" label="Type" v-model="conditionTypeValue" @change="changeType")
+        v-select(:items="conditionTypes" :label="conditionTypeTitle" v-model="conditionTypeValue" @change="changeType")
       div.wrap-condition-content.px12
         atom-condition-content(ref="conditionContent" :conditionTypeValue='conditionTypeValue' :content='content')
       div(@click="onDisconnect").wrap-disconnect.f.fc.px12.py10
         div.f.fm.pr8
           v-icon.mr4.pb2 unfold_more
-          span Disconnect
+          span {{this.$t("canvas.tool_window.condition.disconnect")}}
 
 </template>
 
@@ -108,6 +108,7 @@ export default {
   data() {
     return {
       content: {},
+      conditionTypeTitle: this.$t("canvas.tool_window.condition.settings.condition_type_label"), 
       conditionTypes: ["else", "custom_var"],
       conditionTypeValue: "else",
       targetEdge: {},

@@ -73,10 +73,10 @@ export default {
   methods: {
     initializeSelection() {
       this.selection = [
-        {label: 'Message', type: 'normal'},
-        {label: 'Question', type: 'to_question'},
-        {label: 'Image', type: 'media'},
-        {label: 'Go To', type: 'goto'},
+        {label: this.$t("canvas.nodes.node_selector.normal.label"), type: 'normal'},
+        {label: this.$t("canvas.nodes.node_selector.question.label"), type: 'to_question'},
+        {label: this.$t("canvas.nodes.node_selector.media.label"), type: 'media'},
+        {label: this.$t("canvas.nodes.node_selector.go_to.label"), type: 'goto'}
       ]
     },
     callAddNode(type){
@@ -109,8 +109,8 @@ export default {
         break
         case 'to_question':
           this.selection = [
-            {label: 'Selection', type: 'selection'},
-            {label: 'Open Question', type: 'openquestion'}
+            {label: this.$t("canvas.nodes.node_selector.question.selection.label"), type: 'selection'},
+            {label: this.$t("canvas.nodes.node_selector.question.open_question.label"), type: 'openquestion'}
           ]
           this.$nextTick(this.adjustPosition)
         break

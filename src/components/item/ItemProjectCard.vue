@@ -81,7 +81,7 @@ export default {
     },
     deleteBot (e) {
       e.stopPropagation()
-      if(confirm(`Do you really delete ${this.project.title}?`)){
+      if(confirm(`${this.$t("top.cards.delete_alert")} ${this.project.title}?`)){
         this.deleteProject(this.project.id)
         this.$emit("deleteProjectCard", this.project.id)
       }

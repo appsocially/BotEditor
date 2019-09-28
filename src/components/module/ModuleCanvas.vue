@@ -622,7 +622,8 @@ export default {
         num: this.project.nodeNum,
         type: 'media',
         nodeType: 'single',
-        text: 'No data',
+        // text: 'No data',
+        mediaType: 'image',
         mediaURI: 'https://firebasestorage.googleapis.com/v0/b/bot-editor-dev.appspot.com/o/public%2Fno-file.png?alt=media&token=7b5fec93-0838-496d-a70b-fee89334df17',
         gui: {
           position: {

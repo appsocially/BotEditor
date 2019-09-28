@@ -357,6 +357,7 @@ export default {
         location: this.customVarLocationValue, // this.content.customVariable.location,
         varType: this.customVarTypeValue // this.content.customVariable.varType
       })
+      console.log("Current Var Name", this.content.customVariable.location)
     },
     createAction() {
       this.addCustomAction({

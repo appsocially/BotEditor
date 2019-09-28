@@ -4,9 +4,9 @@
     div(v-if="conditionTypeValue === 'else'").wrap-condition-content.py8
       // p else
     div(v-if="conditionTypeValue === 'custom_var'").wrap-condition-content.py8
-      v-select(:items="customVarNames" label="Var Name" v-model="customVarNameValue" @change="changeVarName")
-      v-select(:items="operators" label="Operator" v-model="operatorValue" @change="saveOption")
-      v-text-field(label="Value" v-model="comparedValue" @change="saveOption")
+      v-select(:items="customVarNames" :label="customVarInputLabel" v-model="customVarNameValue" @change="changeVarName")
+      v-select(:items="operators" :label="operatorSelectorLabel" v-model="operatorValue" @change="saveOption")
+      v-text-field(:label="valueInputLabel" v-model="comparedValue" @change="saveOption")
 
 </template>
 
@@ -31,7 +31,7 @@ const { mapState, mapActions } = createNamespacedHelpers(
 )
 
 import AtomConditionContent from "../atom/AtomConditionContent"
-import { functions } from 'firebase';
+import { functions } from 'firebase'
 
 export default {
   name: 'AtomNodeWindow',
@@ -51,6 +51,9 @@ export default {
   data() {
     return {
       // conditionTypes: ["else", "custom_var"]
+      customVarInputLabel: this.$t("canvas.tool_window.condition.settings.operation.custom_var_name"),
+      operatorSelectorLabel: this.$t("canvas.tool_window.condition.settings.operation.operator"),
+      valueInputLabel: this.$t("canvas.tool_window.condition.settings.operation.value"),
       operators: [],
       operatorValue: "==",
       customVarNameValue: "",

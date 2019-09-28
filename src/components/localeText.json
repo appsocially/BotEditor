@@ -1,5 +1,27 @@
 {
   "en": {
+    "navigation": {
+      "my_bots": "My Bots",
+      "open_bots": "Open Bots"
+    },
+    "sign_up": {
+      "message": "Welcome to BotEditor."
+    },
+    "top": {
+      "create_bot": {
+        "placeholder": "Bot Name",
+        "button_label": "Create Bot",
+        "default_content": {
+          "description": "No Description"
+        }
+      },
+      "cards": {
+        "delete_alert": "Do you really delete"
+      }
+    },
+    "open_bots": {
+      "title": "Open Bot"
+    },
     "canvas": {
       "nodes": {
         "normal": {
@@ -7,17 +29,66 @@
         },
         "selection": {
           "default_label": "What is your choice?",
-          "expected_answer_selections": ["Selection1", "Selection2"]
+          "expected_answer_selection_1": "Selection1",
+          "expected_answer_selection_2": "Selection2"
         },
         "open_question": {
-          "default_label": "What is question?",
-          "expected_answer_placeholder": "Ex. Your Name"
+          "default_label": "What is your name?",
+          "expected_answer_placeholder": "Input your name"
         },
         "node_selector": {
           "normal": {"label": "Message"},
-          "selection": {"label": "Selection"},
-          "open_question": {"label": "Open Question"},
+          "question": {
+            "label": "Question",
+            "selection": {"label": "Selection"},
+            "open_question": {"label": "Open Question"}
+          },
+          "media": {"label": "Image"},
           "go_to": {"label": "Go To"}
+        }
+      },
+      "tool_window": {
+        "node": {
+          "custom_var": {
+            "label": "Custom Var as Answer",
+            "no_content": {
+              "sentence": "This node has No Custom Var",
+              "add": "Add Custom Var"
+            },
+            "content": {
+              "input_label": "Variable Name",
+              "type_label": "type"
+            }
+          },
+          "custom_action": {
+            "label": "Custom Action",
+            "no_content": {
+              "sentence": "This node has No Custom Action",
+              "add": "Add Custom Action"
+            },
+            "content": {
+              "input_label": "Action Name"
+            }
+          },
+          "delete": {
+            "label": "Delete Node"
+          }
+        },
+        "condition": {
+          "title": "Condition",
+          "disconnect": "Disconnect",
+          "settings": {
+            "condition_type_label": "Condition Type",
+            "types": {
+              "else": "else",
+              "custom_var": "custom_var"
+            },
+            "operation": {
+              "custom_var_name": "Variable Name",
+              "operator": "Operator",
+              "value": "Value"
+            }
+          }
         }
       },
       "drawer": {
@@ -30,6 +101,27 @@
             "upil_label": "Export for Upil"
           }
         }
+      },
+      "settings": {
+        "title": "Bot Setting",
+        "project": {
+          "title_label": "Name",
+          "description_label": "Description"
+        },
+        "bot_description": {
+          "label": "Publish as Open Scenario",
+          "default_content": ""
+        },
+        "toggle_publish_label": "Publish as Open Scenario",
+        "bot_url": {
+          "title": "Bot URL",
+          "on_copy": "The URL of your bot has been copied."
+        },
+        "embed_code": {
+          "title": "Embed Code",
+          "on_copy": "Embed Code of your bot has been copied."
+        },
+        "save_label": "Save"
       }
     }
   },
@@ -40,7 +132,8 @@
       },
       "selection": {
         "default_label": "質問文",
-        "expected_answer_selections": ["選択肢1", "選択肢2"]
+        "expected_answer_selection_1": "Selection1",
+        "expected_answer_selection_2": "Selection2"
       },
       "open_question": {
         "default_label": "質問文",

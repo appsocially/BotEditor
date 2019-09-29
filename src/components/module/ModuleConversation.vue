@@ -235,6 +235,7 @@ export default {
             await sleep(1200)
 
             this.sendMessage(event)
+            setTimeout(this.scrollToButtom, 800)
 
             $('.focused').removeClass('focused')
             var node = document.getElementById(event.id)

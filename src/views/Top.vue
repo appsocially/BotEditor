@@ -2,7 +2,7 @@
 
   Auth(:on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn")
     div(slot-scope="{signOut}").wrap-top-page.py48
-      util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight")
+      util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight" :othersList="othersList")
       div.wrapper.mt80
         div.wrap-add-new-project.py20.f.flex-between
           div.wrap-input.px4
@@ -93,7 +93,21 @@ export default {
           label: this.$t("navigation.open_bots"),
           to: "/openbots"
         }
-      ]
+      ],
+      othersList: [
+        {
+          label: this.$t("navigation.service_terms"),
+          to: "/service-terms"
+        },
+        {
+          label: this.$t("navigation.plivacy_policy"),
+          to: "/plivacy-policy"
+        },
+        {
+          label: this.$t("navigation.sign_out"),
+          to: "/sign-in"
+        }
+      ],
       // headerRight: {
       //   label: "My Bots",
       //   to: "/top"

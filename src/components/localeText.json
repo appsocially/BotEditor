@@ -2,7 +2,11 @@
   "en": {
     "navigation": {
       "my_bots": "My Bots",
-      "open_bots": "Open Bots"
+      "open_bots": "Open Bots",
+      "others": "Others",
+      "service_terms": "Service Terms",
+      "plivacy_policy": "Privacy Policy",
+      "sign_out": "Sign Out"
     },
     "sign_up": {
       "message": "Welcome to BotEditor."

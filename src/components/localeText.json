@@ -126,6 +126,9 @@
           "on_copy": "Embed Code of your bot has been copied."
         },
         "save_label": "Save"
+      },
+      "dialogs": {
+        "no_right": "You don't have the right to edit this scenario. Please return to the top page."
       }
     }
   },

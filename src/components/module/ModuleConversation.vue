@@ -127,7 +127,7 @@ export default {
 
     console.log('module-conversation (scenarioArray)', this.scenarioArray)
 
-    // this.initConversation()
+    this.initConversation()
 
     //var content = this.scenarioArray[0];
     //this.messageBubbles.push(content);

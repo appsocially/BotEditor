@@ -189,6 +189,7 @@ export default {
             id: `start-point-${id}`,
             type: 'start-point',
             nodeType: 'point',
+            eventType: 'open_chat',
             conditions: [
               {
                 id: `else-start-point-${id}`,

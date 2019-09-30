@@ -2,7 +2,7 @@
 
   Auth(:on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn")
     div(slot-scope="{signOut}").wrap-top-page.py48
-      util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight")
+      util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight" :othersList="othersList")
       div.wrapper.mt80
         div.wrap-add-new-project.py20.f.flex-between
           div.wrap-input.px4
@@ -25,7 +25,8 @@
     margin: 0 auto;
     .wrap-input {
       filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
-      width: calc(100% - 90px);
+      /*width: calc(100% - 90px);*/
+      width: calc(100% - 110px);
       background: #FFF;
       input {
         width: 100%;
@@ -35,7 +36,8 @@
     }
     .create-button {
       cursor: pointer;
-      width: 84px;
+      /*width: 84px;*/
+      width: 104px;
       font-size: 12px;
       font-weight: bold;
       text-align: center;
@@ -89,11 +91,25 @@ export default {
           label: this.$t("navigation.my_bots"),
           to: "/top"
         },
+        // {
+        //   label: this.$t("navigation.open_bots"),
+        //   to: "/openbots"
+        // }
+      ],
+      othersList: [
         {
-          label: this.$t("navigation.open_bots"),
-          to: "/openbots"
+          label: this.$t("navigation.service_terms"),
+          to: "/service-terms"
+        },
+        {
+          label: this.$t("navigation.plivacy_policy"),
+          to: "/plivacy-policy"
+        },
+        {
+          label: this.$t("navigation.sign_out"),
+          to: "/sign-in"
         }
-      ]
+      ],
       // headerRight: {
       //   label: "My Bots",
       //   to: "/top"
@@ -175,6 +191,7 @@ export default {
             id: `start-point-${id}`,
             type: 'start-point',
             nodeType: 'point',
+            eventType: 'open_chat',
             conditions: [
               {
                 id: `else-start-point-${id}`,

@@ -71,11 +71,11 @@ export default {
         // Terms of service url/callback.
         // tosUrl: '<your-tos-url>',
         tosUrl: function() {
-          window.location.assign('terms_of_service')
+          window.location.assign('service-terms')
         },
         // Privacy policy url/callback.
         privacyPolicyUrl: function() {
-          window.location.assign('privacy_policy')
+          window.location.assign('privacy-policy')
         }
       }
       // Initialize the FirebaseUI Widget using Firebase.

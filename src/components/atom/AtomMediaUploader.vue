@@ -3,7 +3,8 @@
   div.wrap-media-uploader
     div.uploaded-img.f.fc
       div.img-wrapper.f.fh
-        img(v-show="uploadedImage" :src="uploadedImage")
+        img(v-if="!isUploading" v-show="uploadedImage" :src="uploadedImage")
+        span(v-else) Uploading
       div(@click="pickImg").wrap-change-icon.f.fh
         v-icon(color="#fff") cached
     input(type="file" v-on:change="onFileChange" ref="imgInput" accept="image/*" style="display: none")
@@ -70,6 +71,8 @@ export default {
   data () {
     return {
       uploadedImage: '',
+      imgOrientation: 1,
+      isUploading: false
     }
   },
   created () {
@@ -82,6 +85,45 @@ export default {
     },
     onFileChange (e) {
       let files = e.target.files || e.dataTransfer.files
+
+      // get orientation
+      const getOrientation = buffer => {
+        const dv = new DataView(buffer)
+        let app1MarkerStart = 2
+        // もし JFIF で APP0 Marker がある場合は APP1 Marker の取得位置をずらす
+        if (dv.getUint16(app1MarkerStart) !== 65505) {
+          const length = dv.getUint16(4)
+          app1MarkerStart += length + 2
+        }
+        if (dv.getUint16(app1MarkerStart) !== 65505) {
+          return 0
+        }
+        // エンディアンを取得
+        const littleEndian = dv.getUint8(app1MarkerStart + 10) === 73
+        // フィールドの数を確認
+        const count = dv.getUint16(app1MarkerStart + 18, littleEndian)
+        for (let i = 0; i < count; i++) {
+          const start = app1MarkerStart + 20 + i * 12
+          const tag = dv.getUint16(start, littleEndian)
+          // Orientation の Tag は 274
+          if (tag === 274) {
+            // Orientation は Type が SHORT なので 2byte だけ読む
+            return dv.getUint16(start + 8, littleEndian)
+          }
+        }
+        return 0
+      }
+      var reader = new FileReader()
+
+      reader.addEventListener('load', () => {
+        const orientation = getOrientation(reader.result)
+        console.log(orientation)
+        this.setImgOrientation(orientation)
+      })
+      // ArrayBuffer で読みたいのでこちら
+      reader.readAsArrayBuffer(files[0])
+
+
       this.createImage(files[0])
     },
     // アップロードした画像を表示
@@ -95,7 +137,9 @@ export default {
       var image = new Image()
       var reader = new FileReader()
       reader.onload = (e) => {
-        this.uploadedImage = e.target.result
+        // this.uploadedImage = e.target.result
+        this.isUploading = true
+
         image.onload = () => {
           var width, height;
           if(image.width > image.height){
@@ -116,6 +160,25 @@ export default {
           imgCanvas.setAttribute("height", height)
 
           var ctx = imgCanvas.getContext('2d')
+
+          if ([5,6,7,8].indexOf(this.imgOrientation) > -1) {
+            imgCanvas.width = height
+            imgCanvas.height = width
+          } else {
+            imgCanvas.width = width
+            imgCanvas.height = height
+          }
+          switch (this.imgOrientation) {
+            case 2: ctx.transform(-1, 0, 0, 1, width, 0); break;
+            case 3: ctx.transform(-1, 0, 0, -1, width, height); break;
+            case 4: ctx.transform(1, 0, 0, -1, 0, height); break;
+            case 5: ctx.transform(0, 1, 1, 0, 0, 0); break;
+            case 6: ctx.transform(0, 1, -1, 0, height, 0); break;
+            case 7: ctx.transform(0, -1, -1, 0, height, width); break;
+            case 8: ctx.transform(0, -1, 1, 0, 0, width); break;
+          }
+
+
           // canvasに既に描画されている画像をクリア
           ctx.clearRect(0,0,width,height)
           // canvasにサムネイルを描画
@@ -140,6 +203,7 @@ export default {
       // mountainsRef.put(this.imageFile).then(snapshot => {
       mountainsRef.putString(base64.split(',')[1], 'base64').then(snapshot => {
         snapshot.ref.getDownloadURL().then(downloadURL => {
+          this.isUploading = false
           this.uploadedImage = downloadURL
           this.$emit("updateNodeContent", this.uploadedImage)
           console.log('imageUrl', downloadURL)
@@ -148,6 +212,9 @@ export default {
     },
     getImgUrl () {
       return this.uploadedImage
+    },
+    setImgOrientation (orientation) {
+      this.imgOrientation = orientation
     }
   }
 }

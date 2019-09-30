@@ -12,7 +12,7 @@
         //span(v-else)
         a(v-for="item in rightIcon" @click="onRight(item.to)").mr12 {{item.label}}
         div(v-if="othersList").wrap-others
-          a(@click="toggleOthersList") Others
+          a(@click="toggleOthersList") {{$t("navigation.others")}}
           div(v-if="showOthersList").others-list.px12.pb8
             a(v-for="item in othersList" @click="onInOthers(item.to)" :class="item.to.replace('/', '')").mt8 {{item.label}}
 

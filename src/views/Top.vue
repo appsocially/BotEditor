@@ -25,7 +25,8 @@
     margin: 0 auto;
     .wrap-input {
       filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
-      width: calc(100% - 90px);
+      /*width: calc(100% - 90px);*/
+      width: calc(100% - 110px);
       background: #FFF;
       input {
         width: 100%;
@@ -35,7 +36,8 @@
     }
     .create-button {
       cursor: pointer;
-      width: 84px;
+      /*width: 84px;*/
+      width: 104px;
       font-size: 12px;
       font-weight: bold;
       text-align: center;
@@ -89,10 +91,10 @@ export default {
           label: this.$t("navigation.my_bots"),
           to: "/top"
         },
-        {
-          label: this.$t("navigation.open_bots"),
-          to: "/openbots"
-        }
+        // {
+        //   label: this.$t("navigation.open_bots"),
+        //   to: "/openbots"
+        // }
       ],
       othersList: [
         {

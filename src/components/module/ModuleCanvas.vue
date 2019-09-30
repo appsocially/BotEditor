@@ -533,7 +533,7 @@ export default {
         num: this.project.nodeNum,
         type: 'selection',
         nodeType: 'group',
-        text: 'What is your choice?',//+idRand,
+        text: this.$t("canvas.nodes.open_question.default_label"), //'What is your choice?',//+idRand,
         addedSelectionsCounter : 1,
         selections: [
           {label: this.$t("canvas.nodes.selection.expected_answer_selection_1"), id: `selectionTmp${this.project.nodeNum}-selection0`},

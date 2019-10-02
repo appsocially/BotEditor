@@ -127,7 +127,11 @@ export default {
 
     console.log('module-conversation (scenarioArray)', this.scenarioArray)
 
-    // this.initConversation()
+    try {
+      this.initConversation()
+    } catch( e ) {
+      console.log("cannot init convarsation")
+    }
 
     //var content = this.scenarioArray[0];
     //this.messageBubbles.push(content);
@@ -235,6 +239,7 @@ export default {
             await sleep(1200)
 
             this.sendMessage(event)
+            setTimeout(this.scrollToButtom, 800)
 
             $('.focused').removeClass('focused')
             var node = document.getElementById(event.id)

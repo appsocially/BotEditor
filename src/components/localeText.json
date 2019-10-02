@@ -1,5 +1,31 @@
 {
   "en": {
+    "navigation": {
+      "my_bots": "My Bots",
+      "open_bots": "Open Bots",
+      "others": "Others",
+      "service_terms": "Service Terms",
+      "plivacy_policy": "Privacy Policy",
+      "sign_out": "Sign Out"
+    },
+    "sign_up": {
+      "message": "Welcome to BotEditor."
+    },
+    "top": {
+      "create_bot": {
+        "placeholder": "Bot Name",
+        "button_label": "Create Bot",
+        "default_content": {
+          "description": "No Description"
+        }
+      },
+      "cards": {
+        "delete_alert": "Do you really delete"
+      }
+    },
+    "open_bots": {
+      "title": "Open Bot"
+    },
     "canvas": {
       "nodes": {
         "normal": {
@@ -7,17 +33,66 @@
         },
         "selection": {
           "default_label": "What is your choice?",
-          "expected_answer_selections": ["Selection1", "Selection2"]
+          "expected_answer_selection_1": "Selection1",
+          "expected_answer_selection_2": "Selection2"
         },
         "open_question": {
-          "default_label": "What is question?",
-          "expected_answer_placeholder": "Ex. Your Name"
+          "default_label": "What is your name?",
+          "expected_answer_placeholder": "Input your name"
         },
         "node_selector": {
           "normal": {"label": "Message"},
-          "selection": {"label": "Selection"},
-          "open_question": {"label": "Open Question"},
+          "question": {
+            "label": "Question",
+            "selection": {"label": "Selection"},
+            "open_question": {"label": "Open Question"}
+          },
+          "media": {"label": "Image"},
           "go_to": {"label": "Go To"}
+        }
+      },
+      "tool_window": {
+        "node": {
+          "custom_var": {
+            "label": "Custom Var as Answer",
+            "no_content": {
+              "sentence": "This node has No Custom Var",
+              "add": "Add Custom Var"
+            },
+            "content": {
+              "input_label": "Variable Name",
+              "type_label": "type"
+            }
+          },
+          "custom_action": {
+            "label": "Custom Action",
+            "no_content": {
+              "sentence": "This node has No Custom Action",
+              "add": "Add Custom Action"
+            },
+            "content": {
+              "input_label": "Action Name"
+            }
+          },
+          "delete": {
+            "label": "Delete Node"
+          }
+        },
+        "condition": {
+          "title": "Condition",
+          "disconnect": "Disconnect",
+          "settings": {
+            "condition_type_label": "Condition Type",
+            "types": {
+              "else": "else",
+              "custom_var": "custom_var"
+            },
+            "operation": {
+              "custom_var_name": "Variable Name",
+              "operator": "Operator",
+              "value": "Value"
+            }
+          }
         }
       },
       "drawer": {
@@ -30,38 +105,160 @@
             "upil_label": "Export for Upil"
           }
         }
+      },
+      "settings": {
+        "title": "Bot Setting",
+        "project": {
+          "title_label": "Name",
+          "description_label": "Description"
+        },
+        "bot_description": {
+          "label": "Publish as Open Scenario",
+          "default_content": ""
+        },
+        "toggle_publish_label": "Publish as Open Scenario",
+        "bot_url": {
+          "title": "Bot URL",
+          "on_copy": "The URL of your bot has been copied."
+        },
+        "embed_code": {
+          "title": "Embed Code",
+          "on_copy": "Embed Code of your bot has been copied."
+        },
+        "save_label": "Save"
+      },
+      "dialogs": {
+        "no_right": "You don't have the right to edit this scenario. Please return to the top page."
       }
     }
   },
   "ja": {
-    "nodes": {
-      "normal": {
-        "default_label": "メッセージ"
+    "navigation": {
+      "my_bots": "マイボット",
+      "open_bots": "ボットマーケット",
+      "others": "その他",
+      "service_terms": "利用規約",
+      "plivacy_policy": "個情報保護方針",
+      "sign_out": "ログアウト"
+    },
+    "sign_up": {
+      "message": "BotEditorへようこそ"
+    },
+    "top": {
+      "create_bot": {
+        "placeholder": "ボットの名前",
+        "button_label": "ボットを作成",
+        "default_content": {
+          "description": "説明文なし"
+        }
       },
-      "selection": {
-        "default_label": "質問文",
-        "expected_answer_selections": ["選択肢1", "選択肢2"]
-      },
-      "open_question": {
-        "default_label": "質問文",
-        "expected_answer_placeholder": "Ex. お名前"
-      },
-      "node_selector": {
-        "normal": {"label": "メッセージ"},
-        "selection": {"label": "選択肢"},
-        "open_question": {"label": "オープンクエスチョン"},
-        "go_to": {"label": "ジャンプ"}
+      "cards": {
+        "delete_alert": "本当に削除しますか？"
       }
     },
+    "open_bots": {
+      "title": "ボットマーケット"
+    },
     "canvas": {
-      "drawer": {
-        "menu": {
-          "custom_variable": {"label": "カスタム変数"},
-          "exports": {
-            "label": "エクスポート",
-            "upil_label": "Upilにエクスポート"
+      "nodes": {
+        "normal": {
+          "default_label": "メッセージ"
+        },
+        "selection": {
+          "default_label": "質問文をここに書いてください",
+          "expected_answer_selection_1": "選択肢1",
+          "expected_answer_selection_2": "選択肢2"
+        },
+        "open_question": {
+          "default_label": "質問文をここに書いてください",
+          "expected_answer_placeholder": "プレースホルダ"
+        },
+        "node_selector": {
+          "normal": {"label": "メッセージ"},
+          "question": {
+            "label": "質問文",
+            "selection": {"label": "選択型質問"},
+            "open_question": {"label": "自由形質問"}
+          },
+          "media": {"label": "画像表示"},
+          "go_to": {"label": "他ノードへジャンプ"}
+        }
+      },
+      "tool_window": {
+        "node": {
+          "custom_var": {
+            "label": "カスタム変数",
+            "no_content": {
+              "sentence": "このノードにはカスタム変数がありません",
+              "add": "カスタム変数を追加"
+            },
+            "content": {
+              "input_label": "変数名",
+              "type_label": "型"
+            }
+          },
+          "custom_action": {
+            "label": "カスタムアクション",
+            "no_content": {
+              "sentence": "このノードにはカスタムアクションがありません",
+              "add": "カスタムアクションを追加"
+            },
+            "content": {
+              "input_label": "アクション名"
+            }
+          },
+          "delete": {
+            "label": "このノードを削除"
+          }
+        },
+        "condition": {
+          "title": "条件分岐",
+          "disconnect": "接続解除",
+          "settings": {
+            "condition_type_label": "条件分岐のタイプ",
+            "types": {
+              "else": "else",
+              "custom_var": "カスタム変数"
+            },
+            "operation": {
+              "custom_var_name": "変数名",
+              "operator": "演算子",
+              "value": "値"
+            }
           }
         }
+      },
+      "drawer": {
+        "menu": {
+          "custom_variable": {
+            "label": "カスタム変数一覧"
+          },
+          "exports": {
+            "label": "エクスポート",
+            "upil_label": "Upil形式へエクスポート"
+          }
+        }
+      },
+      "settings": {
+        "title": "ボットの設定",
+        "project": {
+          "title_label": "ボット名",
+          "description_label": "説明文"
+        },
+        "bot_description": {
+          "label": "ボットマーケットへ公開",
+          "default_content": ""
+        },
+        "toggle_publish_label": "ボットマーケットへ公開",
+        "bot_url": {
+          "title": "このボットのURL",
+          "on_copy": "URLをコピーしました"
+        },
+        "embed_code": {
+          "title": "埋め込みコード",
+          "on_copy": "埋め込みコードをコピーしました"
+        },
+        "save_label": "保存"
       }
     }
   }

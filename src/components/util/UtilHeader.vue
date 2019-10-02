@@ -11,6 +11,10 @@
         //a(v-if="rightIcon && rightIcon.label" @click="onRight") {{rightIcon.label}}
         //span(v-else)
         a(v-for="item in rightIcon" @click="onRight(item.to)").mr12 {{item.label}}
+        div(v-if="othersList").wrap-others
+          a(@click="toggleOthersList") {{$t("navigation.others")}}
+          div(v-if="showOthersList").others-list.px12.pb8
+            a(v-for="item in othersList" @click="onInOthers(item.to)" :class="item.to.replace('/', '')").mt8 {{item.label}}
 
 </template>
 
@@ -52,6 +56,27 @@
         color: #2a2a2a;
         font-weight: 500;
       }
+      .wrap-others {
+        position: relative;
+        .others-list {
+          filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
+          background: #FFF;
+          position: absolute;
+          right: 0;
+          top: 40px;
+          border-radius: 3px;
+          a {
+            display: block;
+            color: #2a2a2a;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+          }
+          .sign-in {
+            color: #FF9999;
+          }
+        }
+      }
     }
   }
 }
@@ -61,6 +86,11 @@
 <style src="../../plugins/meltline.css"></style>
 
 <script>
+import { createNamespacedHelpers } from "vuex"
+const { mapState, mapActions } = createNamespacedHelpers(
+ "auth"
+)
+
 export default {
   name: 'UtilHeader',
   props: {
@@ -75,21 +105,36 @@ export default {
     leftIcon: {
       type: Object,
       required: false
+    },
+    othersList: {
+      type: Array,
+      required: false
     }
   },
   data() {
     return {
+      showOthersList: false
     }
   },
   created: function(){
     window.signOut = this.signOut;
   },
   methods: {
+    ...mapActions([
+      'signOut'
+    ]),
     onLeft () {
       this.$router.push(`${this.leftIcon.to}`)
     },
     onRight (to) {
       this.$router.push(`${to}`)
+    },
+    async onInOthers (to) {
+      if(to === "/sign-in") await this.signOut()
+      this.$router.push(`${to}`)
+    },
+    toggleOthersList () {
+      this.showOthersList = !this.showOthersList
     }
   }
 };

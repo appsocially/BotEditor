@@ -1,9 +1,9 @@
 <template>
   <div>
-    <span class='title-welcome'>Welcome to Bot Editor !!</span>
+    <span class='title-welcome'>{{this.$t("sign_up.message")}}</span>
     <div id="firebaseui-auth-container"/>
-    <a v-if="isSignUp" @click="toSignIn">Sign in?</a>
-    <a v-if="!isSignUp" @click="toSignUp">Sign up?</a>
+    <!--a v-if="isSignUp" @click="toSignIn">Sign in?</a>
+    <a v-if="!isSignUp" @click="toSignUp">Sign up?</a-->
     <v-progress-circular 
       v-show="!isSignInUILoaded"
       :size="50"
@@ -69,10 +69,13 @@ export default {
         // tosUrl and privacyPolicyUrl accept either url string or a callback
         // function.
         // Terms of service url/callback.
-        tosUrl: '<your-tos-url>',
+        // tosUrl: '<your-tos-url>',
+        tosUrl: function() {
+          window.location.assign('service-terms')
+        },
         // Privacy policy url/callback.
         privacyPolicyUrl: function() {
-          window.location.assign('<your-privacy-policy-url>')
+          window.location.assign('privacy-policy')
         }
       }
       // Initialize the FirebaseUI Widget using Firebase.

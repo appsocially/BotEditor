@@ -497,7 +497,7 @@ export default {
         type: 'normal',
         nodeType: 'single',
         num: this.project.nodeNum,
-        text: 'Normal Message',
+        text: this.$t("canvas.nodes.normal.default_label"), //'Normal Message',
         gui: {
           position: {
             x: position.x,
@@ -533,11 +533,11 @@ export default {
         num: this.project.nodeNum,
         type: 'selection',
         nodeType: 'group',
-        text: 'What is your choice?',//+idRand,
+        text: this.$t("canvas.nodes.open_question.default_label"), //'What is your choice?',//+idRand,
         addedSelectionsCounter : 1,
         selections: [
-          {label: 'Selection', id: `selectionTmp${this.project.nodeNum}-selection0`},
-          {label: 'Selection', id: `selectionTmp${this.project.nodeNum}-selection1`},
+          {label: this.$t("canvas.nodes.selection.expected_answer_selection_1"), id: `selectionTmp${this.project.nodeNum}-selection0`},
+          {label: this.$t("canvas.nodes.selection.expected_answer_selection_2"), id: `selectionTmp${this.project.nodeNum}-selection1`},
         ],
         gui: {
           position: {
@@ -584,8 +584,8 @@ export default {
         num: this.project.nodeNum,
         type: 'openquestion',
         nodeType: 'single',
-        text: 'What is question?',//+idRand,
-        expectedAnswer: 'type your answer...',
+        text: this.$t("canvas.nodes.open_question.default_label"),// 'What is question?',//+idRand,
+        expectedAnswer: this.$t("canvas.nodes.open_question.expected_answer_placeholder"),// 'type your answer...',
         gui: {
           position: {
             x: position.x,
@@ -622,7 +622,8 @@ export default {
         num: this.project.nodeNum,
         type: 'media',
         nodeType: 'single',
-        text: 'No data',
+        // text: 'No data',
+        mediaType: 'image',
         mediaURI: 'https://firebasestorage.googleapis.com/v0/b/bot-editor-dev.appspot.com/o/public%2Fno-file.png?alt=media&token=7b5fec93-0838-496d-a70b-fee89334df17',
         gui: {
           position: {

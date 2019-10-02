@@ -148,6 +148,12 @@ export default {
       $('#nowLoading').fadeIn(400)
       
       await this.loadProject(this.$route.params.id)
+
+      if(this.project.author !== this.uid && !this.project.publishedAsFormat) {
+        alert(this.$t("canvas.dialogs.no_right"))
+        this.$router.push("/top")
+      }
+
       if(this.project.author === this.uid){
         this.updateEditTime (this.project.id)
       } else {

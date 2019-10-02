@@ -27,11 +27,23 @@ export default {
 //   messagingSenderId: "962503874281"
 // };
 
+
+// For Dev
+// export default {
+//   apiKey: "AIzaSyC0VOO9oTOxKTH2uoVVMeJOzFNz5Paiw5s",
+//   authDomain: "bot-editor-dev.firebaseapp.com",
+//   databaseURL: "https://bot-editor-dev.firebaseio.com",
+//   projectId: "bot-editor-dev",
+//   storageBucket: "bot-editor-dev.appspot.com",
+//   messagingSenderId: "962503874281"
+// }
+
+// For Prod
 export default {
-  apiKey: "AIzaSyC0VOO9oTOxKTH2uoVVMeJOzFNz5Paiw5s",
-  authDomain: "bot-editor-dev.firebaseapp.com",
-  databaseURL: "https://bot-editor-dev.firebaseio.com",
-  projectId: "bot-editor-dev",
-  storageBucket: "bot-editor-dev.appspot.com",
-  messagingSenderId: "962503874281"
-};
+  apiKey: "AIzaSyCmHqMdiSIy8t9SSGDwQ7N44V-CMsxv8Is",
+  authDomain: "bot-editor-prod.firebaseapp.com",
+  databaseURL: "https://bot-editor-prod.firebaseio.com",
+  projectId: "bot-editor-prod",
+  storageBucket: "bot-editor-prod.appspot.com",
+  messagingSenderId: "938144697052"
+}

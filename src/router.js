@@ -1,12 +1,14 @@
 import Vue from "vue";
 import Router from "vue-router";
 
-import Index from "./views/Index.vue";
-import Canvas from "./views/Canvas.vue";
-import Conversation from "./views/Conversation.vue";
-import SignIn from "./views/SignIn.vue";
-import Top from "./views/Top.vue";
-import Bots from "./views/Bots.vue";
+import Index from "./views/Index.vue"
+import Canvas from "./views/Canvas.vue"
+import Conversation from "./views/Conversation.vue"
+import SignIn from "./views/SignIn.vue"
+import ServiceTerms from "./views/ServiceTerms.vue"
+import PrivacyPolicy from "./views/PrivacyPolicy.vue"
+import Top from "./views/Top.vue"
+import Bots from "./views/Bots.vue"
 
 Vue.use(Router);
 
@@ -43,6 +45,16 @@ export default new Router({
       path: "/sign-up/:projectId",
       name: "sign-up-with-project-id",
       component: SignIn
+    },
+    {
+      path: "/privacy-policy",
+      name: "/privacy-policy",
+      component: PrivacyPolicy
+    },
+    {
+      path: "/service-terms",
+      name: "/service-terms",
+      component: ServiceTerms
     },
     {
       path: "/canvas/:id",

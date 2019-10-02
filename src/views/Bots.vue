@@ -5,7 +5,7 @@
       util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight")
       div.wrapper.mt40
         div.wrap-projects.py40
-          h2.mb20 Bot Formats
+          h2.mb20 {{this.$t("open_bots.title")}}
           div.f.flex-between.flex-wrap
             div(v-for="item in projects").card-wrapper
               item-bot-format-card(:project="item")

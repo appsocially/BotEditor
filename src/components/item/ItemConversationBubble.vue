@@ -124,9 +124,10 @@ export default {
     replaceCustomVar (text) {
       var resultText
       
-      if (text.match(/\${[A-Za-z0-9]+}/)){ // customVarの文字列かどうか
+      if (text && text.match(/\${[A-Za-z0-9]+}/)){ // customVarの文字列かどうか
+        resultText = text
         while (true) {
-          var containedCustomVarName = text.match(/\${[A-Za-z0-9]+}/)[0].split("{")[1].split("}")[0]
+          var containedCustomVarName = resultText.match(/\${[A-Za-z0-9]+}/)[0].split("{")[1].split("}")[0]
           var matchedCustomVar = this.customVars.filter((e) => {
             return (e.location === containedCustomVarName)
           })[0]
@@ -137,7 +138,7 @@ export default {
             // カスタム変数が宣言されていなかった場合
             var replaceValue = "null"
           }
-          resultText = text.replace(/\${[A-Za-z0-9]+}/, replaceValue)
+          resultText = resultText.replace(/\${[A-Za-z0-9]+}/, replaceValue)
 
           if (!resultText.match(/\${[A-Za-z0-9]+}/)) break
         }
@@ -151,7 +152,7 @@ export default {
       // URLの文字列かどうか
       const regex = /https*(:\/\/[-_.!~*¥'()a-zA-Z0-9;\/?:¥@&=+¥$,%#]+)/
 
-      if(text.match(regex)){
+      if(text && text.match(regex)){
         var span = document.createElement("span")
         var textArrayWithoutURL = text.split(text.match(regex)[0])
 

@@ -197,6 +197,7 @@ export const mutations = {
 
   },
   setCustomVar(state, value){
+    
     var content = entity.getContent(scenarioArray, value.nodeId)
     // content.customVariable.location = value.location
     // content.customVariable.varType = value.varType
@@ -204,6 +205,13 @@ export const mutations = {
       location: value.location,
       varType: value.varType
     }
+
+    for(var i=0; i<state.scenarioArray.length; i++){
+      if(state.scenarioArray[i].id === value.nodeId){
+        state.scenarioArray[i] = content
+      }
+    }
+
   },
   updateCustomVar(state, value){
     var content = entity.getContent(scenarioArray, value.nodeId)
@@ -214,6 +222,7 @@ export const mutations = {
     var nodesWithCustomVars = state.scenarioArray.filter((e) => {
       return (e.customVariable)
     })
+    
     state.customVars = nodesWithCustomVars.map((e) => {
       var varObj = {
         nodeId: e.id,

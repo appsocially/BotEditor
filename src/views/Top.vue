@@ -6,8 +6,8 @@
       div.wrapper.mt80
         div.wrap-add-new-project.py20.f.flex-between
           div.wrap-input.px4
-            input(v-model='botName' :placeholder='inputBotNamePlaceholder').px4.py8
-          span(@click='createNewBot').create-button.px12.f.fh {{createBotLabel}}
+            input#botName(v-model='botName' placeholder='Bot Name').px4.py8
+          span#createNewBot(@click='createNewBot').create-button.px12.f.fh Create Bot
         div.wrap-projects.mt20.pb40
           // Data Update for v2
           // span(@click="addConditionToAllNodes") update          
@@ -17,7 +17,6 @@
 </template>
 
 <style lang="scss">
-
 .wrap-top-page {
   .wrap-add-new-project {
     width: 90%;
@@ -44,24 +43,21 @@
       background: #ff9a0a;
       color: #fff;
       border-radius: 3px;
-      filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
+      filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
     }
   }
   .wrap-projects {
     width: 90%;
     max-width: 540px;
     margin: 0 auto;
-  }  
+  }
 }
-
 </style>
 
 <script>
-import Auth from '@/components/auth'
+import Auth from "@/components/auth"
 import { createNamespacedHelpers } from "vuex"
-const { mapState, mapActions } = createNamespacedHelpers(
- "auth"
-)
+const { mapState, mapActions } = createNamespacedHelpers("auth")
 
 import db from "../components/firebaseInit"
 
@@ -76,7 +72,7 @@ export default {
   },
   data() {
     return {
-      label: '',
+      label: "",
       projects: [],
       botName: '',
       inputBotName: '',
@@ -116,58 +112,59 @@ export default {
       // },
     }
   },
-  created: async function(){
-    
-  },
+  created: async function() {},
   methods: {
-    ...mapActions([
-      'signOut'
-    ]),
+    ...mapActions(["signOut"]),
     onFailedAuthentication() {
       //this.loggingIn = false;
-      this.$router.push('sign-in')
+      this.$router.push("sign-in")
     },
     async onLoggedIn({ onboardingData }) {
-
       // for debug
       window.signOut = this.signOut
-      
-      this.projects = await db.collection("projects")
+
+      this.projects = await db
+        .collection("projects")
         .orderBy("editedAt", "desc")
-        .where('author', '==', this.uid)
+        .where("author", "==", this.uid)
         //.where('author', '==', 'pc28zrjHf3gzOQ4kaYrhCVpDO3X2')
-        .get().then(function(doc) {
-          return doc.docs.map(function(doc){
+        .get()
+        .then(function(doc) {
+          return doc.docs.map(function(doc) {
             var data = doc.data()
             data.id = doc.id
 
             var time = data.editedAt.toDate()
             data.time = moment(time).format("YYYY-MM-DD HH:mm")
 
-            return data;
+            return data
           })
         })
     },
-    toCanvas(projectId){
+    toCanvas(projectId) {
       this.$router.push(`/canvas/${projectId}`)
     },
-    async createNewBot(){
-      if(this.inputBotName=='') return;
+    async createNewBot() {
+      if (this.inputBotName == "") return
 
-      if(this.letCreate){
-        this.letCreate = false;
+      if (this.letCreate) {
+        this.letCreate = false
 
-        $('#nowLoading').fadeIn(400);
+        $("#nowLoading").fadeIn(400)
 
-        console.log(this.inputBotName);
+        console.log(this.inputBotName)
 
-        var userDoc = await db.collection('users').doc(this.uid).get();
-        var user = userDoc.data();
+        var userDoc = await db
+          .collection("users")
+          .doc(this.uid)
+          .get()
+        var user = userDoc.data()
 
         var projectObj = {
           author: user.uid,
           userName: user.name,
-          botIcon: "https://firebasestorage.googleapis.com/v0/b/bot-editor-dev.appspot.com/o/public%2Fweak_ai.png?alt=media&token=fba07766-397a-41ba-a0b9-a225f6dc69c9",//user.photoUrl,
+          botIcon:
+            "https://firebasestorage.googleapis.com/v0/b/bot-editor-dev.appspot.com/o/public%2Fweak_ai.png?alt=media&token=fba07766-397a-41ba-a0b9-a225f6dc69c9", //user.photoUrl,
           title: this.inputBotName,
           discription: this.$t("top.create_bot.default_content.description"),//"No Discription",
           publishedAsFormat: false,
@@ -176,15 +173,18 @@ export default {
           nodeNum: 2
         }
 
-        var id = await db.collection("projects")
+        var id = await db
+          .collection("projects")
           .add(projectObj)
           .then(function(data) {
             var id = data.id
             return id
           })
 
-        await db.collection("projects").doc(id)
-          .collection('scenario')
+        await db
+          .collection("projects")
+          .doc(id)
+          .collection("scenario")
           .doc(`start-point-${id}`)
           .set({
             author: user.uid,
@@ -200,79 +200,92 @@ export default {
               }
             ],
             // next: `first-${id}`,
-            text: 'Start Point',
+            text: "Start Point",
             num: 0,
             gui: {
-              position: {x: 100, y: 100000/2}
+              position: { x: 100, y: 100000 / 2 }
               // topLineId: `line-start-point-${id}`
             }
           })
 
-        await db.collection("projects").doc(id)
-          .collection('scenario')
+        await db
+          .collection("projects")
+          .doc(id)
+          .collection("scenario")
           .doc(`first-${id}`)
           .set({
             author: user.uid,
             id: `first-${id}`,
-            type: 'normal',
-            nodeType: 'single',
-            text: 'Hello',
+            type: "normal",
+            nodeType: "single",
+            text: "Hello",
             num: 1,
             gui: {
-              position: {x: 200, y: 100000/2-10}
+              position: { x: 200, y: 100000 / 2 - 10 }
             }
           })
 
-        $('#nowLoading').fadeOut(400)
+        $("#nowLoading").fadeOut(400)
 
         this.$router.push(`/canvas/${id}`)
         //window.location.href = `./canvas/${id}`;
       } // if
-
     },
-    async addConditionToAllNodes () {
-      var ids = await db.collection("projects").get().then((q) => {
-        return q.docs.map((e)=>{ return e.id })
-      })
-      
-      for(var i=0; i<ids.length; i++){
-        var nodes = await db.collection("projects").doc(ids[i])
-          .collection("scenario").get()
-          .then((q) => {
-            return q.docs.map((e)=>{ return e.data() })
+    async addConditionToAllNodes() {
+      var ids = await db
+        .collection("projects")
+        .get()
+        .then(q => {
+          return q.docs.map(e => {
+            return e.id
+          })
+        })
+
+      for (var i = 0; i < ids.length; i++) {
+        var nodes = await db
+          .collection("projects")
+          .doc(ids[i])
+          .collection("scenario")
+          .get()
+          .then(q => {
+            return q.docs.map(e => {
+              return e.data()
+            })
           })
 
-        for(var n_i=0; n_i < nodes.length; n_i++){
-          if(nodes[n_i].nodeType == "group"){
+        for (var n_i = 0; n_i < nodes.length; n_i++) {
+          if (nodes[n_i].nodeType == "group") {
             var selections = nodes[n_i].selections
-            for(var s_i=0; s_i < selections.length; s_i++){
-              if(selections[s_i].next){
+            for (var s_i = 0; s_i < selections.length; s_i++) {
+              if (selections[s_i].next) {
                 selections[s_i].conditions = [
                   {
                     type: "else",
                     next: selections[s_i].next,
-                    id: "else-"+selections[s_i].id
+                    id: "else-" + selections[s_i].id
                   }
                 ]
               }
             }
-            db.collection("projects").doc(ids[i])
+            db.collection("projects")
+              .doc(ids[i])
               .collection("scenario")
               .doc(nodes[n_i].id)
-              .set({"selections": selections}, {merge: true})
+              .set({ selections: selections }, { merge: true })
           } else {
-            if(nodes[n_i].next){
+            if (nodes[n_i].next) {
               nodes[n_i].conditions = [
                 {
                   type: "else",
                   next: nodes[n_i].next,
-                  id: "else-"+nodes[n_i].id
+                  id: "else-" + nodes[n_i].id
                 }
               ]
-              db.collection("projects").doc(ids[i])
+              db.collection("projects")
+                .doc(ids[i])
                 .collection("scenario")
                 .doc(nodes[n_i].id)
-                .set({"conditions": nodes[n_i].conditions}, {merge: true})
+                .set({ conditions: nodes[n_i].conditions }, { merge: true })
             }
           }
         }
@@ -280,20 +293,18 @@ export default {
       }
     },
     deleteProjectCard(id) {
-      this.projects = this.projects.filter((e) => {
-        return (e.id !== id)
+      this.projects = this.projects.filter(e => {
+        return e.id !== id
       })
     }
   },
   watch: {
-    botName: function(newVal, oldVal){
+    botName: function(newVal, oldVal) {
       this.inputBotName = newVal
     }
   },
   computed: {
-    ...mapState([
-      'uid',
-    ]),
+    ...mapState(["uid"])
   }
-};
+}
 </script>

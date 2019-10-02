@@ -1,5 +1,5 @@
-import Vue from "vue"
-import Router from "vue-router"
+import Vue from "vue";
+import Router from "vue-router";
 
 import Index from "./views/Index.vue"
 import Canvas from "./views/Canvas.vue"
@@ -43,7 +43,7 @@ export default new Router({
     },
     {
       path: "/sign-up/:projectId",
-      name: "sign-up",
+      name: "sign-up-with-project-id",
       component: SignIn
     },
     {

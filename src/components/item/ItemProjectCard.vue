@@ -9,24 +9,23 @@
           span.bot-title.line-clamp-1 {{project.title}}
           span.edit-time {{project.time}}
       div.wrap-button.f.fm
-        v-icon(@click="deleteBot" color="#F99" size="20") delete
+        v-icon#deleteBot(@click="deleteBot" color="#F99" size="20") delete
     div.wrap-discription
       span.line-clamp3 {{project.discription}}
 
 </template>
 
 <style lang="scss" scoped>
-
 .wrap-project-card {
-  background: #FFF;
+  background: #fff;
   border-radius: 3px;
-  filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
+  filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
   cursor: pointer;
   .wrap-title {
     border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
     .wrap-icon {
       width: 48px;
-      height: 48px;      
+      height: 48px;
       border-radius: 50%;
       overflow: hidden;
       border: solid #999 1px;
@@ -47,20 +46,19 @@
       }
     }
     .wrap-button {
-      color: #F00;
+      color: #f00;
     }
   }
 }
-
 </style>
 
 
 <script>
-
 import { createNamespacedHelpers } from "vuex"
-const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
- "project"
-)
+const {
+  mapState: mapStateProject,
+  mapActions: mapActionsProject
+} = createNamespacedHelpers("project")
 
 export default {
   props: {
@@ -69,17 +67,13 @@ export default {
       required: true
     }
   },
-  created () {
-    
-  },
+  created() {},
   methods: {
-    ...mapActionsProject([
-      'deleteProject'
-    ]),
-    toCanvas () {
-      this.$router.push(`/canvas/${this.project.id}`);
+    ...mapActionsProject(["deleteProject"]),
+    toCanvas() {
+      this.$router.push(`/canvas/${this.project.id}`)
     },
-    deleteBot (e) {
+    deleteBot(e) {
       e.stopPropagation()
       if(confirm(`${this.$t("top.cards.delete_alert")} ${this.project.title}?`)){
         this.deleteProject(this.project.id)

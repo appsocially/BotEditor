@@ -19,15 +19,15 @@
           color='#FF9A0A').settings.pb2 settings
       div.icon-right.f.fm
         //span test-r
-        div(v-if="!uid && project.pulishedAsFormat").wrap-get-started.f.fm
-          span(@click="toSignIn").sign-in.mr16 Sign In
-          span(@click="toSignUpWithBot").sign-up.px10.py6 Sign Up with this Bot
-        div(v-else-if="project.author !== uid && uid && project.pulishedAsFormat")
+        div(v-if="!uid && project.publishedAsFormat").wrap-get-started.f.fm
+          span(@click="toSignIn").sign-in.mr16 {{this.$t("canvas.header.sign_in")}}
+          span(@click="toSignUpWithBot").sign-up.px10.py6 {{this.$t("canvas.header.start_with_bot")}}
+        div(v-else-if="project.author !== uid && uid && project.publishedAsFormat")
           div(@click="onImport").import-button.f.fm.pl2.pr12.py3
             v-icon play_for_work
-            span Clone this Bot
+            span {{this.$t("canvas.header.clone")}}
     div(v-if="project.author !== uid").notify-unauthed.f.fh
-      span You don't have the right to edit.
+      span {{this.$t("canvas.header.no_right")}}
 
 </template>
 

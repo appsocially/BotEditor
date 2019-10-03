@@ -77,6 +77,7 @@
       .child-list {
         display: flex;
         position: absolute;
+        max-width: 200px;
         left: calc(100% + 14px);
         top: 0;
         padding: 12px 16px 12px 16px;

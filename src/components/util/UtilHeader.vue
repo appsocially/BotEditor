@@ -12,14 +12,13 @@
         //span(v-else)
         a(v-for="item in rightIcon" @click="onRight(item.to)").mr12 {{item.label}}
         div(v-if="othersList").wrap-others
-          a(@click="toggleOthersList") {{$t("navigation.others")}}
+          a#others(@click="toggleOthersList") {{$t("navigation.others")}}
           div(v-if="showOthersList").others-list.px12.pb8
             a(v-for="item in othersList" @click="onInOthers(item.to)" :class="item.to.replace('/', '')").mt8 {{item.label}}
 
 </template>
 
 <style lang="scss" scoped>
-
 .wrap-util {
   position: fixed;
   top: 0;
@@ -27,7 +26,7 @@
   display: block;
   width: 100%;
   height: 48px;
-  border-bottom: solid .6px rgba(0,0,0,0.2);
+  border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
   background: #f8f8f8;
   z-index: 1;
   .util-content {
@@ -60,7 +59,7 @@
         position: relative;
         .others-list {
           filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
-          background: #FFF;
+          background: #fff;
           position: absolute;
           right: 0;
           top: 40px;
@@ -73,26 +72,23 @@
             white-space: nowrap;
           }
           .sign-in {
-            color: #FF9999;
+            color: #ff9999;
           }
         }
       }
     }
   }
 }
-
 </style>
 
 <style src="../../plugins/meltline.css"></style>
 
 <script>
 import { createNamespacedHelpers } from "vuex"
-const { mapState, mapActions } = createNamespacedHelpers(
- "auth"
-)
+const { mapState, mapActions } = createNamespacedHelpers("auth")
 
 export default {
-  name: 'UtilHeader',
+  name: "UtilHeader",
   props: {
     label: {
       type: String,
@@ -116,26 +112,24 @@ export default {
       showOthersList: false
     }
   },
-  created: function(){
-    window.signOut = this.signOut;
+  created: function() {
+    window.signOut = this.signOut
   },
   methods: {
-    ...mapActions([
-      'signOut'
-    ]),
-    onLeft () {
+    ...mapActions(["signOut"]),
+    onLeft() {
       this.$router.push(`${this.leftIcon.to}`)
     },
-    onRight (to) {
+    onRight(to) {
       this.$router.push(`${to}`)
     },
-    async onInOthers (to) {
-      if(to === "/sign-in") await this.signOut()
+    async onInOthers(to) {
+      if (to === "/sign-in") await this.signOut()
       this.$router.push(`${to}`)
     },
-    toggleOthersList () {
+    toggleOthersList() {
       this.showOthersList = !this.showOthersList
     }
   }
-};
+}
 </script>

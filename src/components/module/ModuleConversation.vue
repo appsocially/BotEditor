@@ -123,14 +123,13 @@ export default {
     // debugger
   },
   mounted: async function(){
-    // はじめのノードをscenarioArrayから取得して表示しようとしているところ
 
-    console.log('module-conversation (scenarioArray)', this.scenarioArray)
-
-    try {
-      this.initConversation()
-    } catch( e ) {
-      console.log("cannot init convarsation")
+    if (this.messageBubbles === []){
+      try {
+        this.initConversation()
+      } catch( e ) {
+        console.log("cannot init convarsation")
+      }
     }
 
     //var content = this.scenarioArray[0];
@@ -147,7 +146,6 @@ export default {
     initConversation(){
       this.messageBubbles = []
       this.selections = []
-
       var firstNode = entity.getFirstNode(this.scenarioArray)
       this.fireEventOfConversation(firstNode.id)
     },

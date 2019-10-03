@@ -66,6 +66,9 @@
       }
       #previewLineForGoTo {
         display: none;
+        path {
+          cursor: default;
+        }
       }
       .show {
         display: block;
@@ -87,6 +90,7 @@
       position: fixed;
       left: 0;
       top: 0;
+      z-index: 1;
       width: 100%;
       height: 100%;
       background: rgba(0,0,0,0.4);
@@ -652,9 +656,9 @@ export default {
     // これはノード選択後に呼び出す
     addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum){
 
-      var topOffset = 23;
+      var topOffset = 23
 
-      this.project.nodeNum++;
+      this.project.nodeNum++
       
       var content = {
         author: this.uid,
@@ -672,11 +676,11 @@ export default {
         },
       };
       
-      this.goToNodes.push(content);
+      this.goToNodes.push(content)
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
-      this.pushContentToScenario(content);
+      this.pushContentToScenario(content)
 
     },
     removeGoToNode(id){
@@ -686,39 +690,39 @@ export default {
 
       this.removeEdgesThatConnectNodeOf(id)
       
-      this.deleteNode(id);
-      this.disconnectNode(id);
+      this.deleteNode(id)
+      this.disconnectNode(id)
     },
     selectToNodeByGoTo(position, dragStartedPosition, dragStartedId){
       // 1. モーダルを出してノード選択モードにする。
-      // 2. 各ノードのfocusメソッドでノード選択モードならGoToに紐づけるという処理を書く。
-      $('#modalOverlay').fadeToggle(400);
+      // 2. 各ノードのfocusメソッドでノード選択モードならGoToに紐づける。
+      $('#modalOverlay').fadeToggle(400)
 
-      var nodes = document.getElementsByClassName('node');
+      var nodes = document.getElementsByClassName('node')
       
       var nodeClickHandler = function(e){
-        
-        var position = e.data.position;
-        var dragStartedPosition = e.data.dragStartedPosition;
-        var dragStartedId = e.data.dragStartedId;
+        var position = e.data.position
+        var dragStartedPosition = e.data.dragStartedPosition
+        var dragStartedId = e.data.dragStartedId
 
-        var targetNum = parseInt(this.dataset.num);
-        var targetId = this.dataset.id;
+        var targetNum = parseInt(this.dataset.num)
+        var targetId = this.dataset.id
 
-        window.addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum);
+        if(targetId){
+          window.addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum)
 
-        var nodes = document.getElementsByClassName('node');
-        $(nodes).off('click');
+          var nodes = document.getElementsByClassName('node')
+          $(nodes).off('click')
 
-        $('#modalOverlay').fadeToggle(400);
-
-      };
+          $('#modalOverlay').fadeToggle(400)
+        }
+      }
 
       $(nodes).click({
         position: position,
         dragStartedPosition: dragStartedPosition,
         dragStartedId: dragStartedId
-      }, nodeClickHandler);
+      }, nodeClickHandler)
 
     },
     scrollToStartNode() {

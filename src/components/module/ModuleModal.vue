@@ -145,9 +145,9 @@ export default {
     this.projectTitle = this.project.title
     this.switchPublishedAsFormat = (this.project.pulishedAsFormat)? this.project.pulishedAsFormat: false
     this.projectDescription = (this.project.discription)? this.project.discription: "About this bot..."
-    this.copyMessage = `${location.host}/chat/${this.$route.params.id}`
+    this.copyMessage = `${location.origin}/chat/${this.$route.params.id}`
 
-    this.embedCode = `<iframe src="${location.host}/chat/${this.$route.params.id}" width="320px" height="620px"></iframe>`
+    this.embedCode = `<iframe src="${location.origin}/chat/${this.$route.params.id}" width="320px" height="620px"></iframe>`
   },
   mounted: function () {
     //this.nextTick(this.activateWindow)

@@ -11,27 +11,22 @@
 </template>
 
 <style lang="scss">
-
 .wrap-atom-condition-content {
   .wrap-condition-content {
     /*border-top: solid rgba(0,0,0,0.2) 1px;*/
   }
 }
-
 </style>
 
 <script>
+import entity from '../entity'
 
-import entity from "../entity"
-
-import { createNamespacedHelpers } from "vuex"
+import { createNamespacedHelpers } from 'vuex'
 import { setTimeout } from 'timers'
-const { mapState, mapActions } = createNamespacedHelpers(
- "scenario"
-)
+const { mapState, mapActions } = createNamespacedHelpers('scenario')
 
-import AtomConditionContent from "../atom/AtomConditionContent"
-import { functions } from 'firebase'
+import AtomConditionContent from '../atom/AtomConditionContent'
+import 'firebase/functions'
 
 export default {
   name: 'AtomNodeWindow',
@@ -41,7 +36,7 @@ export default {
   props: {
     content: {
       type: Object,
-      required: true,
+      required: true
     },
     conditionTypeValue: {
       type: String,
@@ -51,85 +46,85 @@ export default {
   data() {
     return {
       // conditionTypes: ["else", "custom_var"]
-      customVarInputLabel: this.$t("canvas.tool_window.condition.settings.operation.custom_var_name"),
-      operatorSelectorLabel: this.$t("canvas.tool_window.condition.settings.operation.operator"),
-      valueInputLabel: this.$t("canvas.tool_window.condition.settings.operation.value"),
+      customVarInputLabel: this.$t(
+        'canvas.tool_window.condition.settings.operation.custom_var_name'
+      ),
+      operatorSelectorLabel: this.$t(
+        'canvas.tool_window.condition.settings.operation.operator'
+      ),
+      valueInputLabel: this.$t(
+        'canvas.tool_window.condition.settings.operation.value'
+      ),
       operators: [],
-      operatorValue: "==",
-      customVarNameValue: "",
-      comparedValue: ""
+      operatorValue: '==',
+      customVarNameValue: '',
+      comparedValue: ''
     }
   },
   computed: {
-    ...mapState([
-      'scenarioArray',
-      'customVars'
-    ]),
+    ...mapState(['scenarioArray', 'customVars']),
     customVarNames: function() {
-      return this.customVars.map((e) => {
+      return this.customVars.map(e => {
         return e.location
       })
     }
   },
   watch: {
-    customVarNameValue (newVal, oldVal) {
-      var customVar = this.customVars.filter((e) => {
-        return (newVal === e.location)
+    customVarNameValue(newVal, oldVal) {
+      var customVar = this.customVars.filter(e => {
+        return newVal === e.location
       })[0]
 
-      switch(customVar.varType) {
-        case "String":
-          this.operators = ["==", "!=", "contains"]
-        break
-        case "Number":
-          this.operators = ["==", "!=", ">", "<", ">=", "<="]
-        break
+      switch (customVar.varType) {
+        case 'String':
+          this.operators = ['==', '!=', 'contains']
+          break
+        case 'Number':
+          this.operators = ['==', '!=', '>', '<', '>=', '<=']
+          break
       }
     }
   },
-  created: function() {
-    
-  },
-  mounted: function() {
-    
-  },
+  created: function() {},
+  mounted: function() {},
   methods: {
-    ...mapActions([
-      'setConditionOption'
-    ]),
+    ...mapActions(['setConditionOption']),
     updateDefaultOption() {
-      var condition = entity.getConditionByConditionId(this.scenarioArray, this.content.id)
-      
-      switch(this.conditionTypeValue){
-        case "custom_var":
+      var condition = entity.getConditionByConditionId(
+        this.scenarioArray,
+        this.content.id
+      )
+
+      switch (this.conditionTypeValue) {
+        case 'custom_var':
           if (condition && condition.option) {
             this.operatorValue = condition.option.operator
-            this.customVarNameValue = condition.option.customVarName 
+            this.customVarNameValue = condition.option.customVarName
             this.comparedValue = condition.option.comparedValue
           } else {
-            this.operatorValue = "=="
-            this.customVarNameValue = ""
-            this.comparedValue = ""
+            this.operatorValue = '=='
+            this.customVarNameValue = ''
+            this.comparedValue = ''
           }
-        break
+          break
       }
     },
     changeVarName() {
-      this.operatorValue = "=="
-      this.comparedValue = ""
+      this.operatorValue = '=='
+      this.comparedValue = ''
 
       this.saveOption()
     },
     saveOption() {
       var option
-      switch(this.conditionTypeValue){
-        case "custom_var":
+      switch (this.conditionTypeValue) {
+        case 'custom_var':
           option = {
             customVarName: this.customVarNameValue,
             operator: this.operatorValue,
             comparedValue: this.comparedValue
           }
-        break
+          break
       }
       this.setConditionOption({
         option: option,
@@ -137,5 +132,5 @@ export default {
       })
     }
   }
-};
+}
 </script>

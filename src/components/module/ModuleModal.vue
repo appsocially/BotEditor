@@ -26,7 +26,6 @@
 </template>
 
 <style lang="scss" scoped>
-
 .wrap-modal {
   position: fixed;
   width: 100%;
@@ -38,12 +37,12 @@
   .module-content {
     display: block;
     margin: 0 auto;
-    background: #FFF;
+    background: #fff;
     border-radius: 3px;
 
     transition: all 400ms ease-out;
-    transform: scale(0.0);
-    opacity: 0.0;
+    transform: scale(0);
+    opacity: 0;
     .wrap-settings-content {
       min-width: 280px;
       max-width: 500px;
@@ -56,7 +55,7 @@
     h4 {
       font-size: 12px;
       font-weight: normal;
-      color:rgba(0,0,0,0.54);
+      color: rgba(0, 0, 0, 0.54);
     }
     .switch {
       margin-top: 0;
@@ -69,7 +68,7 @@
         font-size: 20px;
       }
       span {
-      // color: #FF9A0A;
+        // color: #FF9A0A;
       }
     }
     .wrap-embed-code {
@@ -93,24 +92,23 @@
         font-size: 14px;
         font-weight: bold;
         text-align: center;
-        background: #FF9A0A;
+        background: #ff9a0a;
         color: #fff;
         border-radius: 3px;
-        filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
+        filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
       }
     }
   }
   .window-active {
-    transform: scale(1.0);
-    opacity: 1.0;
+    transform: scale(1);
+    opacity: 1;
   }
 }
-
 </style>
 
 
 <script>
-import { functions } from 'firebase'
+import 'firebase/functions'
 import { setTimeout } from 'timers'
 import ItemImgUploader from '@/components/item/ItemImgUploader'
 
@@ -130,56 +128,64 @@ export default {
   },
   data() {
     return {
-      windowActive: "",
-      projectTitle: "",
+      windowActive: '',
+      projectTitle: '',
       projectTitleLabel: this.$t('canvas.settings.project.title_label'),
-      projectDescription: "",
-      projectDescriptionLabel: this.$t('canvas.settings.project.description_label'),
+      projectDescription: '',
+      projectDescriptionLabel: this.$t(
+        'canvas.settings.project.description_label'
+      ),
       togglePublishLabel: this.$t('canvas.settings.toggle_publish_label'),
-      copyMessage: "",
-      embedCode: "",
-      switchPublishedAsFormat: false,
+      copyMessage: '',
+      embedCode: '',
+      switchPublishedAsFormat: false
     }
   },
-  created: function () {
+  created: function() {
     this.projectTitle = this.project.title
-    this.switchPublishedAsFormat = (this.project.pulishedAsFormat)? this.project.pulishedAsFormat: false
-    this.projectDescription = (this.project.discription)? this.project.discription: "About this bot..."
+    this.switchPublishedAsFormat = this.project.pulishedAsFormat
+      ? this.project.pulishedAsFormat
+      : false
+    this.projectDescription = this.project.discription
+      ? this.project.discription
+      : 'About this bot...'
     this.copyMessage = `${location.host}/chat/${this.$route.params.id}`
 
-    this.embedCode = `<iframe src="${location.host}/chat/${this.$route.params.id}" width="320px" height="620px"></iframe>`
+    this.embedCode = `<iframe src="${location.host}/chat/${
+      this.$route.params.id
+    }" width="320px" height="620px"></iframe>`
   },
-  mounted: function () {
+  mounted: function() {
     //this.nextTick(this.activateWindow)
     setTimeout(this.activateWindow, 1)
   },
   methods: {
-    activateWindow () {
-      this.windowActive = "window-active"
+    activateWindow() {
+      this.windowActive = 'window-active'
     },
-    toggleSettings () {
+    toggleSettings() {
       this.$emit('toggleModal')
     },
-    onOverlay () {
+    onOverlay() {
       this.$emit('toggleModal')
     },
-    onWindow (e) {
+    onWindow(e) {
       e.stopPropagation()
     },
-    onSave () {
-      this.$emit("updateProject", {
+    onSave() {
+      this.$emit('updateProject', {
         botIcon: this.$refs.imgUploader.getImgUrl(),
         title: this.projectTitle,
         discription: this.projectDescription,
         pulishedAsFormat: this.switchPublishedAsFormat
       })
     },
-    onCopy () {
-      alert(this.$t("canvas.settings.bot_url.on_copy"))
+    onCopy() {
+      alert(this.$t('canvas.settings.bot_url.on_copy'))
     },
-    onEmbedCode () {
-      alert(this.$t("canvas.settings.embed_code.on_copy"))
-    },
+    onEmbedCode() {
+      alert(this.$t('canvas.settings.embed_code.on_copy'))
+    }
   }
-};
+}
 </script>

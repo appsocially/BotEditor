@@ -1,30 +1,15 @@
 <template>
-  <Auth 
-    :on-failed-authentication="onFailedAuthentication" 
-    @loggedIn="onLoggedIn">
+  <Auth :on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn">
     <v-app>
       <v-content>
-        <v-container 
-          fluid 
-          fill-height>
-          <v-layout 
-            align-center 
-            justify-center>
-            <v-flex 
-              xs12 
-              sm8 
-              md4 
-              class="text-xs-center fc">
+        <v-container fluid fill-height>
+          <v-layout align-center justify-center>
+            <v-flex xs12 sm8 md4 class="text-xs-center fc">
               <!--img src="../assets/pickll_logo_row.svg"-->
               <div v-if="loggingIn" class="wrap-now-loading f fh">
-                <v-progress-circular 
-                  :size="50"
-                  color="primary"
-                  indeterminate
-                  class="mt-3 fc"
-                />
+                <v-progress-circular :size="50" color="primary" indeterminate class="mt-3 fc" />
               </div>
-              <FirebaseSignInUi v-else/>
+              <FirebaseSignInUi v-else />
             </v-flex>
           </v-layout>
         </v-container>
@@ -34,23 +19,26 @@
 </template>
 
 <script>
-import firebase from "firebase"
-import db from "@/components/firebaseInit"
+import firebase from 'firebase/app'
+import db from '@/components/firebaseInit'
 
 import FirebaseSignInUi from '@/components/sign-in/firebase-sign-in-ui'
 
-import { createNamespacedHelpers } from "vuex"
+import { createNamespacedHelpers } from 'vuex'
 import Auth from '@/components/auth'
 import { setTimeout } from 'timers'
-const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
- "auth"
-)
-const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
- "project"
-)
-const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers(
- "scenario"
-)
+const {
+  mapState: mapStateAuth,
+  mapActions: mapActionsAuth
+} = createNamespacedHelpers('auth')
+const {
+  mapState: mapStateProject,
+  mapActions: mapActionsProject
+} = createNamespacedHelpers('project')
+const {
+  mapState: mapStateScenario,
+  mapActions: mapActionsScenario
+} = createNamespacedHelpers('scenario')
 
 export default {
   components: {
@@ -63,21 +51,18 @@ export default {
     }
   },
   methods: {
-    ...mapActionsProject([
-      'loadProject',
-      'copyProject'
-    ]),
-    ...mapActionsScenario([
-      'loadScenarioByProjectId'
-    ]),
+    ...mapActionsProject(['loadProject', 'copyProject']),
+    ...mapActionsScenario(['loadScenarioByProjectId']),
     onFailedAuthentication() {
       this.loggingIn = false
     },
     async onLoggedIn({ onboardingData }) {
+      var userDoc = await db
+        .collection('users')
+        .doc(this.uid)
+        .get()
 
-      var userDoc = await db.collection('users').doc(this.uid).get()
-
-      if(!userDoc.exists){
+      if (!userDoc.exists) {
         var user = await firebase.auth().currentUser
 
         var userObj = {
@@ -89,20 +74,23 @@ export default {
           creationTime: user.metadata.creationTime
         }
 
-        await db.collection("users")
+        await db
+          .collection('users')
           .doc(user.uid)
           .set(userObj)
           .then(function() {
-            console.log("Document successfully written!")
+            console.log('Document successfully written!')
           })
           .catch(function(error) {
-            console.error("Error writing document: ", error)
+            console.error('Error writing document: ', error)
           })
 
-        if(this.$route.params.projectId) {
+        if (this.$route.params.projectId) {
           var project = await this.loadProject(this.$route.params.projectId)
-          var scenarioArray = await this.loadScenarioByProjectId(this.$route.params.projectId)
-          
+          var scenarioArray = await this.loadScenarioByProjectId(
+            this.$route.params.projectId
+          )
+
           await this.copyProject({
             uid: user.uid,
             userDisplayName: user.displayName,
@@ -121,21 +109,15 @@ export default {
         this.$router.push('/user-onboarding')
       }
       */
-    },
+    }
     /*signOut() {
       await firebase.auth().signOut();
     }*/
   },
   computed: {
-    ...mapStateAuth([
-      'uid',
-    ]),
-    ...mapStateProject([
-      'project',
-    ]),
-    ...mapStateScenario([
-      'scenarioArray',
-    ])
+    ...mapStateAuth(['uid']),
+    ...mapStateProject(['project']),
+    ...mapStateScenario(['scenarioArray'])
   }
 }
 </script>

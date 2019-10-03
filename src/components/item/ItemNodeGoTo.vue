@@ -18,7 +18,7 @@
   border-radius: 30px;
   width: 46px;
   height: 46px;
-  z-index: 100;
+  z-index: 1;
   .wrap-to-num {
     width: 100%;
     height: 100%;

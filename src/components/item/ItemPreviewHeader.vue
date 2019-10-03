@@ -43,7 +43,7 @@ export default {
     }
   },
   created: function() {
-    this.copyMessage = `${location.host}/preview/${this.$route.params.id}`
+    this.copyMessage = `${location.origin}/preview/${this.$route.params.id}`
   },
   mounted: function() {
     

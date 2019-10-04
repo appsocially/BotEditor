@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       headerLeft: {
-        to: "/openbots"
+        to: "/top"
       }
     }
   },

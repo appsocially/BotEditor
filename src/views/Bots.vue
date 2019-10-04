@@ -72,7 +72,7 @@ export default {
     
     this.projects = await db.collection("projects")
       .orderBy("editedAt", "desc")
-      .where('pulishedAsFormat', '==', true)
+      .where('publishedAsFormat', '==', true)
       //.where('author', '==', 'pc28zrjHf3gzOQ4kaYrhCVpDO3X2')
       .get().then(function(doc) {
         return doc.docs.map(function(doc){
@@ -84,7 +84,7 @@ export default {
 
           return data;
         })
-      })    
+      })
   },
   methods: {
     ...mapActions([

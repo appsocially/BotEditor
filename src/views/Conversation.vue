@@ -42,7 +42,6 @@ import ModuleConversation from "../components/module/ModuleConversation";
 
 
 export default {
-  name: 'Canvas',
   components: {
     Auth,
     UtilHeader,
@@ -76,18 +75,20 @@ export default {
         console.error("Error writing document: ", error);
       });
 
-    project.editedAt = new Date();
+    // project.editedAt = new Date();
 
-    await db.collection("projects")
-          .doc(projectId)
-          .update({editedAt: new Date()});
+    // await db.collection("projects")
+    //   .doc(projectId)
+    //   .update({editedAt: new Date()});
 
     console.log('canvas', project);
     this.label = project.title;
     this.project = project;
 
-    await this.loadScenarioByProjectId(projectId);
-    this.scenario = this.scenarioArray;
+    await this.loadScenarioByProjectId(projectId)
+    this.scenario = this.scenarioArray
+
+    this.loadAllCustomVars()
 
     $('#nowLoading').fadeOut(400);
 
@@ -113,6 +114,7 @@ export default {
   methods: {
     ...mapActions([
       'loadScenarioByProjectId',
+      'loadAllCustomVars',
       'pushContentToScenario',
       'connectSingleNode',
       'connectGroupNode'
@@ -131,11 +133,12 @@ export default {
   },
   computed: {
     ...mapState([
-      'scenarioArray'
+      'scenarioArray',
+      'customVars'
     ]),
     ...mapStateAuth([
       'uid'
-    ]),
+    ])
   }
 };
 </script>

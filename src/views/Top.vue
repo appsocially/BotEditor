@@ -84,7 +84,8 @@ export default {
       createBotLabel: this.$t("top.create_bot.button_label"),
       letCreate: true,
       headerLeft: {
-        to: "/openbots"
+        //to: "/openbots"
+        to: "/top"
       },
       headerRight: [
         {
@@ -102,8 +103,8 @@ export default {
           to: "/service-terms"
         },
         {
-          label: this.$t("navigation.plivacy_policy"),
-          to: "/plivacy-policy"
+          label: this.$t("navigation.privacy_policy"),
+          to: "/privacy-policy"
         },
         {
           label: this.$t("navigation.sign_out"),

@@ -204,7 +204,7 @@ export default {
   created: async function(){
     
     await this.loadScenarioByProjectId(this.$route.params.id)
-
+    
     console.log('module-canvas (project)', this.project)
     console.log('module-canvas (scenarioArray)', this.scenarioArray)
 
@@ -221,12 +221,7 @@ export default {
     window.addEdge = this.addEdge
     window.updateEdge = this.updateEdge
 
-    this.startPointNode = entity.getStartPointNode(this.scenarioArray)
-    this.normalMessageNodes = entity.getNormalNodes(this.scenarioArray)
-    this.selectionNodes = entity.getSelectionNodes(this.scenarioArray)
-    this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray)
-    this.mediaNodes = entity.getMediaNodes(this.scenarioArray)
-    this.goToNodes = entity.getGoToNodes(this.scenarioArray)
+    this.loadNodesArray()
     
   },
   updated: function(){
@@ -253,6 +248,14 @@ export default {
       'disconnectNode',
       'updateEdgeCondition'
     ]),
+    loadNodesArray(){
+      this.startPointNode = entity.getStartPointNode(this.scenarioArray)
+      this.normalMessageNodes = entity.getNormalNodes(this.scenarioArray)
+      this.selectionNodes = entity.getSelectionNodes(this.scenarioArray)
+      this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray)
+      this.mediaNodes = entity.getMediaNodes(this.scenarioArray)
+      this.goToNodes = entity.getGoToNodes(this.scenarioArray)
+    },
     update(){
       this.project = this.project;
     },

@@ -128,6 +128,9 @@ export default {
       this.upDeleteText = e.target.value
       if (this.upDeleteText === "" && this.downDeleteText === "") {
         // deleteThisSelection
+        for(var i=0; i < this.content.conditions.length; i++ ){
+          this.removeLine(this.content.conditions[i].id)
+        }
         this.deleteOneSelection(this.content.id)
         this.fixSize()
       }
@@ -149,6 +152,9 @@ export default {
     loadAllEdges () {
       this.$parent.loadAllEdges()
       // this.$emit('loadAllEdges') // これだとなぜか効かない
+    },
+    removeLine(id){
+      d3.select('#lines').select(`#line-${id}`).remove();
     },
     addNewNode () {
       console.log('Add Single New Node')

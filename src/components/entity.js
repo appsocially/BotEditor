@@ -28,31 +28,31 @@ entity.getFirstNode = function(scenario) {
 }
 
 entity.getNormalNodes = function(scenario) {
-  return scenarioArray.filter(function(content) {
+  return scenario.filter(function(content) {
     return content.type == "normal"
   })
 }
 
 entity.getSelectionNodes = function(scenario) {
-  return scenarioArray.filter(function(content) {
+  return scenario.filter(function(content) {
     return content.type == "selection"
   })
 }
 
 entity.getOpenQuestionNodes = function(scenario) {
-  return scenarioArray.filter(function(content) {
+  return scenario.filter(function(content) {
     return content.type == "openquestion"
   })
 }
 
 entity.getMediaNodes = function(scenario) {
-  return scenarioArray.filter(function(content) {
+  return scenario.filter(function(content) {
     return content.type == "media"
   })
 }
 
 entity.getGoToNodes = function(scenario) {
-  return scenarioArray.filter(function(content) {
+  return scenario.filter(function(content) {
     return content.type == "goto"
   })
 }

@@ -23,7 +23,6 @@
     transition: all 400ms ease;
     opacity: 0;
     img {
-      height: 100%;
       object-fit: cover;
     }
   }

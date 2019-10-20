@@ -15,13 +15,16 @@ export const mutations = {
     state.scenarioArray.push(value)
     window.scenarioArray = state.scenarioArray
   },
-  updateNext(state, value) {
+  updateCondition(state, value) {
 
     var getNewConditions = function(node, value) {
       if(node.conditions){
         var newConditions = node.conditions
         // 同じコンディションがすでに含まれているか
-        if(newConditions.filter((e) => { return e.type === value.condition })[0]){
+        var hasSameCondition = newConditions.filter((e) => { 
+          return (e.type === value.condition && e.type !== "default")
+        })[0]
+        if(hasSameCondition){
           newConditions = newConditions.map((e) => {
             if(e.type === value.condition){
               var newCondition = {type: e.type, next: value.toId, id: value.id}
@@ -44,21 +47,21 @@ export const mutations = {
 
 
     for(var i=0; i<state.scenarioArray.length; i++){
-      if(state.scenarioArray[i].nodeType=='single' || state.scenarioArray[i].nodeType=='point'){
-        if(state.scenarioArray[i].id==value.fromId){
+      if(state.scenarioArray[i].nodeType==='single' || state.scenarioArray[i].nodeType==='point'){
+        if(state.scenarioArray[i].id===value.fromId){
           // state.scenarioArray[i].next = value.toId;
           state.scenarioArray[i].conditions = getNewConditions(state.scenarioArray[i], value)
-          return;
+          return
         }
 
-      } else if (state.scenarioArray[i].nodeType=='group'){
+      } else if (state.scenarioArray[i].nodeType==='group'){
         
         var selections = state.scenarioArray[i].selections;
         for(var j=0; j<selections.length; j++){
-          if(selections[j].id==value.fromId){
+          if(selections[j].id===value.fromId){
             // selections[j].next = value.toId;
             state.scenarioArray[i].selections[j].conditions = getNewConditions(selections[j], value)
-            return;
+            return
           }
         }
 
@@ -96,7 +99,7 @@ export const mutations = {
       }
     }
   },
-  disconnectNode(state, value){
+  async disconnectNode(state, value){
     for(var i=0; i<state.scenarioArray.length; i++){
       if(state.scenarioArray[i].nodeType=='single' || state.scenarioArray[i].nodeType=='point'){
         // if(state.scenarioArray[i].next==value){
@@ -106,7 +109,16 @@ export const mutations = {
           state.scenarioArray[i].conditions = state.scenarioArray[i].conditions.filter((e) => {
             return (e.next !== value)
           })
-          if(!state.scenarioArray[i].conditions[0]) delete state.scenarioArray[i].conditions
+          if(!state.scenarioArray[i].conditions[0]) {
+            delete state.scenarioArray[i].conditions
+
+            var projectId = location.pathname.split('/')[2]
+            await db.collection("projects")
+              .doc(projectId)
+              .collection("scenario")
+              .doc(state.scenarioArray[i].id)
+              .set(state.scenarioArray[i])
+          }
         }
 
       } else if (state.scenarioArray[i].nodeType=='group'){
@@ -120,7 +132,16 @@ export const mutations = {
             state.scenarioArray[i].selections[j].conditions = selections[j].conditions.filter((e) => {
               return (e.next !== value)
             })
-            if(!state.scenarioArray[i].selections[j].conditions[0]) delete state.scenarioArray[i].selections[j].conditions
+            if(!state.scenarioArray[i].selections[j].conditions[0]){
+              delete state.scenarioArray[i].selections[j].conditions
+
+              var projectId = location.pathname.split('/')[2]
+              await db.collection("projects")
+                .doc(projectId)
+                .collection("scenario")
+                .doc(state.scenarioArray[i].id)
+                .set(state.scenarioArray[i])
+            }
           }
         }
 
@@ -171,7 +192,7 @@ export const mutations = {
           .then(function(e){
             // console.log('added new content')
           })
-
+      
       // dbとコンテンツが違う場合
       } else if(JSON.stringify(dbContent) != JSON.stringify(clientContent)){
         db.collection("projects")
@@ -264,14 +285,23 @@ export const mutations = {
       }
     })
   },
-  removeEdgeCondition(state, id){
+  async removeEdgeCondition(state, id){
     for(var i=0; i<state.scenarioArray.length; i++){
       if(state.scenarioArray[i].nodeType=='single' || state.scenarioArray[i].nodeType=='point'){
         if(state.scenarioArray[i].conditions){
           state.scenarioArray[i].conditions = state.scenarioArray[i].conditions.filter((e) => {
             return (e.id !== id)
           })
-          if(!state.scenarioArray[i].conditions[0]) delete state.scenarioArray[i].conditions
+          if(!state.scenarioArray[i].conditions[0]){
+            delete state.scenarioArray[i].conditions
+
+            var projectId = location.pathname.split('/')[2]
+            await db.collection("projects")
+              .doc(projectId)
+              .collection("scenario")
+              .doc(state.scenarioArray[i].id)
+              .set(state.scenarioArray[i])
+          }
         }
       } else if (state.scenarioArray[i].nodeType=='group'){
         var selections = state.scenarioArray[i].selections
@@ -280,7 +310,16 @@ export const mutations = {
             state.scenarioArray[i].selections[j].conditions = selections[j].conditions.filter((e) => {
               return (e.id !== id)
             })
-            if(!state.scenarioArray[i].selections[j].conditions[0]) delete state.scenarioArray[i].selections[j].conditions
+            if(!state.scenarioArray[i].selections[j].conditions[0]){
+              delete state.scenarioArray[i].selections[j].conditions
+
+              var projectId = location.pathname.split('/')[2]
+              await db.collection("projects")
+                .doc(projectId)
+                .collection("scenario")
+                .doc(state.scenarioArray[i].id)
+                .set(state.scenarioArray[i])
+            }
           }
         }
       }
@@ -309,6 +348,9 @@ export const actions = {
       resolve(scenarioArray)
     })
   },
+  resetScenario({commit}){
+    commit('replaceScenario', [])
+  },
   async pushContentToScenario({commit}, content){
     commit('addNodeToScenario', content)
     commit('saveScenario')
@@ -328,7 +370,7 @@ export const actions = {
     commit('addHistory')
   },
   connectNode({commit}, id_from_to){
-    commit('updateNext', id_from_to)
+    commit('updateCondition', id_from_to)
     commit('saveScenario')
   },
   disconnectNode({commit}, id){

@@ -125,7 +125,6 @@ export default {
       switch(target){
         case this.$t("canvas.drawer.menu.exports.upil_label"):
           var validateUpil = window.lintScenarioForUPILOutput(this.scenarioArray)
-          
           if(validateUpil.result === "success") {
             var upilText = window.exportScenarioAsUPIL(this.scenarioArray)
             this.download(`${this.project.title}.txt`, upilText)

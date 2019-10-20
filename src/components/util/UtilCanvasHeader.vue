@@ -145,7 +145,7 @@ const { mapState: mapStateAuth } = createNamespacedHelpers(
 const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
  "project"
 )
-const { mapState: mapStateScenario } = createNamespacedHelpers(
+const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers(
  "scenario"
 )
 
@@ -164,6 +164,10 @@ export default {
   methods: {
     ...mapActionsProject([
       'copyProject'
+    ]),
+    ...mapActionsScenario([
+      'resetScenario',
+      'loadScenarioByProjectId'
     ]),
     toggleModal () {
       this.$emit('toggleModal')
@@ -184,8 +188,11 @@ export default {
         scenario: this.scenarioArray,
         project: this.project        
       })
-      
+      this.resetScenario()
       this.$router.push(`/canvas/${newProjectId}`)
+        
+      await this.loadScenarioByProjectId(this.$route.params.id)
+      this.$emit('reloadCanvasModuleArrays')
 
       this.$emit("enableEdit")
 

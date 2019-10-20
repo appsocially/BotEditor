@@ -8,6 +8,7 @@
         @toggleDrawer="toggleDrawer"
         @loadCanvas="loadCanvas"
         @enableEdit="enableEdit"
+        @reloadCanvasModuleArrays="reloadCanvasModuleArrays"
         :showDrawer="showDrawer")
       module-canvas-drawer(
         :showDrawer="showDrawer"
@@ -165,17 +166,18 @@ export default {
       this.loadAllCustomVars()
 
       if(this.$refs.conversation && this.letInitConversation){
-        this.$refs.conversation.initConversation()
-        this.letInitConversation = false
+        if(!this.$refs.conversation.messageBubbles[0] && !this.$refs.conversation.isInitialized){
+          this.$refs.conversation.initConversation()
+          this.letInitConversation = false
+        }
       }
       if(this.$refs.canvas) this.$refs.canvas.scrollToStartNode()
 
       $('#nowLoading').fadeOut(400)
     },
-    // onTitleClick(signOut) {
-    //   console.log('clicked')
-    //   signOut()
-    // },
+    reloadCanvasModuleArrays () {
+      this.$refs.canvas.loadNodesArray()
+    },
     enableEdit () {
       this.letEdit = "let-edit"
     },

@@ -15,7 +15,7 @@ const exportScenarioAsUPIL = (scenarioArray) => {
 
     const dialogs = extractDialogsForGoto(entities[0], gotoTargets)
     console.log('dialogs', JSON.stringify(dialogs, null, 4))
-
+    
     let upil = []
     upil = upil.concat(createAllDialogs(scenarioArray))
     upil = upil.concat(createGotoTargetDialogs(dialogs))
@@ -420,7 +420,6 @@ const createSelectionString = (name, body, variable, selections) => {
 
 const createStatementStrings = (statements) => {
     let statementStrings = []
-
     for (const statement of statements) {
         const { type, name, toId, left, operator, right, statements: stats } = statement
         const condition = {
@@ -454,9 +453,9 @@ const createStatementStrings = (statements) => {
 
 const createGotoTargetDialogs = (dialogs) => {
     let entityStrings = []
-
     for (const dialog of dialogs) {
         let { name, statements } = dialog
+        // debugger
         statements = createStatementStrings(statements)
         entityStrings = entityStrings.concat(createDialogString(name, statements))
     }

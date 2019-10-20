@@ -22,7 +22,7 @@
             div.f.fc
               span(@click="createVar").button-add {{noCustomVarAdd}}
           div.child-triangle
-        div(v-if="item.id === 'show-custom-action' && showCustomAction" :class="String(showCustomAction)").child-list
+        //div(v-if="item.id === 'show-custom-action' && showCustomAction" :class="String(showCustomAction)").child-list
           div(v-if="hasCustomAction")
             div.wrap-id.pt8
               v-text-field(:label="customActionInputLabel" :value="content.customAction" v-model="customActionValue")
@@ -77,7 +77,7 @@
       .child-list {
         display: flex;
         position: absolute;
-        max-width: 200px;
+        width: 200px;
         left: calc(100% + 14px);
         top: 0;
         padding: 12px 16px 12px 16px;
@@ -107,6 +107,7 @@
             text-align: center;
             color: #999;
             font-size: 12px;
+            white-space: normal;
           }
           .button-add {
             text-align: center;
@@ -186,17 +187,22 @@ export default {
       customActionInputLabel: this.$t("canvas.tool_window.node.custom_action.content.input_label")
     }
   },
+  computed: {
+    ...mapState([
+      'scenarioArray',
+    ])
+  },
   created: function(){
     
     switch(this.content.type){
       case 'normal':
         this.lists = [
-          {
-            label: this.$t("canvas.tool_window.node.custom_action.label"),
-            icon: 'add_comment',
-            id: 'show-custom-action',
-            func: this.toggleCustomActionMenu
-          },
+          // {
+          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
+          //   icon: 'add_comment',
+          //   id: 'show-custom-action',
+          //   func: this.toggleCustomActionMenu
+          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
@@ -214,12 +220,12 @@ export default {
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
-          {
-            label: this.$t("canvas.tool_window.node.custom_action.label"),
-            icon: 'add_comment',
-            id: 'show-custom-action',
-            func: this.toggleCustomActionMenu
-          },
+          // {
+          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
+          //   icon: 'add_comment',
+          //   id: 'show-custom-action',
+          //   func: this.toggleCustomActionMenu
+          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
@@ -237,12 +243,12 @@ export default {
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
-          {
-            label: this.$t("canvas.tool_window.node.custom_action.label"),
-            icon: 'add_comment',
-            id: 'show-custom-action',
-            func: this.toggleCustomActionMenu
-          },
+          // {
+          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
+          //   icon: 'add_comment',
+          //   id: 'show-custom-action',
+          //   func: this.toggleCustomActionMenu
+          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
@@ -254,12 +260,12 @@ export default {
 
       case 'media':
         this.lists = [
-          {
-            label: this.$t("canvas.tool_window.node.custom_action.label"),
-            icon: 'add_comment',
-            id: 'show-custom-action',
-            func: this.toggleCustomActionMenu
-          },
+          // {
+          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
+          //   icon: 'add_comment',
+          //   id: 'show-custom-action',
+          //   func: this.toggleCustomActionMenu
+          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
@@ -385,10 +391,11 @@ export default {
       e.stopPropagation()
 
       // 繋がっているエッジをcanvasから削除
-      var connectedNodes = entity.getNodesThatConnectTo(window.scenarioArray, this.content.id)
+      var connectedNodes = entity.getNodesThatConnectTo(this.scenarioArray, this.content.id)
       for(var i=0; i<connectedNodes.length; i++){
         this.removeLine(connectedNodes[i].id)
         // disconnect
+        
       }
 
       if(this.content.nodeType == 'single') {

@@ -103,7 +103,8 @@ export default {
       selections: [],
       placeholder: 'Message',
       nextEventOfFreeText: '',
-      currentEvent: ''
+      currentEvent: '',
+      isInitialized: false
     }
   },
   computed: {
@@ -123,10 +124,11 @@ export default {
     // debugger
   },
   mounted: async function(){
-
-    if (this.messageBubbles === []){
+    
+    if (!this.messageBubbles[0] && !this.isInitialized){
       try {
         this.initConversation()
+        this.isInitialized = true
       } catch( e ) {
         console.log("cannot init convarsation")
       }

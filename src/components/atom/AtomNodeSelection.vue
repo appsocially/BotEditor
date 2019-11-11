@@ -128,12 +128,17 @@ export default {
       this.upDeleteText = e.target.value
       if (this.upDeleteText === "" && this.downDeleteText === "") {
         // deleteThisSelection
-        for(var i=0; i < this.content.conditions.length; i++ ){
-          this.removeLine(this.content.conditions[i].id)
+        if (this.content.conditions) {
+          for(var i=0; i < this.content.conditions.length; i++ ){
+            this.removeLine(this.content.conditions[i].id)
+          }
         }
         this.deleteOneSelection(this.content.id)
         this.fixSize()
       }
+
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNode, 400)
     },
     downDelete (e) {
       this.downDeleteText = e.target.value

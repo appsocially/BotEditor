@@ -92,6 +92,10 @@ export default {
           label: this.$t("navigation.my_bots"),
           to: "/top"
         },
+        {
+          label: this.$t("navigation.team"),
+          to: "/team"
+        }
         // {
         //   label: this.$t("navigation.open_bots"),
         //   to: "/openbots"

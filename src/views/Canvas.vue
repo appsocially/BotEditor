@@ -212,7 +212,7 @@ export default {
     ]),
     ...mapStateAuth([
       'uid'
-    ]),
+    ])
   }
 };
 </script>

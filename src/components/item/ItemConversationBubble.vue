@@ -116,7 +116,7 @@ export default {
     (async () => {
       await sleep(200)
       this.fadeIn = 'fade-in'
-    })();
+    })()
     
   },
   methods: {
@@ -151,7 +151,7 @@ export default {
       // URLの文字列かどうか
       const regex = /https*(:\/\/[-_.!~*¥'()a-zA-Z0-9;\/?:¥@&=+¥$,%#]+)/
 
-      if(text && text.match(regex)){
+      if(text && text.match(regex)) {
         var span = document.createElement("span")
         var textArrayWithoutURL = text.split(text.match(regex)[0])
 

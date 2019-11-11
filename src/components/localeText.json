@@ -2,6 +2,7 @@
   "en": {
     "navigation": {
       "my_bots": "My Bots",
+      "team": "Team",
       "open_bots": "Bot Market",
       "others": "Others",
       "service_terms": "Service Terms",
@@ -141,6 +142,7 @@
   "ja": {
     "navigation": {
       "my_bots": "マイボット",
+      "team": "チーム",
       "open_bots": "ボットマーケット",
       "others": "その他",
       "service_terms": "利用規約",

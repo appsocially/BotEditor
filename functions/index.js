@@ -1,6 +1,5 @@
 const functions = require('firebase-functions')
 const firestore = require('firebase/firestore')
-
 const admin = require('firebase-admin')
 
 // Dev
@@ -106,3 +105,4 @@ exports.getProject = functions.https.onRequest((req, res) => {
   // var result = await response.json()
 //     console.log('result:', result)
 // }
+

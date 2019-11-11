@@ -76,6 +76,13 @@ export default new Router({
       name: "chat",
       component: Conversation
     },
+    // for Inbox
+    {
+      path: "/team",
+      name: "team",
+      component: () =>
+        import('@/views/Team')
+    },
     // for v1
     {
       path: "/conversation/:id",

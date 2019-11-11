@@ -1,6 +1,6 @@
-import { firebase } from '@/components/firebaseInit'
-//import firestore from '@/components/firebaseInit'
-import { firestore } from '@/components/firebaseInit'
+import db, { firebase } from '@/components/firebaseInit'
+// import firestore from '@/components/firebaseInit'
+// import { firestore } from '@/components/firebaseInit'
 
 export const state = () => ({
   userDisplayName: null,
@@ -11,7 +11,12 @@ export const state = () => ({
   onboardingData: null,
   subscriptionEnder: null,
   loadedUserData: false,
-  roles: []
+  roles: [],
+  isAnonymous: null,
+  teamsThatUserBelongs: null,
+  teamAsGuest: null,
+  currentTeam: null,
+  plan: null
 })
 
 export const mutations = {
@@ -37,11 +42,22 @@ export const mutations = {
   },
   updateAuthStatus(state, user) {
     const isLoggedIn = !!user
+    const hasAuthEmail = !!user && !!user.email
     state.userDisplayName = isLoggedIn ? user.displayName : "No Name"
     state.uid = isLoggedIn ? user.uid : null
+    state.userAuthEmail = hasAuthEmail ? user.email : null
     state.isAuthenticating = false
     state.isLoggedIn = isLoggedIn
     state.isSigningOut = false
+    state.isAnonymous = user ? user.isAnonymous : null
+  },
+  resetState (state) {
+    state.isLoggedIn = false
+    state.isAuthenticating = true
+    state.userAuthEmail = null
+    state.isSigningOut = false
+    state.userDisplayName = null
+    state.isAnonymous = null
   },
   updateSubscriptionEnder(state, value) {
     state.subscriptionEnder = value
@@ -127,5 +143,81 @@ export const actions = {
     */
 
     return {};
+  },
+  async signInAnonymously ({ commit }) {
+    return new Promise(async resolve => {
+      await firebase.auth().signInAnonymously().catch(function (error) {
+        console.error('Login anonymously error: ', error)
+      })
+      var user = await firebase.auth().currentUser
+      commit('updateAuthStatus', user)
+      resolve(user)
+    })
+  },
+  async createAnonymousUser ({ commit }, data) {
+    return new Promise(async resolve => {
+      var userObj = {
+        name: 'Guest',
+        iconURL: 'https://firebasestorage.googleapis.com/v0/b/chatcenter-min-ui.appspot.com/o/util%2Fuser-default.png?alt=media&token=5d9ac3a4-6849-4f60-a182-1d6df8d340ba',
+        profile: 'No Profile',
+        // team: [data.teamId],
+        teamAsGuest: [data.teamId],
+        room: [data.roomId],
+        type: 'human',
+        isAnonymous: true,
+        createdAt: new Date(),
+        latestSignInTime: new Date()
+      }
+      await db.collection(String(COLLECTIONS_ENUM.users)).doc(data.uid).set(userObj)
+      userObj.uid = data.uid
+      resolve(userObj)
+    })
+  },
+  async setUserTeamOf ({ commit }, uid) {
+    return new Promise(async resolve => {
+      var user = await db.collection(COLLECTIONS_ENUM.users).doc(uid).get()
+        .then((d) => {
+          var user = d.data()
+          user.uid = d.id
+          return user
+        })
+      commit('replaceTeamsThatUserBelongs', user.team)
+      commit('replaceCurrentTeam', user.currentTeam)
+      commit('replaceTeamAsGuest', user.teamAsGuest)
+
+      resolve(user.team)
+    })
+  },
+  async updateUserTeamAsGuest ({ commit, state }, data) {
+    return new Promise(async resolve => {
+      await db.collection(COLLECTIONS_ENUM.users).doc(data.uid)
+        .update({
+          teamAsGuest: firebase.firestore.FieldValue.arrayUnion(data.teamId)
+        })
+
+      commit('pushTeamAsGuest', data.teamId)
+
+      resolve('succeed')
+    })
+  },
+  // for Plan
+  async updatePlanOfUser ({ commit }, data) {
+    return new Promise(async resolve => {
+      await db.collection(COLLECTIONS_ENUM.users).doc(data.uid).update({
+        plan: data.plan
+      })
+      resolve('succeeded')
+    })
+  },
+  async getPlanOfUser ({ commit }, uid) {
+    return new Promise(async resolve => {
+      var user = await db.collection(COLLECTIONS_ENUM.users).doc(uid).get()
+        .then((d) => {
+          var user = d.data()
+          user.uid = d.id
+          return user
+        })
+      resolve(user.plan)
+    })
   }
 }

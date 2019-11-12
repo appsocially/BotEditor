@@ -1,33 +1,40 @@
 <template lang="pug">
-
-  div(v-if="project").wrap-util
-    div.util-content.f.fc
-      div.icon-left.f.fm
-        div.mr8
-          v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
-          v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
-        div
-          v-icon(@click="$router.push('/top')" color="#FF9A0A") home
-        // span(@click="$router.push('/openbots')").logo BotEditor
-      div.label.f.fm
-        div(@click="toggleModal" v-if="project.author === uid").bot-icon.f.fh
-          img(:src="project.botIcon")
-        span.line-clamp-1.ml8 {{project.title}}
-        // v-icon(
-          @click="toggleModal"
-          v-if="project.author === uid"
-          color='#FF9A0A').settings.pb2 settings
-      div.icon-right.f.fm
-        //span test-r
-        div(v-if="!uid && project.publishedAsFormat").wrap-get-started.f.fm
-          span(@click="toSignIn").sign-in.mr16 {{this.$t("canvas.header.sign_in")}}
-          span(@click="toSignUpWithBot").sign-up.px10.py6 {{this.$t("canvas.header.start_with_bot")}}
-        div(v-else-if="project.author !== uid && uid && project.publishedAsFormat")
-          div(@click="onImport").import-button.f.fm.pl2.pr12.py3
-            v-icon play_for_work
-            span {{this.$t("canvas.header.clone")}}
-    div(v-if="project.author !== uid").notify-unauthed.f.fh
-      span {{this.$t("canvas.header.no_right")}}
+  Auth(@loggedIn="onLoggedIn")
+    div(v-if="project").wrap-util
+      div.util-content.f.fc
+        div.icon-left.f.fm
+          div.mr8
+            v-icon(v-if="!showDrawer" @click="toggleDrawer" color="#FF9A0A") dehaze
+            v-icon(v-else @click="toggleDrawer" color="#FF9A0A") close
+          div
+            v-icon(@click="$router.push('/top')" color="#FF9A0A") home
+          // span(@click="$router.push('/openbots')").logo BotEditor
+        div.label.f.fm
+          div(@click="toggleModal" v-if="project.author === uid").bot-icon.f.fh
+            img(:src="project.botIcon")
+          span.line-clamp-1.ml8 {{project.title}}
+          // v-icon(
+            @click="toggleModal"
+            v-if="project.author === uid"
+            color='#FF9A0A').settings.pb2 settings
+        div.icon-right.f.fm
+          //span test-r
+          div(v-if="project.author === uid")
+            div(v-if="!project.isAddeToTeamAsBot" @click="onAddBotToTeam").add-bot-to-team-button.right-button.f.fm.pl2.pr12.py5
+              v-icon(color="#fff" size="20px") person_add
+              span {{this.$t("canvas.header.add_bot")}}
+            div(v-else).f.fm.pl2.pr12.py5
+              v-icon(size="20px").mr4 check
+              span Added
+          div(v-else-if="isAnonymous || (!uid && project.publishedAsFormat)").wrap-get-started.f.fm
+            span(@click="toSignIn").sign-in.mr16 {{this.$t("canvas.header.sign_in")}}
+            span(@click="toSignUpWithBot").sign-up.px10.py6 {{this.$t("canvas.header.start_with_bot")}}
+          div(v-else-if="project.author !== uid && uid && project.publishedAsFormat")
+            div(@click="onImport").import-button.right-button.f.fm.pl2.pr12.py3
+              v-icon(color="#fff" size="24px") play_for_work
+              span {{this.$t("canvas.header.clone")}}
+      div(v-if="project.author !== uid").notify-unauthed.f.fh
+        span {{this.$t("canvas.header.no_right")}}
 
 </template>
 
@@ -106,14 +113,12 @@
           color: #FF9A0A;
         }
       }
-      .import-button {        
+      .right-button {        
         background: #FF9A0A;
         cursor: pointer;
         border-radius: 3px;
         i {
-          font-size: 24px;
           width: 30px;
-          color: #FFF !important;
         }
         span {
           color: #FFF;
@@ -137,19 +142,18 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex"
-import { setTimeout } from 'timers';
+import { setTimeout } from 'timers'
+import Auth from '@/components/auth'
 
-const { mapState: mapStateAuth } = createNamespacedHelpers(
- "auth"
-)
-const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
- "project"
-)
-const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers(
- "scenario"
-)
+const { mapState: mapStateAuth } = createNamespacedHelpers("auth")
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers("project")
+const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers("scenario")
+const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers('team')
 
 export default {
+  components: {
+    Auth
+  },
   props: {
     showDrawer: {
       type: Boolean,
@@ -161,14 +165,38 @@ export default {
       
     }
   },
+  computed: {
+    ...mapStateAuth([
+      'uid',
+      'isSigningOut',
+      'userDisplayName',
+      'isAnonymous'
+    ]),
+    ...mapStateProject([
+      'project',
+    ]),
+    ...mapStateScenario([
+      'scenarioArray',
+    ]),
+    ...mapStateTeam([
+      'team'
+    ])
+  },
   methods: {
     ...mapActionsProject([
-      'copyProject'
+      'copyProject',
+      'addBotToTeam'
     ]),
     ...mapActionsScenario([
       'resetScenario',
       'loadScenarioByProjectId'
     ]),
+    ...mapActionsTeam([
+      'loadCurrentTeam'
+    ]),
+    onLoggedIn () {
+      this.loadCurrentTeam(this.uid)
+    },
     toggleModal () {
       this.$emit('toggleModal')
     },
@@ -198,22 +226,13 @@ export default {
 
       alert("The scenario has been imported as your new Bot!!")
     },
+    async onAddBotToTeam () {
+      var setPrimaryByThisBot = (this.team.primary === this.uid)? true : false
+      this.addBotToTeam({ uid: this.uid, teamId: this.team.id, setPrimaryByThisBot })
+    },
     toggleDrawer () {
       this.$emit("toggleDrawer")
     }
-  },
-  computed: {
-    ...mapStateAuth([
-      'uid',
-      'isSigningOut',
-      'userDisplayName'
-    ]),
-    ...mapStateProject([
-      'project',
-    ]),
-    ...mapStateScenario([
-      'scenarioArray',
-    ])
   }
 };
 </script>

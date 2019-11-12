@@ -74,7 +74,7 @@ export default {
     UtilHeader,
     ItemProjectCard
   },
-  data() {
+  data () {
     return {
       label: '',
       projects: [],
@@ -89,11 +89,18 @@ export default {
       },
       headerRight: [
         {
-          label: this.$t("navigation.my_bots"),
+          // label: this.$t("navigation.my_bots"),
+          icon: "home",
           to: "/top"
         },
         {
-          label: this.$t("navigation.team"),
+          // label: this.$t("navigation.team"),
+          icon: "inbox",
+          to: "/inbox"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "group",
           to: "/team"
         }
         // {
@@ -114,12 +121,19 @@ export default {
           label: this.$t("navigation.sign_out"),
           to: "/sign-in"
         }
-      ],
-      // headerRight: {
-      //   label: "My Bots",
-      //   to: "/top"
-      // },
+      ]
     }
+  },
+  watch: {
+    botName: function(newVal, oldVal){
+      this.inputBotName = newVal
+    }
+  },
+  computed: {
+    ...mapState([
+      'uid',
+      'isAnonymous'
+    ]),
   },
   created: async function(){
     
@@ -133,6 +147,8 @@ export default {
       this.$router.push('sign-in')
     },
     async onLoggedIn({ onboardingData }) {
+
+      if (this.isAnonymous) this.$router.push('sign-in')
 
       // for debug
       window.signOut = this.signOut
@@ -289,16 +305,6 @@ export default {
         return (e.id !== id)
       })
     }
-  },
-  watch: {
-    botName: function(newVal, oldVal){
-      this.inputBotName = newVal
-    }
-  },
-  computed: {
-    ...mapState([
-      'uid',
-    ]),
   }
 };
 </script>

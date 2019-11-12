@@ -73,7 +73,7 @@ export default new Router({
     },
     {
       path: "/chat/:id",
-      name: "chat",
+      name: "preview_chat",
       component: Conversation
     },
     // for Inbox
@@ -83,6 +83,38 @@ export default new Router({
       component: () =>
         import('@/views/Team')
     },
+    {
+      path: "/inbox",
+      name: "inbox",
+      component: () =>
+        import('@/views/Inbox')
+    },
+    {
+      path: '/:teamId',
+      name: 'chat',
+      component: () =>
+        import('@/views/Chat')
+    },
+    {
+      path: '/:teamId/:uid',
+      name: 'chat',
+      component: () =>
+        import('@/views/Chat')
+    },
+    {
+      path: '/profile/:teamId/:uid',
+      name: 'profile',
+      props: true,
+      component: () =>
+        import('@/views/Profile')
+    },
+    // {
+    //   path: '/:teamId/:uid',
+    //   name: 'chat',
+    //   props: true,
+    //   component: () =>
+    //     import('@/views/Chat')
+    // },
     // for v1
     {
       path: "/conversation/:id",

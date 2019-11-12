@@ -2,7 +2,7 @@
   Auth(:on-failed-authentication="onFailedAuthentication")
     UtilHeader(:leftIcon="headerLeft" :rightIcon="headerRight" :othersList="othersList")
     div.wrap-home
-      ModuleTeam
+      ModuleInbox(v-if="uid")
 
 </template>
 
@@ -18,18 +18,21 @@
 import Auth from '@/components/auth'
 
 import UtilHeader from '@/components/util/UtilHeader'
-import ModuleTeam from '@/components/module/ModuleTeam'
+import ModuleInbox from '@/components/module/ModuleInbox'
+
+import { createNamespacedHelpers } from 'vuex'
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers('auth')
 
 export default {
   components: {
     Auth,
     UtilHeader,
-    ModuleTeam
+    ModuleInbox
   },
-  methods: {
-    onFailedAuthentication () {
-      this.$router.push('/sign-in')
-    }
+  computed: {
+    ...mapStateAuth([
+      'uid'
+    ])
   },
   data () {
     return {
@@ -72,6 +75,11 @@ export default {
           to: "/sign-in"
         }
       ]
+    }
+  },
+  methods: {
+    onFailedAuthentication () {
+      this.$router.push('/sign-in')
     }
   }
 }

@@ -4,7 +4,7 @@ import 'firebase/app'
 import "firebase/firestore"
 import "firebase/storage"
 import "firebase/auth"
-import firebaseConfig from "./firebaseConfig"
+import firebaseConfig, { api, stripeKey } from "./config"
 
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 
@@ -14,4 +14,4 @@ const firestore = firebaseApp.firestore()
 
 export default firebaseApp.firestore()
 // export {strage}
-export {firestore, firebase, strage, auth}
+export {firestore, firebase, strage, auth, api, stripeKey}

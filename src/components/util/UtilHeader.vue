@@ -10,9 +10,12 @@
       div.icon-right.f.fm
         //a(v-if="rightIcon && rightIcon.label" @click="onRight") {{rightIcon.label}}
         //span(v-else)
-        a(v-for="item in rightIcon" @click="onRight(item.to)").mr12 {{item.label}}
+        div(v-for="item in rightIcon" @click="onRight(item.to)").mr10
+          span(v-if="item.label") {{item.label}}
+          v-icon(v-if="item.icon") {{item.icon}}
         div(v-if="othersList").wrap-others
-          a(@click="toggleOthersList") {{$t("navigation.others")}}
+          // a(@click="toggleOthersList") {{$t("navigation.others")}}
+          v-icon(@click="toggleOthersList" size="24") more_horizon
           div(v-if="showOthersList").others-list.px12.pb8
             a(v-for="item in othersList" @click="onInOthers(item.to)" :class="item.to.replace('/', '')").mt8 {{item.label}}
 
@@ -33,7 +36,7 @@
   .util-content {
     position: relative;
     margin: 0 auto;
-    width: 90%;
+    width: 92%;
     max-width: 1048px;
     height: 100%;
     .icon-left {
@@ -58,6 +61,7 @@
       }
       .wrap-others {
         position: relative;
+        width: 24px;
         .others-list {
           filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
           background: #FFF;

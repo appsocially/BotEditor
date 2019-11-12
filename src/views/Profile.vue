@@ -1,13 +1,13 @@
 <template lang="pug">
   Auth(:on-failed-authentication="onFailedAuthentication")
     UtilHeader(:leftIcon="headerLeft" :rightIcon="headerRight" :othersList="othersList")
-    div.wrap-home
-      ModuleTeam
+    div.wrap-profile
+      ModuleProfile(v-if="user" :user="user")
 
 </template>
 
 <style lang="scss">
-.wrap-home {
+.wrap-profile {
   width: 100%;
   min-height: 100vh;
   padding: 48px 0px;
@@ -18,21 +18,27 @@
 import Auth from '@/components/auth'
 
 import UtilHeader from '@/components/util/UtilHeader'
-import ModuleTeam from '@/components/module/ModuleTeam'
+import ModuleProfile from '@/components/module/ModuleProfile'
+
+import { createNamespacedHelpers } from 'vuex'
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers('auth')
+const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers('team')
 
 export default {
   components: {
     Auth,
     UtilHeader,
-    ModuleTeam
+    ModuleProfile
   },
-  methods: {
-    onFailedAuthentication () {
-      this.$router.push('/sign-in')
-    }
+  computed: {
+    ...mapStateAuth([
+      'uid',
+      'isAnonymous'
+    ])
   },
   data () {
     return {
+      user: null,
       headerLeft: {
         //to: "/openbots"
         to: "/top"
@@ -72,6 +78,17 @@ export default {
           to: "/sign-in"
         }
       ]
+    }
+  },
+  async created () {
+    this.user = await this.getUserByUid(this.$route.params.uid)
+  },
+  methods: {
+    ...mapActionsTeam([
+      'getUserByUid'
+    ]),
+    onFailedAuthentication () {
+      this.$router.push('/sign-in')
     }
   }
 }

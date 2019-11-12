@@ -19,6 +19,11 @@ export default {
   messagingSenderId: "962503874281"
 }
 
+const api = "https://us-central1-bot-editor-dev.cloudfunctions.net"
+//const api = "http://localhost:5000/bot-editor-dev/us-central1"
+const stripeKey = "pk_test_J5Wi6Z7mtNhAEAI9QXGdUIl400EGRhCfTX"
+export { api, stripeKey }
+
 // For Prod
 // export default {
 //   apiKey: "AIzaSyCmHqMdiSIy8t9SSGDwQ7N44V-CMsxv8Is",
@@ -28,3 +33,7 @@ export default {
 //   storageBucket: "bot-editor-prod.appspot.com",
 //   messagingSenderId: "938144697052"
 // }
+
+// const api = "https://us-central1-bot-editor-prod.cloudfunctions.net"
+// const stripeKey = "pk_test_J5Wi6Z7mtNhAEAI9QXGdUIl400EGRhCfTX"
+// export { api, stripeKey }

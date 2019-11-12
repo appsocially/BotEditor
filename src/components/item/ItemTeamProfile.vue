@@ -70,7 +70,7 @@ export default {
     ...mapStateTeam(['primaryUser'])
   },
   async created () {
-    this.teamURI = `${location.host}/chat/${this.team.id}`
+    this.teamURI = `${location.host}/${this.team.id}`
     this.qrSrc = await this.getImageQR(this.teamURI)
   },
   methods: {

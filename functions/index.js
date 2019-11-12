@@ -1,26 +1,42 @@
 const functions = require('firebase-functions')
 const firestore = require('firebase/firestore')
 const admin = require('firebase-admin')
+const FieldValue = admin.firestore.FieldValue
+const mailSender = require('./mailSender')
 
-// Dev
-// admin.initializeApp({
-//   apiKey: "AIzaSyC0VOO9oTOxKTH2uoVVMeJOzFNz5Paiw5s",
-//   authDomain: "bot-editor-dev.firebaseapp.com",
-//   databaseURL: "https://bot-editor-dev.firebaseio.com",
-//   projectId: "bot-editor-dev",
-//   storageBucket: "bot-editor-dev.appspot.com",
-//   messagingSenderId: "962503874281"
-// })
+const mode = "dev"
 
-// Prod
-admin.initializeApp({
-  apiKey: "AIzaSyCmHqMdiSIy8t9SSGDwQ7N44V-CMsxv8Is",
-  authDomain: "bot-editor-prod.firebaseapp.com",
-  databaseURL: "https://bot-editor-prod.firebaseio.com",
-  projectId: "bot-editor-prod",
-  storageBucket: "bot-editor-prod.appspot.com",
-  messagingSenderId: "938144697052"
-})
+if (mode === "dev") {
+  // Dev
+  admin.initializeApp({
+    apiKey: "AIzaSyC0VOO9oTOxKTH2uoVVMeJOzFNz5Paiw5s",
+    authDomain: "bot-editor-dev.firebaseapp.com",
+    databaseURL: "https://bot-editor-dev.firebaseio.com",
+    projectId: "bot-editor-dev",
+    storageBucket: "bot-editor-dev.appspot.com",
+    messagingSenderId: "962503874281"
+  })
+
+  var stripeKey = 'sk_test_ZluOqOvwXDnfxjOn7c6h2LqO00SVQfjQu0'
+  var stripe = require('stripe')(stripeKey)
+
+  var domain = "https://bot-editor-dev.firebaseapp.com"
+} else if (mode === "prod") {
+  // Prod
+  admin.initializeApp({
+    apiKey: "AIzaSyCmHqMdiSIy8t9SSGDwQ7N44V-CMsxv8Is",
+    authDomain: "bot-editor-prod.firebaseapp.com",
+    databaseURL: "https://bot-editor-prod.firebaseio.com",
+    projectId: "bot-editor-prod",
+    storageBucket: "bot-editor-prod.appspot.com",
+    messagingSenderId: "938144697052"
+  })
+
+  var stripeKey = 'sk_test_ZluOqOvwXDnfxjOn7c6h2LqO00SVQfjQu0'
+  var stripe = require('stripe')(stripeKey)
+
+  var domain = "https://editor.chatcenter.ai"
+}
 
 const db = admin.firestore()
 
@@ -30,6 +46,7 @@ db.settings({
 
 const cors = require('cors')({origin: true})
 
+// APIs
 exports.getScenario = functions.https.onRequest((req, res) => {
 
   res.set('Access-Control-Allow-Origin', '*');
@@ -89,20 +106,115 @@ exports.getProject = functions.https.onRequest((req, res) => {
 
 })
 
-// var getScenario = async (id) => {
-  // const uri = 'http://localhost:5000/bot-editor-prod/us-central1/getScenario'
-  //   const response = await fetch(uri, {
-  //     method: 'POST',
-  //     mode: 'cors',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Accept': 'application/json'
-  //     },
-  //     body: JSON.stringify({
-  //       'scenarioId': id
-  //     })
-  //   })
-  // var result = await response.json()
-//     console.log('result:', result)
-// }
 
+
+// triggers
+exports.createRoom = functions.firestore
+  .document(`teams/{teamId}/rooms/{roomId}`)
+  .onCreate(async (doc, context) => {
+    console.log('createRoom', doc.data())
+    var room = doc.data()
+    await db.collection('teams').doc(room.teamId).update({
+      roomNum: FieldValue.increment(1)
+    })
+    var team = await db.collection('teams')
+      .doc(room.teamId)
+      .get()
+      .then((d) => {
+        var team = d.data()
+        team.id = d.id
+        return team
+      })
+
+    var email = await db.collection('users').doc(team.author)
+      .collection('secrets').doc('email')
+      .get().then((d) => { return d.data().email })
+
+    var subject = '[Chatcenter.Ai] ボットにアクセスがありました。'
+    var text = `誰かがあなたのボットにアクセスしました。\n\n ${domain}/profile/${team.id}/${doc.id}`
+    mailSender(email, subject, text)
+
+    // await updateStripeInformation({
+    //   idempotencyKey: `${doc.id}-create`,
+    //   uid: team.author,
+    //   num: team.roomNum
+    // }, context, db)
+  })
+
+
+
+
+// For Stripe
+const INDIVIDUAL_CUSTOMVAR_CRM_PLAN = 'INDIVIDUAL_CUSTOMVAR_CRM_PLAN'
+
+exports.getStripeSession = functions.https.onRequest((req, res) => {
+  // res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+  res.set('Access-Control-Allow-Headers', 'Content-Type')
+
+  cors(req, res, async function () {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      subscription_data: {
+        items: [{
+          plan: req.body.plan
+        }]
+      },
+      success_url: `${req.body.origin}/inbox?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.body.origin}/inbox?session_id=error`
+    })
+
+    await db.collection('sessions').doc(session.id).set({
+      sessionId: session.id,
+      uid: req.body.uid,
+      createdAt: new Date(),
+      plan: req.body.plan
+    })
+
+    res.status(200).send(session).end()
+
+  }) // cors
+})
+
+exports.webhook = functions.https.onRequest((req, res) => {
+  // res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+  res.set('Access-Control-Allow-Headers', 'Content-Type')
+  console.log('call webhook')
+  cors(req, res, async function () {
+    const sig = req.headers['stripe-signature']
+
+    let event
+
+    try {
+      event = stripe.webhooks.constructEvent(req.rawBody, sig, 'whsec_lVI6NHaDV6fvk2DIO8LrH4nKk8OVnGTl')
+      console.log('event:', event)
+      console.log('event.data.object:', event.data.object)
+      // res.status(200).end({ message: 'succeeded' })
+    } catch (err) {
+      return res.status(400).send(`Webhook Error: ${err.message}`)
+    }
+
+    // Handle the checkout.session.completed event
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object
+      console.log('session before handler:', session)
+
+      var sessionDoc = await db.collection('sessions').doc(session.id).get()
+      if (sessionDoc.exists) {
+        var plan = sessionDoc.data().plan
+        console.log("session plan:", plan)
+        await db.collection('users')
+          .doc(sessionDoc.data().uid)
+          .update({
+            plan: plan
+          })
+      }
+    }
+
+    // Return a response to acknowledge receipt of the event
+    res.status(200).send({ received: true }).end()
+  }) // cors
+})

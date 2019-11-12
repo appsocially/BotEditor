@@ -2,7 +2,7 @@
   Auth(@loggedIn="loggedIn" :on-failed-authentication="onFailedAuthentication")
     div.wrap-module-team.pt40
       ItemTeamProfile(v-if="team" :team="team").mb40
-      // div.wrap-member
+      div.wrap-member
         ItemTeamMember(v-for="member in memberUsers" v-if="member.type === 'bot'"
           :member="member"
           :key="member.uid")
@@ -10,7 +10,7 @@
           v-if="member.type === 'human' && !member.isAnonymous"
           :member="member"
           :key="member.uid")
-        span(@click="logout") Sign Out
+        // span(@click="logout") Sign Out
 
 </template>
 
@@ -28,7 +28,7 @@
 import { createNamespacedHelpers } from 'vuex'
 import Auth from '@/components/auth'
 import ItemTeamProfile from '@/components/item/ItemTeamProfile'
-// import ItemTeamMember from '@/components/item/ItemTeamMember'
+import ItemTeamMember from '@/components/item/ItemTeamMember'
 const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers('auth')
 const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers('team')
 
@@ -36,7 +36,7 @@ export default {
   components: {
     Auth,
     ItemTeamProfile,
-    // ItemTeamMember
+    ItemTeamMember
   },
   computed: {
     ...mapStateAuth(['uid']),
@@ -45,12 +45,12 @@ export default {
   methods: {
     ...mapActionsAuth(['signOut']),
     ...mapActionsTeam(['loadCurrentTeam']),
-    logout () {
-      this.signOut()
-      setTimeout(() => {
-        this.$router.push('/sign-in')
-      }, 400)
-    },
+    // logout () {
+    //   this.signOut()
+    //   setTimeout(() => {
+    //     this.$router.push('/sign-in')
+    //   }, 400)
+    // },
     loggedIn () {
       this.loadCurrentTeam(this.uid)
     },

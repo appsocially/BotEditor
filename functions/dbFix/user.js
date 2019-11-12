@@ -63,6 +63,7 @@ var changeUserModel = async () => {
       name: currentUsers[i].name,
       plan: "BASIC_PLAN",
       profile: "No Profile",
+      roomNum: 0,
       team: [teamId],
       type: "human",
       uid: currentUsers[i].uid

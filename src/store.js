@@ -5,6 +5,8 @@ import * as project from "./store/project"
 import * as scenario from "./store/scenario"
 import * as edges from "./store/edges"
 import * as team from "./store/team"
+import * as room from "./store/room"
+import * as scenarioForChat from "./store/scenarioForChat"
 
 Vue.use(Vuex)
 
@@ -35,6 +37,14 @@ export default new Vuex.Store({
     team: {
       namespaced: true,
       ...team
+    },
+    room: {
+      namespaced: true,
+      ...room
+    },
+    scenarioForChat: {
+      namespaced: true,
+      ...scenarioForChat
     }
     //scenario, // memo: means scenarion: scenario
     //projects

@@ -1,4 +1,5 @@
 import db, { firebase } from '@/components/firebaseInit'
+import { COLLECTIONS_ENUM } from '@/enums'
 // import firestore from '@/components/firebaseInit'
 // import { firestore } from '@/components/firebaseInit'
 
@@ -61,6 +62,26 @@ export const mutations = {
   },
   updateSubscriptionEnder(state, value) {
     state.subscriptionEnder = value
+  },
+  replaceTeamsThatUserBelongs (state, value) {
+    if (state.teamsThatUserBelongs) {
+      state.teamsThatUserBelongs = value
+    } else {
+      state.teamsThatUserBelongs = []
+    }
+  },
+  replaceCurrentTeam (state, currentTeam) {
+    state.currentTeam = currentTeam
+  },
+  replaceTeamAsGuest (state, teamAsGuest) {
+    state.teamAsGuest = teamAsGuest
+  },
+  pushTeamAsGuest (state, teamId) {
+    if (state.teamAsGuest) {
+      state.teamAsGuest = state.teamAsGuest.push(teamId)
+    } else {
+      state.teamAsGuest = [teamId]
+    }
   }
 }
 

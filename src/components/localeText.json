@@ -133,6 +133,7 @@
       },
       "header": {
         "sign_in": "Sign In",
+        "add_bot": "Add the bot to Team",
         "clone": "Use the Bot Format",
         "start_with_bot": "Sign Up with this Bot",
         "no_right": "You don't have the right to edit."
@@ -273,6 +274,7 @@
       },
       "header": {
         "sign_in": "サインイン",
+        "add_bot": "ボットをチームに追加",
         "clone": "このシナリオをコピー",
         "start_with_bot": "このボットでサインアップ",
         "no_right": "編集権限がありません。"

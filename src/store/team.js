@@ -1,5 +1,6 @@
 import db from '@/components/firebaseInit'
 import { COLLECTIONS_ENUM } from '@/enums'
+import { api } from "@/components/firebaseInit"
 
 export const state = () => ({
   team: null,
@@ -42,7 +43,7 @@ export const mutations = {
     var primaryMember = state.memberUsers.filter((e) => { return (e.uid === state.team.primary) })[0]
 
     if (primaryMember.type === 'bot') {
-      const api = 'https://us-central1-bot-editor-prod.cloudfunctions.net'
+      // const api = 'https://us-central1-bot-editor-prod.cloudfunctions.net'
       const response = await fetch(`${api}/getProject`, {
         method: 'POST',
         mode: 'cors',

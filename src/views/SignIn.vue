@@ -62,6 +62,18 @@ export default {
       loggingIn: true
     }
   },
+  computed: {
+    ...mapStateAuth([
+      'uid',
+      'isAnonymous'
+    ]),
+    ...mapStateProject([
+      'project',
+    ]),
+    ...mapStateScenario([
+      'scenarioArray',
+    ])
+  },
   methods: {
     ...mapActionsProject([
       'loadProject',
@@ -74,9 +86,9 @@ export default {
       this.loggingIn = false
     },
     async onLoggedIn({ onboardingData }) {
-
+      
       var userDoc = await db.collection('users').doc(this.uid).get()
-
+      
       if(!userDoc.exists){
         var user = await firebase.auth().currentUser
 
@@ -112,7 +124,11 @@ export default {
         }
       }
 
-      this.$router.push('/top')
+      if (!this.isAnonymous) {
+        this.$router.push('/top')
+      } else {
+        this.loggingIn = false
+      }
 
       /*
       if (!!onboardingData) {
@@ -125,17 +141,6 @@ export default {
     /*signOut() {
       await firebase.auth().signOut();
     }*/
-  },
-  computed: {
-    ...mapStateAuth([
-      'uid',
-    ]),
-    ...mapStateProject([
-      'project',
-    ]),
-    ...mapStateScenario([
-      'scenarioArray',
-    ])
   }
 }
 </script>

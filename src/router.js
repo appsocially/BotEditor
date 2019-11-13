@@ -27,8 +27,8 @@ export default new Router({
       component: Top
     },
     {
-      path: "/openbots",
-      name: "openbots",
+      path: "/store",
+      name: "store",
       component: Bots
     },
     {

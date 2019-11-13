@@ -34,20 +34,17 @@ export const mutations = {
 export const actions = {
   async loadScenarioOf ({ commit }, projectId) {
     return new Promise(async resolve => {
-      // const api = 'https://us-central1-bot-editor-prod.cloudfunctions.net'
-      const response = await fetch(`${api}/getScenario`, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          'scenarioId': projectId
+      var scenario = await db.collection("projects")
+        .doc(projectId)
+        .collection("scenario")
+        .get()
+        .then((q) => {
+          return q.docs.map((d) => {
+            var scenario = d.data()
+            scenario.id = d.id
+            return scenario
+          })
         })
-      })
-      var scenarioResult = await response.json()
-      var scenario = scenarioResult.scenario
       commit('replaceCurrentScenario', scenario)
       resolve(scenario)
     })

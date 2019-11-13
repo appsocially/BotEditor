@@ -47,7 +47,8 @@ export const actions = {
         createdBy: data.anonymousUid,
         createdAt: new Date(),
         updatedAt: new Date(),
-        assignedUid: data.assignedUid
+        assignedUid: data.assignedUid,
+        isRead: false
       }
       
       await db.collection(COLLECTIONS_ENUM.teams)
@@ -181,21 +182,13 @@ export const actions = {
       // (MEMO) use promise all
       for (var i = 0; i < users.length; i++) {
         if (users[i].type === 'bot') {
-          // const api = 'https://us-central1-bot-editor-prod.cloudfunctions.net'
-          const response = await fetch(`${api}/getProject`, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-              'scenarioId': users[i].projectId // state.team.primary
-            })
-          })
-          var projectResult = await response.json()
-          users[i].iconURL = projectResult.project.botIcon
-          users[i].name = projectResult.project.title
+          var project = await db.collection("projects")
+            .doc(users[i].projectId)
+            .get()
+            .then((d) => { return d.data() })
+          
+          users[i].iconURL = project.botIcon
+          users[i].name = project.title
         }
       }
 

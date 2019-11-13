@@ -92,24 +92,54 @@ export default {
       if(!userDoc.exists){
         var user = await firebase.auth().currentUser
 
-        var userObj = {
-          uid: user.uid,
+        // var userObj = {
+        //   uid: user.uid,
+        //   name: user.displayName,
+        //   email: user.email,
+        //   photoUrl: user.photoURL,
+        //   lastSignInTime: user.metadata.lastSignInTime,
+        //   creationTime: user.metadata.creationTime
+        // }
+
+        // await db.collection("users")
+        //   .doc(user.uid)
+        //   .set(userObj)
+        //   .then(function() {
+        //     console.log("Document successfully written!")
+        //   })
+        //   .catch(function(error) {
+        //     console.error("Error writing document: ", error)
+        //   })
+
+        var teamObj = {
+          author: user.uid,
+          iconURL: "https://firebasestorage.googleapis.com/v0/b/chatcenter-min-ui.appspot.com/o/util%2Fcc-logo.png?alt=media&token=3554e2f5-8a27-44e3-a8d6-365fe5554852",
+          name: `Team ${user.displayName}`,
+          primary: user.uid
+        }
+        var teamId = await db.collection("teams").add(teamObj).then((d) => {
+          return d.id
+        })
+        
+        var newUserObj = {
+          createdAt: new Date(),
+          currentTeam: teamId,
+          iconURL: "https://firebasestorage.googleapis.com/v0/b/chatcenter-min-ui.appspot.com/o/util%2Fcc-logo.png?alt=media&token=3554e2f5-8a27-44e3-a8d6-365fe5554852",
+          isAnonymous: false,
+          lastSignInTime: new Date(),
           name: user.displayName,
-          email: user.email,
-          photoUrl: user.photoURL,
-          lastSignInTime: user.metadata.lastSignInTime,
-          creationTime: user.metadata.creationTime
+          plan: "BASIC_PLAN",
+          profile: "No Profile",
+          roomNum: 0,
+          team: [teamId],
+          type: "human",
+          uid: user.uid
         }
 
-        await db.collection("users")
-          .doc(user.uid)
-          .set(userObj)
-          .then(function() {
-            console.log("Document successfully written!")
-          })
-          .catch(function(error) {
-            console.error("Error writing document: ", error)
-          })
+        await db.collection("users").doc(user.uid).set(newUserObj)
+        db.collection("users").doc(user.uid)
+          .collection("secrets").doc("email")
+          .set({ author: user.uid, email: user.email })
 
         if(this.$route.params.projectId) {
           var project = await this.loadProject(this.$route.params.projectId)

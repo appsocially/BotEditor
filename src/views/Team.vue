@@ -52,6 +52,11 @@ export default {
           // label: this.$t("navigation.team"),
           icon: "group",
           to: "/team"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "local_grocery_store",
+          to: "/store"
         }
         // {
         //   label: this.$t("navigation.open_bots"),

@@ -71,6 +71,7 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState: mapStateTeam } = createNamespacedHelpers('team')
+const { mapActions: mapActionsProject } = createNamespacedHelpers('project')
 import { api } from "@/components/firebaseInit"
 
 export default {
@@ -91,21 +92,8 @@ export default {
   },
   async created () {
     if (this.member.type === 'bot') {
-      // const api = 'https://us-central1-bot-editor-prod.cloudfunctions.net'
-      const response = await fetch(`${api}/getProject`, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          'scenarioId': this.member.projectId
-        })
-      })
-      
-      var projectResult = await response.json()
-      var project = projectResult.project
+
+      var project = await this.getProject(this.member.projectId)
       
       this.botUser = {
         author: this.member.author,
@@ -121,7 +109,9 @@ export default {
     if (this.team.primary === this.member.uid) this.isPrimary = true
   },
   methods: {
-
+    ...mapActionsProject([
+      'getProject'
+    ])
   }
 }
 </script>

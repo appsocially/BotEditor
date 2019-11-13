@@ -20,10 +20,10 @@
         div.icon-right.f.fm
           //span test-r
           div(v-if="project.author === uid")
-            div(v-if="!project.isAddeToTeamAsBot" @click="onAddBotToTeam").add-bot-to-team-button.right-button.f.fm.pl2.pr12.py5
+            div(v-if="!project.isAddedToTeamAsBot" @click="onAddBotToTeam").add-bot-to-team-button.right-button.f.fm.pl2.pr12.py5
               v-icon(color="#fff" size="20px") person_add
               span {{this.$t("canvas.header.add_bot")}}
-            div(v-else).f.fm.pl2.pr12.py5
+            div(v-else-if="!showAddBotButtun").f.fm.pl2.pr12.py5
               v-icon(size="20px").mr4 check
               span Added
           div(v-else-if="isAnonymous || (!uid && project.publishedAsFormat)").wrap-get-started.f.fm
@@ -162,7 +162,12 @@ export default {
   },
   data() {
     return {
-      
+      showAddBotButtun: true
+    }
+  },
+  watch :{
+    project: (updatedProject) => {
+      // if (this.showAddBotButtun && updatedProject.isAddedToTeamAsBot) this.showAddBotButtun = false
     }
   },
   computed: {
@@ -227,8 +232,10 @@ export default {
       alert("The scenario has been imported as your new Bot!!")
     },
     async onAddBotToTeam () {
+      this.showAddBotButtun = false
       var setPrimaryByThisBot = (this.team.primary === this.uid)? true : false
       this.addBotToTeam({ uid: this.uid, teamId: this.team.id, setPrimaryByThisBot })
+      alert("Your bot has been added to your team!")
     },
     toggleDrawer () {
       this.$emit("toggleDrawer")

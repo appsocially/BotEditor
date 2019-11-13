@@ -43,20 +43,8 @@ export const mutations = {
     var primaryMember = state.memberUsers.filter((e) => { return (e.uid === state.team.primary) })[0]
 
     if (primaryMember.type === 'bot') {
-      // const api = 'https://us-central1-bot-editor-prod.cloudfunctions.net'
-      const response = await fetch(`${api}/getProject`, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          'scenarioId': primaryMember.projectId // state.team.primary
-        })
-      })
-      var projectResult = await response.json()
-      var project = projectResult.project
+
+      var project = await db.collection("projects").doc(primaryMember.projectId).get()
 
       state.primaryUser = {
         author: primaryMember.uid,

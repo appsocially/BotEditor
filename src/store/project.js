@@ -9,7 +9,7 @@ export const mutations = {
     state.project = value
   },
   activateBot(state) {
-    state.project.isAddeToTeamAsBot = true
+    state.project.isAddedToTeamAsBot = true
   },
   updateEditTime(state, id) {
     var now = new Date()
@@ -42,6 +42,20 @@ export const actions = {
       resolve(project)
     })
   },
+  async getProject({commit}, id) {
+    return new Promise(async resolve => {
+      // commit('loadProject', id)
+      var project = await db.collection("projects")
+        .doc(id)
+        .get()
+        .then(function(doc) {
+          var data = doc.data()
+          data.id = doc.id
+          return data
+        })
+      resolve(project)
+    })
+  },
   replaceProject({commit}, project) {
     commit('replaceProject', project)
   },
@@ -55,7 +69,7 @@ export const actions = {
         title: data.settings.title,
         discription: data.settings.discription,
         botIcon: data.settings.botIcon,
-        pulishedAsFormat: data.settings.pulishedAsFormat
+        publishedAsFormat: data.settings.pulishedAsFormat
       })
     commit('updateSettings', data.settings)
   },
@@ -116,7 +130,7 @@ export const actions = {
       isAnonymous: false
     }
     await db.collection("users").doc(state.project.id).set(botObj)
-    db.collection("projects").doc(state.project.id).update({ isAddeToTeamAsBot: true })
+    db.collection("projects").doc(state.project.id).update({ isAddedToTeamAsBot: true })
     commit("activateBot")
 
     if (data.setPrimaryByThisBot) {

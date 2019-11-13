@@ -2,7 +2,7 @@
 
   Auth(:on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn")
     div.wrap-bots-page.py48
-      util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight")
+      util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight" :othersList="othersList")
       div.wrapper.mt40
         div.wrap-projects.py40
           h2.mb20 {{this.$t("open_bots.title")}}
@@ -19,6 +19,9 @@
     width: 90%;
     max-width: 640px;
     margin: 0 auto;
+    h2 {
+      font-size: 16px;
+    }
     .card-wrapper {
       width: 49%;
     }
@@ -53,19 +56,50 @@ export default {
       botName: '',
       inputBotName: '',
       letCreate: true,
+      headerLeft: {
+        //to: "/openbots"
+        to: "/top"
+      },
       headerRight: [
         {
-          label: "My Bots",
+          // label: this.$t("navigation.my_bots"),
+          icon: "home",
           to: "/top"
         },
         {
-          label: "Open Bots",
-          to: "/openbots"
+          // label: this.$t("navigation.team"),
+          icon: "inbox",
+          to: "/inbox"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "group",
+          to: "/team"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "local_grocery_store",
+          to: "/store"
         }
+        // {
+        //   label: this.$t("navigation.open_bots"),
+        //   to: "/openbots"
+        // }
       ],
-      headerLeft: {
-        to: "/openbots"
-      }
+      othersList: [
+        {
+          label: this.$t("navigation.service_terms"),
+          to: "/service-terms"
+        },
+        {
+          label: this.$t("navigation.privacy_policy"),
+          to: "/privacy-policy"
+        },
+        {
+          label: this.$t("navigation.sign_out"),
+          to: "/sign-in"
+        }
+      ]
     }
   },
   created: async function(){
@@ -74,8 +108,8 @@ export default {
       .orderBy("editedAt", "desc")
       .where('publishedAsFormat', '==', true)
       //.where('author', '==', 'pc28zrjHf3gzOQ4kaYrhCVpDO3X2')
-      .get().then(function(doc) {
-        return doc.docs.map(function(doc){
+      .get().then(function(q) {
+        return q.docs.map(function(doc){
           var data = doc.data()
           data.id = doc.id
 

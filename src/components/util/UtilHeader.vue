@@ -36,7 +36,7 @@
   .util-content {
     position: relative;
     margin: 0 auto;
-    width: 92%;
+    width: 95%;
     max-width: 1048px;
     height: 100%;
     .icon-left {
@@ -91,9 +91,7 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex"
-const { mapState, mapActions } = createNamespacedHelpers(
- "auth"
-)
+const { mapState, mapActions } = createNamespacedHelpers("auth")
 
 export default {
   name: 'UtilHeader',

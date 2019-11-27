@@ -135,7 +135,7 @@
         "sign_in": "Sign In",
         "add_bot": "Add the bot to Team",
         "clone": "Use the Bot Format",
-        "start_with_bot": "Sign Up with this Bot",
+        "start_with_bot": "Clone",
         "no_right": "You don't have the right to edit."
       }
     }

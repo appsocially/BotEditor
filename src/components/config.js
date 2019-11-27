@@ -8,7 +8,6 @@
 //   messagingSenderId: process.env.VUE_APP_MESSAGING_SENDER_ID //"762202280051"
 // }
 
-
 // For Dev
 export default {
   apiKey: "AIzaSyC0VOO9oTOxKTH2uoVVMeJOzFNz5Paiw5s",
@@ -20,7 +19,7 @@ export default {
 }
 
 const api = "https://us-central1-bot-editor-dev.cloudfunctions.net"
-//const api = "http://localhost:5000/bot-editor-dev/us-central1"
+// const api = "http://localhost:5000/bot-editor-dev/us-central1"
 const stripeKey = "pk_test_J5Wi6Z7mtNhAEAI9QXGdUIl400EGRhCfTX"
 export { api, stripeKey }
 
@@ -35,5 +34,5 @@ export { api, stripeKey }
 // }
 
 // const api = "https://us-central1-bot-editor-prod.cloudfunctions.net"
-// const stripeKey = "pk_test_J5Wi6Z7mtNhAEAI9QXGdUIl400EGRhCfTX"
+// const stripeKey = "pk_live_hbnraerdEYfGBWCPoARilSeO00kYKzAL6s"
 // export { api, stripeKey }

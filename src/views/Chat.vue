@@ -1,6 +1,6 @@
 <template lang="pug">
   Auth(@loggedIn="loggedIn" @loginFailed="loginFailed")
-    UtilHeader(:leftIcon="headerLeft")
+    UtilHeader(:leftIcon="headerLeft" :rightIcon="headerRight" :othersList="othersList")
     div.wrap-chat
       ModuleChat(v-if="team && room" :team="team" :room="room")
 
@@ -37,8 +37,44 @@ export default {
     return {
       headerLeft: {
         //to: "/openbots"
-        to: "/sign-up"
-      }
+        to: "/top"
+      },
+      headerRight: [
+        {
+          // label: this.$t("navigation.my_bots"),
+          icon: "home",
+          to: "/top"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "inbox",
+          to: "/inbox"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "group",
+          to: "/team"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "local_grocery_store",
+          to: "/store"
+        }
+      ],
+      othersList: [
+        {
+          label: this.$t("navigation.service_terms"),
+          to: "/service-terms"
+        },
+        {
+          label: this.$t("navigation.privacy_policy"),
+          to: "/privacy-policy"
+        },
+        {
+          label: this.$t("navigation.sign_out"),
+          to: "/sign-in"
+        }
+      ]
     }
   },
   computed: {
@@ -55,7 +91,7 @@ export default {
     ])
   },
   async created () {
-    
+    this.resetMessages()
   },
   methods: {
     ...mapActionsAuth([
@@ -67,24 +103,33 @@ export default {
     ]),
     ...mapActionsRoom([
       'createRoom',
-      'setRoom'
+      'setRoom',
+      'resetMessages'
     ]),
     async loggedIn () {
       console.log('authed')
       this.afterLoggedIn()
     },
     async afterLoggedIn () {
-      if (!this.team) await this.setTeam(this.$route.params.teamId)
+      if (this.isAnonymous) {
+        this.headerRight = []
+        this.othersList = null
+      }
 
+      if (!this.team) await this.setTeam(this.$route.params.teamId)
+      
       // when user access /chat/:teamId
       if (this.$route.params.uid === undefined) {
         // if user is anonymous
         if (this.isAnonymous) {
-          if (!this.room) await this.setRoom({ anonymousUid: this.uid, teamId: this.team.id })
+          if (!this.room) await this.setRoom({ anonymousUid: this.uid, teamId: this.team.id, primary: this.team.primary })
           this.$router.push(`/${this.$route.params.teamId}/${this.uid}`)
         }
-      } else {
+      } else if (this.isAnonymous) {
         await this.setRoom({ anonymousUid: this.uid, teamId: this.team.id })
+      } else if (!this.isAnonymous) {
+        var anonymousUid = this.$route.params.uid
+        await this.setRoom({ anonymousUid, teamId: this.team.id })
       }
     },
     async loginFailed () {

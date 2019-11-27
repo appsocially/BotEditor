@@ -5,12 +5,18 @@
         div.wrap-icon.f.fh
           img(:src="user.iconURL")
       span.name {{user.name}}
+      div.f.fc.mt12
+        div(@click="$router.push(`/inbox/${$route.params.teamId}/${$route.params.uid}`)").button-view-chat.f.fm.px10.py4
+          v-icon(color="#FFF" size="14px").pt1.mr4 message
+          span View Chat
     div(v-if="customVarsInRoom").wrap-custom-vars-list
       div(v-for="item in customVarsInRoom").wrap-custom-var.f.flex-bwteen.mb6
         div.mb4
           span.name.mr8 {{`${item.location} <${item.varType}>`}}
           span.value {{item.value}}
         // span {{moment.unix(item.createdAt).format('ll')}}
+    div(v-if="customVarsInRoom && !customVarsInRoom[0]").f.fc
+      span No Data
 
 </template>
 
@@ -29,6 +35,13 @@
     .name {
       display: block;
       text-align: center;
+      font-weight: bold;
+    }
+    .button-view-chat {
+      border-radius: 3px;
+      background: #ff9a0a;
+      color: #FFF;
+      font-size: 12px;
       font-weight: bold;
     }
   }

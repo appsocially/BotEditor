@@ -4,7 +4,7 @@
         :class="{'widget-is-active': widgetIsActive, 'is-ios-safari': iOSSafari}"
         ).wrap-messages.py8
       ItemChatMessage(v-for="message in messages" :message="message")
-    div(v-if="currentNode").wrap-input
+    div(v-if="currentNode || !isAnonymous").wrap-input
       ItemChatInputText
       div.wrap-input-widgets
         ItemChatInputSelection(@openWidgetInput="openWidgetInput" @closeWidgetInput="closeWidgetInput")
@@ -73,7 +73,8 @@ export default {
     ]),
     ...mapStateRoom([
       'messages',
-      'assignedUser'
+      'assignedUser',
+      'roomUsers'
     ]),
     ...mapStateScenario([
       'currentScenario',
@@ -120,7 +121,7 @@ export default {
     var iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i)
     var webkit = !!ua.match(/WebKit/i)
     this.iOSSafari = iOS && webkit && !ua.match(/CriOS/i)
-
+    
     // await this.loadMemberUsers(this.team.id)
     await this.setUserTeamOf(this.uid)
     await this.loadRoomUsers({ teamId: this.team.id, roomId: this.room.id })
@@ -128,17 +129,21 @@ export default {
     await this.loadCustomVars({ teamId: this.team.id, roomId: this.room.id })
     await this.handleMessages({ teamId: this.team.id, roomId: this.room.id })
     
-    if (this.teamAsGuest.includes(this.team.id)) {
+    if (this.isAnonymous && this.teamAsGuest.includes(this.team.id)) {
       if (this.assignedUser.type === 'bot') {
         this.startScenario()
       }
     // if the user doesn't belong team
-    } else if (!this.teamAsGuest.includes(this.uid)) {
+    } else if (this.isAnonymous && !this.teamAsGuest.includes(this.uid)) {
+      // permission error
       await this.updateUserTeamAsGuest({
         uid: this.uid,
         teamId: this.team.id
       })
+      // old scenario don't have 'openchat'
       this.startScenario()
+    } else if (!this.isAnonymous) {
+      
     }
   },
   methods: {

@@ -18,6 +18,9 @@ export const mutations = {
   replaceMessages (state, messages) {
     state.messages = messages
   },
+  resetMessages (state) {
+    state.messages = []
+  },
   pushMessages (state, message) {
     state.messages.push(message)
   },
@@ -62,24 +65,36 @@ export const actions = {
       resolve(roomObj)
     })
   },
-  async setRoom ({ commit }, data) {
+  async setRoom ({ dispatch, commit }, data) {
     return new Promise(async resolve => {
-      var room = await db.collection(COLLECTIONS_ENUM.teams)
+
+      var roomDoc = await db.collection(COLLECTIONS_ENUM.teams)
         .doc(data.teamId)
         .collection(COLLECTIONS_ENUM.rooms)
         .doc(data.anonymousUid)
         .get()
-        .then((d) => {
-          var room = d.data()
-          room.id = d.id
-          return room
+      
+      var room
+      
+      if (roomDoc.exists) {
+        room = roomDoc.data()
+        room.id = roomDoc.id
+        commit('replaceRoom', room)
+        resolve(room)
+      } else {
+        dispatch('createRoom', {
+          anonymousUid: data.anonymousUid,
+          teamId: data.teamId,
+          assignedUid: data.primary
         })
-      commit('replaceRoom', room)
-      resolve(room)
+        resolve("No Room")
+      }
+
     })
   },
   async handleMessages ({ commit }, data) {
     return new Promise(async resolve => {
+      commit('resetMessages')
       await db.collection(COLLECTIONS_ENUM.teams)
         .doc(data.teamId)
         .collection(COLLECTIONS_ENUM.rooms)
@@ -96,6 +111,9 @@ export const actions = {
           resolve(messages)
         })
     })
+  },
+  resetMessages ({ commit }) {
+    commit('resetMessages')
   },
   async addMessage ({ commit }, data) {
     return new Promise(async resolve => {
@@ -240,7 +258,11 @@ export const actions = {
     })
   },
   getRoomUserById ({ state }, uid) {
-    return state.roomUsers.filter((user) => { return (user.uid === uid) })[0]
+    if(state.roomUsers) {
+      return state.roomUsers.filter((user) => { return (user.uid === uid) })[0]
+    } else {
+      return false
+    }
   }
 }
 

@@ -108,6 +108,12 @@ export default new Router({
       component: () =>
         import('@/views/Profile')
     },
+    {
+      path: '/inbox/:teamId/:uid',
+      name: 'inbox',
+      component: () =>
+        import('@/views/Chat')
+    },
     // {
     //   path: '/:teamId/:uid',
     //   name: 'chat',

@@ -28,6 +28,14 @@ export const mutations = {
   },
   replaceCustomVars (state, customVars) {
     state.customVars = customVars
+  },
+  setCustomVar (state, customVar) {
+    state.customVars = state.customVars.map((e) => {
+      if (e.location === customVar.location) {
+        e.value = customVar.value
+      } 
+      return e
+    })
   }
 }
 
@@ -214,6 +222,7 @@ export const actions = {
         .collection(COLLECTIONS_ENUM.customVars)
         .doc(data.customVariable.location)
         .set(customVariableObj)
+      commit('setCustomVar', customVariableObj)
       commit('clearHandledCustomVariable')
       resolve(data)
     })

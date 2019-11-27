@@ -1,4 +1,4 @@
-import db, { firebase } from '@/components/firebaseInit'
+import db, { firebase, api } from '@/components/firebaseInit'
 import { COLLECTIONS_ENUM } from '@/enums'
 // import firestore from '@/components/firebaseInit'
 // import { firestore } from '@/components/firebaseInit'
@@ -211,10 +211,23 @@ export const actions = {
   },
   async updateUserTeamAsGuest ({ commit, state }, data) {
     return new Promise(async resolve => {
-      await db.collection(COLLECTIONS_ENUM.users).doc(data.uid)
-        .update({
-          teamAsGuest: firebase.firestore.FieldValue.arrayUnion(data.teamId)
+      // await db.collection(COLLECTIONS_ENUM.users).doc(data.uid)
+      //   .update({
+      //     teamAsGuest: firebase.firestore.FieldValue.arrayUnion(data.teamId)
+      //   })
+
+      fetch(`${api}/updateTeamAsGuest`, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          'uid': data.uid,
+          'teamId': data.teamId
         })
+      })
 
       commit('pushTeamAsGuest', data.teamId)
 

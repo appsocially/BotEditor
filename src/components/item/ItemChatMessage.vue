@@ -89,7 +89,8 @@
 import { createNamespacedHelpers } from 'vuex'
 const { mapState: mapStateAuth } = createNamespacedHelpers('auth')
 const { mapState: mapStateScenario } = createNamespacedHelpers('scenarioForChat')
-const { mapActions: mapActionsRoom } = createNamespacedHelpers('room')
+const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedHelpers('room')
+const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers('team')
 
 export default {
   props: {
@@ -103,7 +104,8 @@ export default {
       user: null,
       isMine: 'not-mine',
       bubbleActive: 'not-active',
-      renderedText: null
+      renderedText: null,
+      messageUser: null
     }
   },
   computed: {
@@ -112,10 +114,28 @@ export default {
     ]),
     ...mapStateScenario([
       'customVars'
+    ]),
+    ...mapStateTeam([
+      'team'
+    ]),
+    ...mapStateRoom([
+      'roomUsers'
     ])
   },
   async created () {
+    // オペレーターからみた時にチームユーザーを右にしようとしてるところ
+    if (this.$route.name === "inbox") {
+      this.messageUser = this.roomUsers.filter(e => { return (e.uid === this.message.createdBy) })[0]
+      if (this.messageUser) {
+        // このメッセージの作成者がチームに所属していれば
+        if (this.messageUser.team) {
+          this.isMine = 'mine'
+        }
+      }
+    }
+
     if (this.message.createdBy === this.uid) this.isMine = 'mine'
+
     this.renderedText = this.replaceCustomVar(this.message.text)
   },
   async mounted () {

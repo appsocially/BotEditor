@@ -2,7 +2,7 @@
   div.wrap-item-input-text.py4
     div.wrap-input.f.fm.flex-between
       div.wrap-textarea.f.fm.pr8
-        textarea(:placeholder="placeholder" v-model="value").px6.py2
+        textarea(:placeholder="placeholder" v-model="value").px6.pt1
       div.wrap-icon.f.fm.flex-right
         v-icon(@click="sendMessage" :color="iconColor") send
 </template>
@@ -27,6 +27,7 @@
         border-radius: 4px;
         resize: none;
         outline: none;
+        font-size: 16px;
       }
       .wrap-icon {
         width: 24px;
@@ -110,7 +111,10 @@ export default {
         roomId: this.room.id
       })
 
-      if (!this.isAnonymous) return
+      if (!this.isAnonymous) {
+        this.value = ''
+        return
+      }
 
       if (this.handledCuntumVariable && this.handledCuntumVariable.handleType === 'openquestion') {
         await this.setCustomVar({

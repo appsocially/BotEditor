@@ -92,6 +92,11 @@ export default {
           this.hideSelf()
           this.initializeSelection()
         break
+        case 'multipleselection':
+          this.$emit('addMultipleSelectionMessage', this.position, this.dragStartedPosition, this.dragStartedId)
+          this.hideSelf()
+          this.initializeSelection()
+        break
         case 'openquestion':
           this.$emit('addOpenQuestionMessage', this.position, this.dragStartedPosition, this.dragStartedId)
           this.hideSelf()
@@ -110,6 +115,7 @@ export default {
         case 'to_question':
           this.selection = [
             {label: this.$t("canvas.nodes.node_selector.question.selection.label"), type: 'selection'},
+            {label: this.$t("canvas.nodes.node_selector.question.multiple_selection.label"), type: 'multipleselection'},
             {label: this.$t("canvas.nodes.node_selector.question.open_question.label"), type: 'openquestion'}
           ]
           this.$nextTick(this.adjustPosition)

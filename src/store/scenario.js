@@ -5,7 +5,7 @@ export const state = () => ({
   scenarioArray: [],
   scenarioHistory: [],
   customVars: []
-});
+})
 
 export const mutations = {
   replaceScenario(state, value) {
@@ -16,7 +16,7 @@ export const mutations = {
     window.scenarioArray = state.scenarioArray
   },
   updateCondition(state, value) {
-
+    
     var getNewConditions = function(node, value) {
       if(node.conditions){
         var newConditions = node.conditions
@@ -24,6 +24,7 @@ export const mutations = {
         var hasSameCondition = newConditions.filter((e) => { 
           return (e.type === value.condition && e.type !== "default")
         })[0]
+
         if(hasSameCondition){
           newConditions = newConditions.map((e) => {
             if(e.type === value.condition){
@@ -51,7 +52,7 @@ export const mutations = {
         if(state.scenarioArray[i].id===value.fromId){
           // state.scenarioArray[i].next = value.toId;
           state.scenarioArray[i].conditions = getNewConditions(state.scenarioArray[i], value)
-          return
+          return state.scenarioArray[i].conditions
         }
 
       } else if (state.scenarioArray[i].nodeType==='group'){
@@ -61,12 +62,13 @@ export const mutations = {
           if(selections[j].id===value.fromId){
             // selections[j].next = value.toId;
             state.scenarioArray[i].selections[j].conditions = getNewConditions(selections[j], value)
-            return
+            return state.scenarioArray[i].conditions
           }
         }
 
       }
     }
+
   },
   deleteNode(state, value) {
     for(var i=0; i<state.scenarioArray.length; i++){
@@ -95,7 +97,7 @@ export const mutations = {
   updateNode(state, value) {
     for(var i=0; i<state.scenarioArray.length; i++){
       if(state.scenarioArray[i].id == value.id){
-        state.scenarioArray[i] = value;
+        state.scenarioArray[i] = value
       }
     }
   },

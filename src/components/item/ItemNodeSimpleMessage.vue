@@ -12,7 +12,7 @@
       atom-delete-node(:content='content' @callRemoveNormalMessageNode='callRemoveNormalMessageNode')
     div.wrap-node-window.f.fc
       atom-node-window(:content='content' ref="toolWindow" @delete='callRemoveNormalMessageNode')
-    
+
 </template>
 
 <style lang="scss">

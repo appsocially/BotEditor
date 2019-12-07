@@ -4,6 +4,7 @@ import { api } from "@/components/firebaseInit"
 
 export const state = () => ({
   team: null,
+  teamId: null,
   memberUsers: null,
   primaryUser: null,
   guestUsers: null
@@ -12,6 +13,9 @@ export const state = () => ({
 export const mutations = {
   replaceTeam (state, team) {
     state.team = team
+  },
+  replaceTeamId (state, teamId) {
+    state.teamId = teamId
   },
   replaceMemberUsers (state, memberUsers) {
     state.memberUsers = memberUsers
@@ -30,6 +34,9 @@ export const mutations = {
         team.id = d.id
         return team
       })
+
+    state.teamId = state.team.id
+    
     state.memberUsers = await db.collection(COLLECTIONS_ENUM.users)
       .where('team', 'array-contains', currentTeamId)
       .get()
@@ -77,6 +84,18 @@ export const actions = {
   // load team data, team member, and primary user in the team by operator's uid.
   loadCurrentTeam ({ commit }, uid) {
     commit('loadCurrentTeam', uid)
+  },
+  loadCurrentTeamId ({ commit }, uid) {
+    return new Promise(async resolve => {
+      var teamId = await db.collection(COLLECTIONS_ENUM.users)
+        .doc(uid)
+        .get()
+        .then((d) => {
+          return d.data().currentTeam
+        })
+      commit('replaceTeamId', teamId)
+      resolve(teamId)
+    })
   },
   async loadMemberUsers ({ state, commit }, teamId) {
     return new Promise(async resolve => {

@@ -26,7 +26,7 @@ function dragstartedOnNode(d) {
 }
 
 function dragmoveOnNode(d) {
-
+  
   d.pos.x += d3.event.dx;
   d.pos.y += d3.event.dy;
   d3.select(this) //thisは対象のノード
@@ -183,36 +183,37 @@ function dragstartedOnConnectStarter(d) {
   $('#lineForPreview').show();
 
   // ノードがselectionだった場合
-  if(d.nodeId.indexOf('selection')>-1){
+  if(d.nodeId.indexOf('selection') > -1 && !(d.nodeId.indexOf('multipleSelection') > -1)){
     var childNodePos = $(`#${d.nodeId}`).position();
     var parentNodePos = $(`#${d.nodeId}`).closest('.item-node-selection').position();
     var widthOffset = $(`#${d.nodeId}`).width();
     var heightOffset = $(`#${d.nodeId}`).height()/2;
 
-    var startPointOffset = 9;
-
     this.from = {
-      x: parentNodePos.left + childNodePos.left + widthOffset + startPointOffset,
+      x: parentNodePos.left + childNodePos.left + widthOffset + 9,
       y: parentNodePos.top + childNodePos.top + heightOffset,
     };
     this.to = {
-      x: parentNodePos.left + childNodePos.left + widthOffset + startPointOffset,
+      x: parentNodePos.left + childNodePos.left + widthOffset + 9,
       y: parentNodePos.top + childNodePos.top + heightOffset,
     };
 
     console.log(this.from);
-  }else{
+  }　else　{
     var nodePos = $(`#${d.nodeId}`).position();
     var starterWraperPos = $(`#${d.starterId}`).parent().position();
     var offset = $(`#${d.starterId}`).parent().height()/2;
 
+    var pointOffset = 9
+    // var pointOffset = (d.nodeId.indexOf('multipleSelection') > -1)? 18 : 9 
+
     this.from = {
-      x: Math.round(nodePos.left + starterWraperPos.left + 9),
+      x: Math.round(nodePos.left + starterWraperPos.left + pointOffset),
       y: Math.round(nodePos.top + starterWraperPos.top + offset)
     };
 
     this.to = {
-      x: Math.round(nodePos.left + starterWraperPos.left + 9),
+      x: Math.round(nodePos.left + starterWraperPos.left + pointOffset),
       y: Math.round(nodePos.top + starterWraperPos.top + offset)
     };
   }

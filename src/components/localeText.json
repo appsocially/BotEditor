@@ -45,7 +45,8 @@
           "normal": {"label": "Message"},
           "question": {
             "label": "Question",
-            "selection": {"label": "Multiple Answer Question"},
+            "selection": {"label": "Selection"},
+            "multiple_selection": {"label": "Multiple Selection"},
             "open_question": {"label": "Open Question"}
           },
           "media": {"label": "Image"},
@@ -133,7 +134,7 @@
       },
       "header": {
         "sign_in": "Sign In",
-        "add_bot": "Add the bot to Team",
+        "add_bot": "Add to Team",
         "clone": "Use the Bot Format",
         "start_with_bot": "Clone",
         "no_right": "You don't have the right to edit."
@@ -187,6 +188,7 @@
           "question": {
             "label": "質問文",
             "selection": {"label": "選択型質問"},
+            "multiple_selection": {"label": "複数選択型質問"},
             "open_question": {"label": "自由型質問"}
           },
           "media": {"label": "画像表示"},
@@ -274,7 +276,7 @@
       },
       "header": {
         "sign_in": "サインイン",
-        "add_bot": "ボットをチームに追加",
+        "add_bot": "チームに追加",
         "clone": "このシナリオをコピー",
         "start_with_bot": "このボットでサインアップ",
         "no_right": "編集権限がありません。"

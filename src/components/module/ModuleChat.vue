@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.wrap-module-chat
+  div(:class="{'is-preview-mode': isPreviewMode}").wrap-module-chat
     div(ref="messagesWrapper"
         :class="{'widget-is-active': widgetIsActive, 'is-ios-safari': iOSSafari}"
         ).wrap-messages.py8
@@ -15,6 +15,7 @@
 // $widgetHeight: 120px;
 // $safariToolBarHeight: 1;
 .wrap-module-chat {
+  background: #FFF;
   position: relative;
   width: 100%;
   height: calc(100vh - 48px);
@@ -42,6 +43,9 @@
       // height: 120px;
     }
   }
+  &.is-preview-mode {
+    height: 100%;
+  }
 }
 </style>
 
@@ -53,7 +57,9 @@ import ItemChatInputSelection from '@/components/item/ItemChatInputSelection'
 const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers('auth')
 const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers('team')
 const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedHelpers('room')
-const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers('scenarioForChat')
+const { mapState: mapStateScenarioForChat, mapActions: mapActionsScenarioForChat } = createNamespacedHelpers('scenarioForChat')
+
+const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers('scenario')
 
 export default {
   components: {
@@ -69,6 +75,7 @@ export default {
       'teamAsGuest'
     ]),
     ...mapStateTeam([
+      'teamId',
       'memberUsers'
     ]),
     ...mapStateRoom([
@@ -76,20 +83,27 @@ export default {
       'assignedUser',
       'roomUsers'
     ]),
-    ...mapStateScenario([
+    ...mapStateScenarioForChat([
       'currentScenario',
       'currentNode',
       'customVars'
+    ]),
+    ...mapStateScenario([
+      'scenarioArray'
     ])
   },
   props: {
     team: {
       type: Object,
-      required: true
+      default: null
     },
     room: {
       type: Object,
-      required: true
+      default: null
+    },
+    isPreviewMode: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -121,6 +135,11 @@ export default {
     var iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i)
     var webkit = !!ua.match(/WebKit/i)
     this.iOSSafari = iOS && webkit && !ua.match(/CriOS/i)
+
+    if (this.isPreviewMode) {
+      this.initForPreview()
+      return true
+    }
     
     // await this.loadMemberUsers(this.team.id)
     await this.setUserTeamOf(this.uid)
@@ -151,18 +170,24 @@ export default {
       'setUserTeamOf',
       'updateUserTeamAsGuest'
     ]),
+    ...mapActionsTeam([
+      'loadCurrentTeamId'
+    ]),
     ...mapActionsRoom([
       'handleMessages',
       'loadAssignedUser',
-      'loadRoomUsers'
+      'loadRoomUsers',
+      'loadBotUserForPreview',
+      'loadHumanUserForPreview'
     ]),
-    ...mapActionsScenario([
+    ...mapActionsScenarioForChat([
       'loadScenarioOf',
       'getFirstEventOf',
       'onEvent',
-      'loadCustomVars'
+      'loadCustomVars',
+      'setScenarioForPreview'
     ]),
-    async startScenario  () {
+    async startScenario () {
       await this.loadScenarioOf(this.assignedUser.projectId)
       var firstEvent = await this.getFirstEventOf(this.currentScenario)
       this.onEvent({
@@ -170,6 +195,40 @@ export default {
         uid: this.room.assignedUid,
         teamId: this.team.id,
         roomId: this.room.id
+      })
+    },
+    async initForPreview () {
+      await this.loadCurrentTeamId(this.uid)
+
+      var projectId = this.$route.params.id
+
+      await this.loadCustomVars({ 
+        teamId: this.teamId,
+        roomId: projectId,
+        isPreviewMode: true
+      })
+      await this.loadBotUserForPreview({
+        projectId: projectId,
+        teamId: this.teamId
+      })
+      await this.loadHumanUserForPreview(this.uid)
+
+      await this.handleMessages({ 
+        teamId: this.teamId,
+        roomId: projectId,
+        isPreviewMode: true
+      })
+      
+      // await this.loadScenarioOf(projectId)
+      this.setScenarioForPreview(this.scenarioArray)
+      var firstEvent = await this.getFirstEventOf(this.currentScenario)
+
+      this.onEvent({
+        nodeId: firstEvent,
+        uid: "previewBot",
+        teamId: this.teamId,
+        roomId: projectId,
+        isPreviewMode: true
       })
     },
     scrollToBottom () {

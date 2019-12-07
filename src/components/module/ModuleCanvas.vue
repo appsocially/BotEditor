@@ -11,6 +11,7 @@
       item-node-selector(
         @addNormalMessage='addNormalMessage'
         @addSelectionMessage='addSelectionMessage'
+        @addMultipleSelectionMessage='addMultipleSelectionMessage'
         @addOpenQuestionMessage='addOpenQuestionMessage'
         @addMediaMessage='addMediaMessage'
         @selectToNodeByGoTo='selectToNodeByGoTo')
@@ -22,7 +23,15 @@
       item-node-open-question(v-for='item in openQuestionNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeOpenQuestionNode='removeOpenQuestionNode' @loadAllEdges='loadAllEdges').item-node-open-question
       item-node-media(v-for='item in mediaNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeMediaNode='removeMediaNode' @loadAllEdges='loadAllEdges').item-node-media
       item-node-go-to(v-for='item in goToNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeGoToNode='removeGoToNode' @loadAllEdges='loadAllEdges').item-node-go-to
-      
+
+      ItemNodeMultipleSelection(
+        v-if="multipleSelectionNodes"
+        v-for="node in multipleSelectionNodes"
+        :content="node"
+        @updateNodePosition="updateNodePosition"
+        @addOneSelectionInMultipleSelection="addOneSelectionInMultipleSelection"
+        @removeOneSelectionInMultipleSelection="removeOneSelectionInMultipleSelection")
+
       div(@click="closeToolWindows")#canvasBg
       div#modalOverlay
       
@@ -114,15 +123,9 @@ import db from "../firebaseInit"
 
 import { createNamespacedHelpers } from "vuex"
 import Auth from '@/components/auth'
-const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
- "auth"
-)
-const { mapState, mapActions } = createNamespacedHelpers(
- "scenario"
-)
-const { mapGetters: mapEdgesGetters } = createNamespacedHelpers(
- "edges"
-)
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers("auth")
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
+const { mapGetters: mapEdgesGetters } = createNamespacedHelpers("edges")
 
 import entity from "../entity"
 import exportECA from "../exportECA"
@@ -135,6 +138,7 @@ import ItemEdgeWindow from "../item/ItemEdgeWindow"
 import ItemNodeStartPoint from "../item/ItemNodeStartPoint"
 import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage"
 import ItemNodeSelection from "../item/ItemNodeSelection"
+import ItemNodeMultipleSelection from "../item/ItemNodeMultipleSelection"
 import ItemNodeOpenQuestion from "../item/ItemNodeOpenQuestion"
 import ItemNodeMedia from "../item/ItemNodeMedia"
 import ItemNodeGoTo from "../item/ItemNodeGoTo"
@@ -154,6 +158,7 @@ export default {
     ItemEdgeWindow,
     ItemNodeSimpleMessage,
     ItemNodeSelection,
+    ItemNodeMultipleSelection,
     ItemNodeOpenQuestion,
     ItemNodeMedia,
     ItemNodeGoTo,
@@ -183,6 +188,8 @@ export default {
       goToNodes: [],
       edgesArray: [],
       completeLoadingLine: false,
+
+      multipleSelectionNodes: []
     }
   },
   // watch: {
@@ -255,6 +262,8 @@ export default {
       this.openQuestionNodes = entity.getOpenQuestionNodes(this.scenarioArray)
       this.mediaNodes = entity.getMediaNodes(this.scenarioArray)
       this.goToNodes = entity.getGoToNodes(this.scenarioArray)
+
+      this.multipleSelectionNodes = this.scenarioArray.filter((node) => { return node.type === "multipleselection" })
     },
     update(){
       this.project = this.project;
@@ -262,14 +271,14 @@ export default {
     loadAllEdges(){
       this.edgesArray = []
 
-      var scenario = this.scenarioArray;
+      var scenario = this.scenarioArray
 
       var points = [];
       for(var i=0; i<scenario.length; i++){
         if(scenario[i].nodeType=='single'  || scenario[i].nodeType=='point'){ //&& scenario[i].next){
-          points = points.concat(this.getCoordinatesOfSingleNode(scenario[i]));
+          points = points.concat(this.getCoordinatesOfSingleNode(scenario[i]))
         }else if(scenario[i].nodeType=='group'){
-          points = points.concat(this.getCoordinatesOfGroupNode(scenario[i]));
+          points = points.concat(this.getCoordinatesOfGroupNode(scenario[i]))
         } // if
       } // for
 
@@ -532,7 +541,7 @@ export default {
 
       this.project.nodeNum++;
 
-      var topOffset = 53
+      var topOffset = 63
 
       var content = {
         author: this.uid,
@@ -550,10 +559,9 @@ export default {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
+          }
+        }
       }
-
       this.selectionNodes.push(content)
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
@@ -579,6 +587,58 @@ export default {
       this.deleteNode(id);
       this.disconnectNode(id);
     },
+    addMultipleSelectionMessage (position, dragStartedPosition, dragStartedId) {
+      this.project.nodeNum++;
+
+      var topOffset = 63
+
+      var content = {
+        author: this.uid,
+        id: `multipleSelectionTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'multipleselection',
+        nodeType: 'single',
+        text: this.$t("canvas.nodes.open_question.default_label"), //'What is your choice?',//+idRand,
+        addedSelectionsCounter : 1,
+        selections: [
+          {label: this.$t("canvas.nodes.selection.expected_answer_selection_1"), id: `multipleSelectionTmp${this.project.nodeNum}-selection0`},
+          {label: this.$t("canvas.nodes.selection.expected_answer_selection_2"), id: `multipleSelectionTmp${this.project.nodeNum}-selection1`},
+        ],
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          },
+        },
+      }
+
+      this.multipleSelectionNodes.push(content)
+
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+
+      this.pushContentToScenario(content)
+    },
+    addOneSelectionInMultipleSelection (nodeId) {
+      for (var i=0; i < this.multipleSelectionNodes.length; i++) {
+        if (this.multipleSelectionNodes[i].id === nodeId) {
+          this.multipleSelectionNodes[i].addedSelectionsCounter++
+          var selectionObj = {
+            id: `${nodeId}-multipleSelection${this.multipleSelectionNodes[i].addedSelectionsCounter}`,
+            label: `Selection${this.multipleSelectionNodes[i].addedSelectionsCounter}`
+          }
+          this.multipleSelectionNodes[i].selections.push(selectionObj)
+        }
+      }
+    },
+    removeOneSelectionInMultipleSelection (selectionId, nodeId) {
+      for (var i=0; i < this.multipleSelectionNodes.length; i++) {
+        if (this.multipleSelectionNodes[i].id === nodeId) {
+          this.multipleSelectionNodes[i].selections = this.multipleSelectionNodes[i].selections.filter((selection) => {
+            return (selection.id !== selectionId)
+          })
+        }
+      }
+    },
     addOpenQuestionMessage(position, dragStartedPosition, dragStartedId){
 
       var topOffset = 33;
@@ -599,7 +659,7 @@ export default {
             y: position.y - topOffset
           },
         },
-      };
+      }
       
       this.openQuestionNodes.push(content);
 

@@ -8,7 +8,9 @@ export const state = () => ({
   roomUsers: null,
   messages: null,
   roomsInTeam: null,
-  customVarsInRoom: null
+  customVarsInRoom: null,
+  botUserForPreview: null,
+  humanUserForPreview: null
 })
 
 export const mutations = {
@@ -38,6 +40,12 @@ export const mutations = {
   },
   replaceCustomVarsInRoom (state, customVarsInRoom) {
     state.customVarsInRoom = customVarsInRoom
+  },
+  replaceBotUserForPreview (state, botUserForPreview) {
+    state.botUserForPreview = botUserForPreview
+  },
+  replaceHumanUserForPreview (state, humanUserForPreview) {
+    state.humanUserForPreview = humanUserForPreview
   }
 }
 
@@ -95,9 +103,19 @@ export const actions = {
   async handleMessages ({ commit }, data) {
     return new Promise(async resolve => {
       commit('resetMessages')
-      await db.collection(COLLECTIONS_ENUM.teams)
-        .doc(data.teamId)
-        .collection(COLLECTIONS_ENUM.rooms)
+
+      var docRef
+      if (data.isPreviewMode) {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.previewRooms)
+      } else {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.rooms)
+      }
+
+      await docRef
         .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.messages)
         .orderBy('createdAt', 'asc')
@@ -117,6 +135,17 @@ export const actions = {
   },
   async addMessage ({ commit }, data) {
     return new Promise(async resolve => {
+      var docRef
+      if (data.isPreviewMode) {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.previewRooms)
+      } else {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.rooms)
+      }
+
       var messageObj = {
         text: data.text,
         createdAt: new Date(),
@@ -124,9 +153,7 @@ export const actions = {
         type: 'normal',
         teamId: data.teamId
       }
-      await db.collection(COLLECTIONS_ENUM.teams)
-        .doc(data.teamId)
-        .collection(COLLECTIONS_ENUM.rooms)
+      await docRef
         .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.messages)
         .add(messageObj)
@@ -135,6 +162,17 @@ export const actions = {
   },
   async setCustomVar ({ commit }, data) {
     return new Promise(async resolve => {
+      var docRef
+      if (data.isPreviewMode) {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.previewRooms)
+      } else {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.rooms)
+      }
+
       var customVarObj = {
         location: data.location,
         varType: data.varType,
@@ -143,21 +181,28 @@ export const actions = {
         createdBy: data.uid,
         teamId: data.teamId
       }
-      await db.collection(COLLECTIONS_ENUM.teams)
-        .doc(data.teamId)
-        .collection(COLLECTIONS_ENUM.rooms)
+      await docRef
         .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.customVars)
         .doc(data.location)
         .set(customVarObj)
+      
       resolve(customVarObj)
     })
   },
   async loadCustomVarsInRoom ({ commit }, data) {
     return new Promise(async resolve => {
-      var customVars = await db.collection(COLLECTIONS_ENUM.teams)
-        .doc(data.teamId)
-        .collection(COLLECTIONS_ENUM.rooms)
+      var docRef
+      if (data.isPreviewMode) {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.previewRooms)
+      } else {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.rooms)
+      }
+      var customVars = await docRef
         .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.customVars)
         .get()
@@ -258,11 +303,47 @@ export const actions = {
     })
   },
   getRoomUserById ({ state }, uid) {
-    if(state.roomUsers) {
+    if (state.roomUsers) {
       return state.roomUsers.filter((user) => { return (user.uid === uid) })[0]
     } else {
       return false
     }
+  },
+  loadBotUserForPreview ({ commit }, data) {
+    return new Promise(async resolve => {
+      var project = await await db.collection("projects")
+        .doc(data.projectId)
+        .get()
+        .then((d) => { return d.data() })
+      
+      var user = {
+        type: "bot",
+        projectId: data.projectId,
+        isAnonymous: false,
+        team: [data.teamId]
+      }
+      user.iconURL = project.botIcon
+      user.name = project.title
+
+      commit('replaceBotUserForPreview', user)
+      
+      resolve(user)
+    })
+  },
+  loadHumanUserForPreview ({ commit }, uid) {
+    return new Promise(async resolve => {
+      var user = await db.collection("users")
+        .doc(uid)
+        .get()
+        .then((d) => {
+          var user = d.data()
+          user.uid = d.id
+          return user
+        })
+      commit('replaceHumanUserForPreview', user)
+      
+      resolve(user)
+    })
   }
 }
 

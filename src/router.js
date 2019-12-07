@@ -10,7 +10,7 @@ import PrivacyPolicy from "./views/PrivacyPolicy.vue"
 import Top from "./views/Top.vue"
 import Bots from "./views/Bots.vue"
 
-Vue.use(Router);
+Vue.use(Router)
 
 export default new Router({
   mode: "history",

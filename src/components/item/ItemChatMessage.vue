@@ -88,7 +88,8 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState: mapStateAuth } = createNamespacedHelpers('auth')
-const { mapState: mapStateScenario } = createNamespacedHelpers('scenarioForChat')
+const { mapState: mapStateProject } = createNamespacedHelpers('project')
+const { mapState: mapStateScenarioForChat } = createNamespacedHelpers('scenarioForChat')
 const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedHelpers('room')
 const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers('team')
 
@@ -112,14 +113,19 @@ export default {
     ...mapStateAuth([
       'uid'
     ]),
-    ...mapStateScenario([
+    ...mapStateProject([
+      'project'
+    ]),
+    ...mapStateScenarioForChat([
       'customVars'
     ]),
     ...mapStateTeam([
       'team'
     ]),
     ...mapStateRoom([
-      'roomUsers'
+      'roomUsers',
+      'botUserForPreview',
+      'humanUserForPreview'
     ])
   },
   async created () {
@@ -139,7 +145,19 @@ export default {
     this.renderedText = this.replaceCustomVar(this.message.text)
   },
   async mounted () {
-    this.user = await this.getRoomUserById(this.message.createdBy)
+    // for Preview
+    if (this.$route.name === "canvas" 
+        || this.$route.name === "preview"
+        || this.$route.name === "preview_chat") {
+      if (this.message.createdBy ===  "previewBot") {
+        this.user = this.botUserForPreview
+      } else {
+        this.user = this.humanUserForPreview
+      }
+    } else {
+      this.user = await this.getRoomUserById(this.message.createdBy)
+    }
+    
     setTimeout(() => {
       this.bubbleActive = 'active'
       this.detectURL(this.message.text)

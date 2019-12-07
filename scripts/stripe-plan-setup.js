@@ -1,4 +1,6 @@
-const stripe = require('stripe')('sk_test_ZluOqOvwXDnfxjOn7c6h2LqO00SVQfjQu0')
+
+// const stripe = require('stripe')('sk_test_ZluOqOvwXDnfxjOn7c6h2LqO00SVQfjQu0')
+const stripe = require('stripe')('sk_live_aNk3sFovFEiRjHgewJjpEYeA00gg1jwxmM')
 
 const BOT_EDITOR = 'BOT_EDITOR'
 const INDIVIDUAL_CUSTOMVAR_CRM_PLAN = 'INDIVIDUAL_CUSTOMVAR_CRM_PLAN'

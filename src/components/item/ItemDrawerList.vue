@@ -8,8 +8,12 @@
     div(v-if="showChild").wrap-drawer-list-content
       div(v-if="list.type === 'custom_variable'").custom-vars
         div(v-for="item in customVars").var-list.pl24.pr10.pt12.pb4
-          span.var-title {{item.location + ` <${item.varType}>`}}
-          v-text-field(label="Value" :value="item.value" placeholder="Null" @keyup="upField(item.location ,$event)")
+          div(v-if="item.varType === 'String' || item.varType === 'Number'")
+            span.var-title {{item.location + ` <${item.varType}>`}}
+            v-text-field(label="Value" :value="item.value" placeholder="Null" @keyup="upField(item.location ,$event)")
+          div(v-if="item.varType === 'Array'").pb8
+            span.var-title {{item.location + ` <${item.varType}>`}}
+            span(v-for="element in item.value").array-value {{element}}
         // そもそもここで変種できる必要あるかな？
         //div(v-for="item in customVars").var-list.pl20.pr10.pt12
           v-text-field(label="Name" :value="item.location").pt8
@@ -40,6 +44,9 @@
       border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
       .var-title {
         font-size: 16px;
+      }
+      .array-value {
+        font-size: 14px;
       }
       // .custom-vars {
       //   border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);

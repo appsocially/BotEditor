@@ -57,6 +57,9 @@ export const actions = {
       resolve(scenario)
     })
   },
+  setScenarioForPreview ({ commit }, scenario) {
+    commit('replaceCurrentScenario', scenario)
+  },
   getFirstEventOf ({ commit, getters }, scenario) {
     var startPointNode = scenario.filter((e) => { return (e.eventType === 'open_chat') })[0]
     // var firstEvent = startPointNode.conditions.filter((e) => { return (e.type === 'else') })[0]
@@ -68,13 +71,14 @@ export const actions = {
     }
 
     var topNode = getNodeById(state.currentScenario, data.nodeId)
+
     if (!topNode) return false
 
     commit('replaceCurrentEvent', topNode.id)
     commit('replaceCurrentNode', topNode)
 
     var sleep = msec => new Promise(resolve => setTimeout(resolve, msec))
-
+    
     while (true) {
       var node = getNodeById(state.currentScenario, state.currentEvent)
       var messageObj = {
@@ -84,13 +88,21 @@ export const actions = {
         teamId: data.teamId,
         nodeId: node.id
       }
+      var docRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
+        .collection(COLLECTIONS_ENUM.rooms).doc(data.roomId)
+        .collection(COLLECTIONS_ENUM.messages)
+
+      if (data.isPreviewMode) {
+        docRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.previewRooms).doc(data.roomId)
+          .collection(COLLECTIONS_ENUM.messages)
+      }
+
       switch (node.type) {
         case 'normal':
           messageObj.text = node.text
           await sleep(1200)
-          await db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
-            .collection(COLLECTIONS_ENUM.rooms).doc(data.roomId)
-            .collection(COLLECTIONS_ENUM.messages).add(messageObj)
+          await docRef.add(messageObj)
           break
         case 'selection':
           if (node.customVariable) {
@@ -101,9 +113,7 @@ export const actions = {
 
           messageObj.text = node.text
           await sleep(1200)
-          await db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
-            .collection(COLLECTIONS_ENUM.rooms).doc(data.roomId)
-            .collection(COLLECTIONS_ENUM.messages).add(messageObj)
+          await docRef.add(messageObj)
           break
         case 'openquestion':
           if (node.customVariable) {
@@ -114,17 +124,13 @@ export const actions = {
 
           messageObj.text = node.text
           await sleep(1200)
-          await db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
-            .collection(COLLECTIONS_ENUM.rooms).doc(data.roomId)
-            .collection(COLLECTIONS_ENUM.messages).add(messageObj)
+          await docRef.add(messageObj)
           break
         case 'media':
           messageObj.mediaType = node.mediaType
           messageObj.mediaURI = node.mediaURI
           await sleep(1200)
-          await db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
-            .collection(COLLECTIONS_ENUM.rooms).doc(data.roomId)
-            .collection(COLLECTIONS_ENUM.messages).add(messageObj)
+          await docRef.add(messageObj)
           break
         case 'goto':
           dispatch('onEvent', {
@@ -213,12 +219,23 @@ export const actions = {
   },
   async setCustomVar ({ state, commit }, data) {
     return new Promise(async resolve => {
+      var docRef
+      if (data.isPreviewMode) {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.previewRooms)
+      } else {
+        docRef = db.collection(COLLECTIONS_ENUM.teams)
+          .doc(data.teamId)
+          .collection(COLLECTIONS_ENUM.rooms)
+      }
+
       var customVariableObj = data.customVariable
       customVariableObj.createdBy = data.uid
       customVariableObj.createdAt = new Date()
       customVariableObj.value = data.value
-      await db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
-        .collection(COLLECTIONS_ENUM.rooms).doc(data.roomId)
+      await docRef
+        .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.customVars)
         .doc(data.customVariable.location)
         .set(customVariableObj)

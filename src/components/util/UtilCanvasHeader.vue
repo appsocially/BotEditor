@@ -20,8 +20,8 @@
         div.icon-right.f.fm
           //span test-r
           div(v-if="project.author === uid")
-            div(v-if="!project.isAddedToTeamAsBot && showAddBotButtun" @click="onAddBotToTeam").add-bot-to-team-button.right-button.f.fm.pl2.pr12.py5
-              v-icon(color="#fff" size="20px") person_add
+            div(v-if="!project.isAddedToTeamAsBot && showAddBotButtun" @click="onAddBotToTeam").add-bot-to-team-button.right-button.f.fm.pl2.pr12.py4
+              v-icon(color="#fff" size="18px") person_add
               span {{this.$t("canvas.header.add_bot")}}
             div(v-else-if="!showAddBotButtun").f.fm.pl2.pr12.py5
               v-icon(size="20px").mr4 check

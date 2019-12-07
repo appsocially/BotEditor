@@ -76,7 +76,7 @@ entity.getNodesThatConnectTo = function(scenario, id) {
     }
   }
   return nodes;
-};
+}
 
 entity.nodeHasNext = function(scenario, id) {
   for (var i = 0; i < scenario.length; i++) {
@@ -95,7 +95,7 @@ entity.nodeHasNext = function(scenario, id) {
       }
     }
   }
-};
+}
 
 entity.getNodesThatConnectFrom = function(scenario, id) {
   var nodes = [];

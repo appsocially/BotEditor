@@ -75,12 +75,9 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex"
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
- "scenario"
-)
-const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
- "project"
-)
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers("scenario")
+const { mapState: mapStateScenarioForChat } = createNamespacedHelpers('scenarioForChat')
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers("project")
 
 import exportUPIL from "../exportUPIL"
 import lintScenario from "../lintScenario"
@@ -102,7 +99,9 @@ export default {
   },
   computed: {
     ...mapState([
-      'scenarioArray',
+      'scenarioArray'
+    ]),
+    ...mapStateScenarioForChat([
       'customVars'
     ]),
     ...mapStateProject([

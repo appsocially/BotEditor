@@ -24,7 +24,8 @@
           v-if='!!project && !!scenarioArray'
           :project='project'
           @togglePreview="togglePreview")
-        ModuleChat(v-if="uid && scenarioArray" :isPreviewMode="true")
+        ModulePreviewHeader(@reloadPreview="reloadPreview" @togglePreview="togglePreview")
+        ModuleChat(ref="moduleChat" v-if="uid && scenarioArray" :isPreviewMode="true")
       div(v-show="!showPreview" @click="togglePreview").wrap-preview-float-icon.f.fh
         v-icon(color='#2a2a2a') remove_red_eye
       module-modal(
@@ -88,6 +89,7 @@ import UtilHeader from "../components/util/UtilHeader"
 import UtilCanvasHeader from "../components/util/UtilCanvasHeader"
 import ModuleCanvas from "../components/module/ModuleCanvas"
 import ModuleConversation from "../components/module/ModuleConversation"
+import ModulePreviewHeader from "../components/module/ModulePreviewHeader"
 import ModuleChat from "../components/module/ModuleChat"
 import ModuleCanvasDrawer from "../components/module/ModuleCanvasDrawer"
 import ModuleModal from "../components/module/ModuleModal"
@@ -102,6 +104,7 @@ export default {
     UtilHeader,
     UtilCanvasHeader,
     ModuleCanvas,
+    ModulePreviewHeader,
     ModuleChat,
     ModuleConversation,
     ModuleCanvasDrawer,
@@ -183,6 +186,9 @@ export default {
     },
     enableEdit () {
       this.letEdit = "let-edit"
+    },
+    reloadPreview () {
+      this.$refs.moduleChat.reloadPreview()
     },
     togglePreview () {
       this.showPreview = !this.showPreview

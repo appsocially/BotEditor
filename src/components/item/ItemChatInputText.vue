@@ -65,7 +65,7 @@ export default {
       }
     },
     value (newValue) {
-      this.iconColor = (newValue === '') ? '#999' : '#3880ff'
+      this.iconColor = (newValue === '') ? '#999' : '#FF9A0A'
     }
   },
   computed: {
@@ -127,9 +127,7 @@ export default {
         teamId: teamId,
         roomId: roomId
       }
-
       if (isPreviewMode) messageObj.isPreviewMode = true
-
       await this.addMessage(messageObj)
 
       if (!this.isAnonymous && !isPreviewMode) {
@@ -162,7 +160,6 @@ export default {
             teamId: teamId,
             roomId: roomId
           }
-          eventObj.uid = (isPreviewMode)? "previewBot" : this.room.assignedUid
           if (isPreviewMode) {
             eventObj.uid = "previewBot"
             eventObj.isPreviewMode = true

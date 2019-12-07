@@ -202,8 +202,14 @@ export const actions = {
   },
   async loadCustomVars ({ commit }, data) {
     return new Promise(async resolve => {
-      var vars = await db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
-        .collection(COLLECTIONS_ENUM.rooms).doc(data.roomId)
+      var docRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
+      if (data.isPreviewMode) {
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
+      } else {
+        docRef = docRef.collection(COLLECTIONS_ENUM.rooms)
+      }
+      var vars = await docRef
+        .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.customVars)
         .get()
         .then((q) => {
@@ -219,17 +225,13 @@ export const actions = {
   },
   async setCustomVar ({ state, commit }, data) {
     return new Promise(async resolve => {
-      var docRef
+      var docRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
       if (data.isPreviewMode) {
-        docRef = db.collection(COLLECTIONS_ENUM.teams)
-          .doc(data.teamId)
-          .collection(COLLECTIONS_ENUM.previewRooms)
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
       } else {
-        docRef = db.collection(COLLECTIONS_ENUM.teams)
-          .doc(data.teamId)
-          .collection(COLLECTIONS_ENUM.rooms)
+        docRef = docRef.collection(COLLECTIONS_ENUM.rooms)
       }
-
+      
       var customVariableObj = data.customVariable
       customVariableObj.createdBy = data.uid
       customVariableObj.createdAt = new Date()
@@ -242,6 +244,39 @@ export const actions = {
       commit('setCustomVar', customVariableObj)
       commit('clearHandledCustomVariable')
       resolve(data)
+    })
+  },
+  async deleteCustomVar ({ state, commit }, data) {
+    return new Promise(async resolve => {
+      var docRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
+      if (data.isPreviewMode) {
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
+      } else {
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
+      }
+
+      await docRef
+        .doc(data.roomId)
+        .collection(COLLECTIONS_ENUM.customVars)
+        .doc(data.customVariable.location)
+        .delete()
+
+      resolve(data)
+    })
+  },
+  async deleteMessagesForPreview ({ state, commit }, data) {
+    return new Promise(async resolve => {
+      var messagesCollectionRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
+        .collection(COLLECTIONS_ENUM.previewRooms).doc(data.roomId)
+        .collection(COLLECTIONS_ENUM.messages)
+      
+      var promises = data.messages.map((message) => {
+        return messagesCollectionRef.doc(message.id).delete()
+      })
+      
+      await Promise.all(promises)
+      
+      resolve(true)
     })
   }
 }

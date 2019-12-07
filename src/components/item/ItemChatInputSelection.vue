@@ -21,7 +21,7 @@
       display: inline-block;
       span {
         display: block;
-        background: #3880ff;
+        background: #FF9A0A;
         color: #fff;
         border-radius: 6px;
         font-size: 12px;
@@ -65,7 +65,8 @@ export default {
       'handledCuntumVariable'
     ]),
     ...mapStateTeam([
-      'team'
+      'team',
+      'teamId'
     ]),
     ...mapStateRoom([
       'room'
@@ -90,21 +91,41 @@ export default {
       'setCustomVar'
     ]),
     async onSelection (selection) {
-      await this.addMessage({
+      // For Preview
+      var isPreviewMode = false
+      if (this.$route.name === "canvas" 
+        　|| this.$route.name === "preview"
+        　|| this.$route.name === "preview_chat") {
+        var projectId = this.$route.params.id
+        var teamId = this.teamId
+        var roomId = projectId
+
+        isPreviewMode = true
+      } else {
+        var teamId = this.team.id
+        var roomId = this.room.id
+      }
+
+      var messageObj = {
         text: selection.label,
         uid: this.uid,
-        teamId: this.team.id,
-        roomId: this.room.id
-      })
+        teamId: teamId,
+        roomId: roomId
+      }
+      if (isPreviewMode) messageObj.isPreviewMode = true
+      
+      await this.addMessage(messageObj)
 
       if (this.handledCuntumVariable && this.handledCuntumVariable.handleType === 'selection') {
-        await this.setCustomVar({
+        var customVarObj = {
           value: selection.label,
           customVariable: this.handledCuntumVariable,
-          teamId: this.team.id,
-          roomId: this.room.id,
+          teamId: teamId,
+          roomId: roomId,
           uid: this.uid
-        })
+        }
+        if (isPreviewMode) customVarObj.isPreviewMode = true
+        await this.setCustomVar(customVarObj)
       }
 
       // If there is matched condition, trigger next event.
@@ -112,12 +133,19 @@ export default {
       if (conditions) {
         var nextEvent = await this.getNextEventByConditions(conditions)
         if (nextEvent) {
-          this.onEvent({
+          var eventObj = {
             nodeId: nextEvent,
-            uid: this.room.assignedUid,
-            teamId: this.team.id,
-            roomId: this.room.id
-          })
+            // uid: this.room.assignedUid,
+            teamId: teamId,
+            roomId: roomId
+          }
+          if (isPreviewMode) {
+            eventObj.uid = "previewBot"
+            eventObj.isPreviewMode = true
+          } else {
+            eventObj.uid = this.room.assignedUid
+          }
+          this.onEvent(eventObj)
         }
       }
     }

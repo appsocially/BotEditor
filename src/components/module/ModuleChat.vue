@@ -44,7 +44,7 @@
     }
   }
   &.is-preview-mode {
-    height: 100%;
+    height: calc(100% - 28px);
   }
 }
 </style>
@@ -178,14 +178,16 @@ export default {
       'loadAssignedUser',
       'loadRoomUsers',
       'loadBotUserForPreview',
-      'loadHumanUserForPreview'
+      'loadHumanUserForPreview',
+      'resetMessages'
     ]),
     ...mapActionsScenarioForChat([
       'loadScenarioOf',
       'getFirstEventOf',
       'onEvent',
       'loadCustomVars',
-      'setScenarioForPreview'
+      'setScenarioForPreview',
+      'deleteMessagesForPreview'
     ]),
     async startScenario () {
       await this.loadScenarioOf(this.assignedUser.projectId)
@@ -219,7 +221,27 @@ export default {
         isPreviewMode: true
       })
       
-      // await this.loadScenarioOf(projectId)
+      this.setScenarioForPreview(this.scenarioArray)
+      var firstEvent = await this.getFirstEventOf(this.currentScenario)
+
+      this.onEvent({
+        nodeId: firstEvent,
+        uid: "previewBot",
+        teamId: this.teamId,
+        roomId: projectId,
+        isPreviewMode: true
+      })
+    },
+    async reloadPreview () {
+      var projectId = this.$route.params.id
+
+      await this.deleteMessagesForPreview({
+        messages: this.messages,
+        teamId: this.teamId,
+        roomId: projectId
+      })
+      this.resetMessages()
+
       this.setScenarioForPreview(this.scenarioArray)
       var firstEvent = await this.getFirstEventOf(this.currentScenario)
 

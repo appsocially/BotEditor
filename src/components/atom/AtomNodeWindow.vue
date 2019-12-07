@@ -15,8 +15,10 @@
                 :value="content.customVariable.location"
                 v-model="customVarLocationValue"
                 ref="varNameInput")
-            div.wrap-selector
+            div.wrap-selector.mb4
               v-select(:items="varTypes" :label="customVarSelectorLabel" :value="content.customVariable.varType" v-model="customVarTypeValue")
+            div.wrap-save-button.f.fc
+              span(@click="saveCustomVar").px8.py4 Save
           div(v-else).wrap-no-custom-var
             span.no-var.mb10 {{noCustomActionSentence}}
             div.f.fc
@@ -94,6 +96,16 @@
         .wrap-selector {
           width: 100px;
         }
+        .wrap-save-button {
+          span {
+            text-align: center;
+            background: #ff9a0a;
+            border-radius: 8px;
+            color: #FFF;
+            font-size: 10px;
+            cursor: pointer;
+          }
+        }
         .child-triangle {
           position: absolute;
           top: 12px;
@@ -153,9 +165,10 @@ import entity from "../entity"
 
 import { createNamespacedHelpers } from "vuex";
 import { setTimeout } from 'timers';
-const { mapState, mapActions } = createNamespacedHelpers(
- "scenario"
-)
+const { mapState: mapStateAuth } = createNamespacedHelpers("auth")
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
+const { mapState: mapStateScenarioForChat, mapActions: mapActionsScenarioForChat } = createNamespacedHelpers("scenarioForChat")
+const { mapState: mapStateTeam } = createNamespacedHelpers("team")
 
 export default {
   name: 'AtomNodeWindow',
@@ -177,7 +190,7 @@ export default {
       customVarLocationValue: '',
       customVarTypeValue: '',
       customActionValue: '',
-      timer: {},
+      timer: null,
       noCustomVarSentence: this.$t("canvas.tool_window.node.custom_var.no_content.sentence"),
       noCustomVarAdd: this.$t("canvas.tool_window.node.custom_var.no_content.add"),
       noCustomActionSentence: this.$t("canvas.tool_window.node.custom_action.no_content.sentence"),
@@ -188,8 +201,14 @@ export default {
     }
   },
   computed: {
+    ...mapStateAuth([
+      'uid'
+    ]),
     ...mapState([
       'scenarioArray',
+    ]),
+    ...mapStateTeam([
+      'teamId',
     ])
   },
   created: function(){
@@ -197,20 +216,14 @@ export default {
     switch(this.content.type){
       case 'normal':
         this.lists = [
-          // {
-          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
-          //   icon: 'add_comment',
-          //   id: 'show-custom-action',
-          //   func: this.toggleCustomActionMenu
-          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
           }
-        ];
-      break;
+        ]
+      break
 
       case 'selection':
         this.lists = [
@@ -220,20 +233,14 @@ export default {
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
-          // {
-          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
-          //   icon: 'add_comment',
-          //   id: 'show-custom-action',
-          //   func: this.toggleCustomActionMenu
-          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
           }
-        ];
-      break;
+        ]
+      break
 
       case 'multipleselection':
         this.lists = [
@@ -243,12 +250,6 @@ export default {
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
-          // {
-          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
-          //   icon: 'add_comment',
-          //   id: 'show-custom-action',
-          //   func: this.toggleCustomActionMenu
-          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
@@ -258,7 +259,7 @@ export default {
         ]
 
         this.varTypes = ['Array']
-      break;
+      break
 
       case 'openquestion':
         this.lists = [
@@ -268,37 +269,25 @@ export default {
             id: 'show-custom-vars',
             func: this.toggleCuostomVarMenu
           },
-          // {
-          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
-          //   icon: 'add_comment',
-          //   id: 'show-custom-action',
-          //   func: this.toggleCustomActionMenu
-          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
           }
-        ];
-      break;
+        ]
+      break
 
       case 'media':
         this.lists = [
-          // {
-          //   label: this.$t("canvas.tool_window.node.custom_action.label"),
-          //   icon: 'add_comment',
-          //   id: 'show-custom-action',
-          //   func: this.toggleCustomActionMenu
-          // },
           {
             label: this.$t("canvas.tool_window.node.delete.label"),
             icon: 'delete',
             id: 'delete-node',
             func: this.deleteNode
           }
-        ];
-      break;
+        ]
+      break
 
       case 'goto':
         this.lists = [
@@ -308,8 +297,8 @@ export default {
             id: 'delete-node',
             func: this.deleteNode
           }
-        ];
-      break;
+        ]
+      break
     }
 
     if(this.content.customVariable) {
@@ -332,25 +321,24 @@ export default {
     customVarLocationValue(newVal, oldVal){
 
       // invalidな変数名を検知
-      try {
-        if(newVal !== "") eval(`var ${newVal}`)
-        if(newVal !== oldVal && oldVal !== "" && newVal !== ""){
-          clearTimeout(this.timer)
-          this.timer = setTimeout(this.updateVar, 1000)
-        }
-      } catch(e) {
-        console.log("invalid")
-        this.$nextTick(() => { this.customVarLocationValue = this.content.customVariable.location })
-        return
-      }
-
+      // try {
+      //   if(newVal !== "") eval(`var ${newVal}`)
+      //   if(newVal !== oldVal && oldVal !== "" && newVal !== ""){
+      //     clearTimeout(this.timer)
+      //     this.timer = setTimeout(this.updateVar, 1000)
+      //   }
+      // } catch(e) {
+      //   console.log("invalid")
+      //   this.$nextTick(() => { this.customVarLocationValue = this.content.customVariable.location })
+      //   return
+      // }
       
     },
     customVarTypeValue(newVal, oldVal){
-      if(newVal !== oldVal && oldVal !== ""){
-        clearTimeout(this.timer)
-        this.timer = setTimeout(this.updateVar, 1000)
-      }
+      // if(newVal !== oldVal && oldVal !== ""){
+      //   clearTimeout(this.timer)
+      //   this.timer = setTimeout(this.updateVar, 1000)
+      // }
     },
     customActionValue(newVal, oldVal){
       if(newVal !== oldVal && oldVal !== ""){
@@ -365,6 +353,11 @@ export default {
       'addCustomVar',
       'updateCustomAction',
       'addCustomAction'
+    ]),
+    ...mapActionsScenarioForChat([
+      'loadCustomVars',
+      'setCustomVar',
+      'deleteCustomVar'
     ]),
     onToolWindow(e) {
       e.stopPropagation()
@@ -390,7 +383,52 @@ export default {
       this.customVarTypeValue = this.content.customVariable.varType
       this.hasCustomVar = true
     },
-    updateVar() {
+    saveCustomVar () {
+      // invalidな変数名を検知
+      try {
+        if (this.customVarLocationValue !== "") eval(`var ${this.customVarLocationValue}`)
+        if (this.customVarLocationValue !== "") this.updateVar()
+      } catch(e) {
+        alert("Invalid Name")
+        this.$nextTick(() => { this.customVarLocationValue = this.content.customVariable.location })
+        return
+      }
+    },
+    async updateVar() {
+      // 古いカスタム変数を削除して新しいカスタム変数を作成
+      var previousCV = this.content.customVariable
+      var projectId = this.$route.params.id
+      await this.deleteCustomVar({ 
+        customVariable: previousCV,
+        teamId: this.teamId,
+        roomId: projectId
+      })
+      
+      var newCV = {
+        location: this.customVarLocationValue,
+        varType: this.customVarTypeValue,
+        handleType: this.content.type
+      }
+
+      var value = (this.content.type === "array")? [] : ""
+      var value = (this.content.type === "boolean")? true : ""
+
+      await this.setCustomVar({
+        customVariable: newCV,
+        value: value,
+        uid: this.uid,
+        teamId: this.teamId,
+        roomId: projectId,
+        isPreviewMode: true
+      })
+
+      await this.loadCustomVars({
+        teamId: this.teamId,
+        roomId: projectId,
+        isPreviewMode: true
+      })
+
+      // ノード自体のカスタム変数をアップデート
       this.updateCustomVar({
         nodeId: this.content.id,
         location: this.customVarLocationValue, // this.content.customVariable.location,

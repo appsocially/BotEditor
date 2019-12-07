@@ -162,15 +162,11 @@ export const actions = {
   },
   async setCustomVar ({ commit }, data) {
     return new Promise(async resolve => {
-      var docRef
+      var docRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
       if (data.isPreviewMode) {
-        docRef = db.collection(COLLECTIONS_ENUM.teams)
-          .doc(data.teamId)
-          .collection(COLLECTIONS_ENUM.previewRooms)
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
       } else {
-        docRef = db.collection(COLLECTIONS_ENUM.teams)
-          .doc(data.teamId)
-          .collection(COLLECTIONS_ENUM.rooms)
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
       }
 
       var customVarObj = {
@@ -190,18 +186,16 @@ export const actions = {
       resolve(customVarObj)
     })
   },
+  
   async loadCustomVarsInRoom ({ commit }, data) {
     return new Promise(async resolve => {
-      var docRef
+      var docRef = db.collection(COLLECTIONS_ENUM.teams).doc(data.teamId)
       if (data.isPreviewMode) {
-        docRef = db.collection(COLLECTIONS_ENUM.teams)
-          .doc(data.teamId)
-          .collection(COLLECTIONS_ENUM.previewRooms)
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
       } else {
-        docRef = db.collection(COLLECTIONS_ENUM.teams)
-          .doc(data.teamId)
-          .collection(COLLECTIONS_ENUM.rooms)
+        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
       }
+      
       var customVars = await docRef
         .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.customVars)

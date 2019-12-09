@@ -97,6 +97,9 @@ export const actions = {
       resolve(teamId)
     })
   },
+  setTeamId ({ commit }, teamId) {
+    commit('replaceTeamId', teamId)
+  },
   async loadMemberUsers ({ state, commit }, teamId) {
     return new Promise(async resolve => {
       var memberUsers = await db.collection(COLLECTIONS_ENUM.users)

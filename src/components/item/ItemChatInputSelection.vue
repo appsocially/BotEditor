@@ -98,7 +98,7 @@ export default {
         　|| this.$route.name === "preview_chat") {
         var projectId = this.$route.params.id
         var teamId = this.teamId
-        var roomId = projectId
+        var roomId = `${projectId}-${this.uid}`
 
         isPreviewMode = true
       } else {

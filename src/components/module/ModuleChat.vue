@@ -1,13 +1,17 @@
 <template lang="pug">
   div(:class="{'is-preview-mode': isPreviewMode}").wrap-module-chat
-    div(ref="messagesWrapper"
-        :class="{'widget-is-active': widgetIsActive, 'is-ios-safari': iOSSafari}"
-        ).wrap-messages.py8
-      ItemChatMessage(v-for="message in messages" :message="message")
-    div(v-if="currentNode || !isAnonymous").wrap-input
-      ItemChatInputText
-      div.wrap-input-widgets
-        ItemChatInputSelection(@openWidgetInput="openWidgetInput" @closeWidgetInput="closeWidgetInput")
+    div(v-if="!isNowLoading").wrap-chat
+      div(ref="messagesWrapper"
+          :class="{'widget-is-active': widgetIsActive, 'is-ios-safari': iOSSafari}"
+          ).wrap-messages.py8
+        ItemChatMessage(v-for="message in messages" :message="message")
+      div(v-if="currentNode || !isAnonymous").wrap-input
+        ItemChatInputText
+        div.wrap-input-widgets
+          ItemChatInputSelection(@openWidgetInput="openWidgetInput" @closeWidgetInput="closeWidgetInput")
+    div(v-else).wrap-now-loading.f.fh
+      v-progress-circular(indeterminate color="#2a2a2a")
+
 </template>
 
 <style lang="scss">
@@ -20,28 +24,37 @@
   width: 100%;
   height: calc(100vh - 48px);
   overflow: hidden;
-  .wrap-messages {
-    display: block;
-    height: calc(100% - 40px);
-    overflow-x: hidden;
-    overflow-y: scroll;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    overflow-scrolling: touch;
-    &.widget-is-active {
-      height: calc(100% - (40px + 120px));
+  .wrap-chat {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    .wrap-messages {
+      display: block;
+      height: calc(100% - 40px);
+      overflow-x: hidden;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+      &.widget-is-active {
+        height: calc(100% - (40px + 120px));
+      }
+      &.is-ios-safari {
+        height: calc(100% - (40px + 114px + 40px));
+      }
     }
-    &.is-ios-safari {
-      height: calc(100% - (40px + 114px + 40px));
+    .widget-is-active.is-ios-safari {
+      height: calc(100% - (40px + 120px + 114px));
+    }
+    .wrap-input {
+      .wrap-input-widgets {
+        // height: 120px;
+      }
     }
   }
-  .widget-is-active.is-ios-safari {
-    height: calc(100% - (40px + 120px + 114px));
-  }
-  .wrap-input {
-    .wrap-input-widgets {
-      // height: 120px;
-    }
+  .wrap-now-loading {
+    width: 100%;
+    height: 100%;
   }
   &.is-preview-mode {
     height: calc(100% - 28px);
@@ -110,7 +123,8 @@ export default {
     return {
       scrollTimer: null,
       widgetIsActive: false,
-      iOSSafari: false
+      iOSSafari: false,
+      isNowLoading: true
     }
   },
   watch: {
@@ -164,6 +178,8 @@ export default {
     } else if (!this.isAnonymous) {
       
     }
+
+    this.isNowLoading = false
   },
   methods: {
     ...mapActionsAuth([
@@ -171,7 +187,8 @@ export default {
       'updateUserTeamAsGuest'
     ]),
     ...mapActionsTeam([
-      'loadCurrentTeamId'
+      'loadCurrentTeamId',
+      'setTeamId'
     ]),
     ...mapActionsRoom([
       'handleMessages',
@@ -179,6 +196,7 @@ export default {
       'loadRoomUsers',
       'loadBotUserForPreview',
       'loadHumanUserForPreview',
+      'setHumanUserForPreview',
       'resetMessages'
     ]),
     ...mapActionsScenarioForChat([
@@ -189,7 +207,7 @@ export default {
       'setScenarioForPreview',
       'deleteMessagesForPreview'
     ]),
-    async startScenario () {
+    async startScenario () {      
       await this.loadScenarioOf(this.assignedUser.projectId)
       var firstEvent = await this.getFirstEventOf(this.currentScenario)
       this.onEvent({
@@ -200,24 +218,35 @@ export default {
       })
     },
     async initForPreview () {
-      await this.loadCurrentTeamId(this.uid)
+      this.isNowLoading = true
 
+      if (this.$route.name === "preview") {
+       this.setTeamId(this.$route.params.teamId)
+      } else {
+        await this.loadCurrentTeamId(this.uid)
+      }
+      
       var projectId = this.$route.params.id
+      var roomId = `${projectId}-${this.uid}`
 
       await this.loadCustomVars({ 
         teamId: this.teamId,
-        roomId: projectId,
+        roomId: roomId,
         isPreviewMode: true
       })
       await this.loadBotUserForPreview({
         projectId: projectId,
         teamId: this.teamId
       })
-      await this.loadHumanUserForPreview(this.uid)
+      if (this.$route.name === "preview") {
+        this.setHumanUserForPreview(this.uid)
+      } else {
+        await this.loadHumanUserForPreview(this.uid)
+      }
 
       await this.handleMessages({ 
         teamId: this.teamId,
-        roomId: projectId,
+        roomId: roomId,
         isPreviewMode: true
       })
       
@@ -228,17 +257,24 @@ export default {
         nodeId: firstEvent,
         uid: "previewBot",
         teamId: this.teamId,
-        roomId: projectId,
+        roomId: roomId,
         isPreviewMode: true
       })
+
+      this.isNowLoading = false
     },
     async reloadPreview () {
+      if (this.isNowLoading) return
+
+      this.isNowLoading = true
+
       var projectId = this.$route.params.id
+      var roomId = `${projectId}-${this.uid}`
 
       await this.deleteMessagesForPreview({
         messages: this.messages,
         teamId: this.teamId,
-        roomId: projectId
+        roomId: roomId
       })
       this.resetMessages()
 
@@ -249,13 +285,17 @@ export default {
         nodeId: firstEvent,
         uid: "previewBot",
         teamId: this.teamId,
-        roomId: projectId,
+        roomId: roomId,
         isPreviewMode: true
       })
+
+      this.isNowLoading = false
     },
     scrollToBottom () {
       var messagesWrapper = this.$refs.messagesWrapper
-      messagesWrapper.scrollTop = (messagesWrapper.scrollHeight - messagesWrapper.offsetHeight)
+      if (messagesWrapper) {
+        messagesWrapper.scrollTop = (messagesWrapper.scrollHeight - messagesWrapper.offsetHeight)
+      }
     },
     openWidgetInput () {
       this.widgetIsActive = true

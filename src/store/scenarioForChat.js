@@ -30,12 +30,17 @@ export const mutations = {
     state.customVars = customVars
   },
   setCustomVar (state, customVar) {
-    state.customVars = state.customVars.map((e) => {
-      if (e.location === customVar.location) {
-        e.value = customVar.value
-      } 
-      return e
-    })
+    var cvInStore = state.customVars.filter(e => { return e.location === customVar.location })[0]
+
+    if (!cvInStore) {
+      customVar.id = customVar.location
+      state.customVars.push(customVar)
+    } else {
+      state.customVars = state.customVars.map((e) => {
+        if (e.location === customVar.location) e.value = customVar.value
+        return e
+      })
+    }
   }
 }
 
@@ -158,10 +163,13 @@ export const actions = {
       if (!next) break
 
       var nextNode = getNodeById(state.currentScenario, next)
-      commit('replaceCurrentEvent', nextNode.id)
-      commit('replaceCurrentNode', nextNode)
 
-      if (!nextNode) break
+      if (!nextNode) {
+        break
+      } else {
+        commit('replaceCurrentEvent', nextNode.id)
+        commit('replaceCurrentNode', nextNode)
+      }
     } // while
   },
   getPlaceholderTextOf ({ state }, eventId) {

@@ -382,6 +382,8 @@ export default {
       this.customVarLocationValue = this.content.customVariable.location
       this.customVarTypeValue = this.content.customVariable.varType
       this.hasCustomVar = true
+
+      this.updateVar()
     },
     saveCustomVar () {
       // invalidな変数名を検知
@@ -436,7 +438,7 @@ export default {
       })
       console.log("Current Var Name", this.content.customVariable.location)
     },
-    createAction() {
+    async createAction() {
       this.addCustomAction({
         nodeId: this.content.id,
         customAction: `ca${this.content.num}`

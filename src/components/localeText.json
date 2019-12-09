@@ -120,7 +120,7 @@
         },
         "toggle_publish_label": "Publish on Bot Market",
         "bot_url": {
-          "title": "Bot URL",
+          "title": "Bot URL for Preview",
           "on_copy": "The URL of your bot has been copied."
         },
         "embed_code": {
@@ -262,7 +262,7 @@
         },
         "toggle_publish_label": "ボットマーケットへ公開",
         "bot_url": {
-          "title": "このボットのURL",
+          "title": "このボットのプレヴューURL",
           "on_copy": "URLをコピーしました"
         },
         "embed_code": {

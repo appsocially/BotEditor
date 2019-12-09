@@ -15,7 +15,7 @@
 </style>
 
 <script>
-import { firebase } from '@/components/firebaseInit'
+import db, { firebase } from '@/components/firebaseInit'
 
 import Auth from '@/components/auth'
 
@@ -114,8 +114,28 @@ export default {
       if (this.isAnonymous) {
         this.headerRight = []
         this.othersList = null
-      }
 
+        // Anonymous UserのDocがない場合（過去にプレヴューでアノニマスログインをしていた場合）
+        var userDoc = await db.collection("users").doc(this.uid).get()
+        if (!userDoc.exists) {
+          var user = await this.signInAnonymously()
+          
+          if (!this.team) await this.setTeam(this.$route.params.teamId)
+          
+          await this.createRoom({
+            anonymousUid: user.uid,
+            teamId: this.$route.params.teamId,
+            assignedUid: this.team.primary
+          })
+          
+          await this.createAnonymousUser({
+            uid: user.uid,
+            teamId: this.team.id,
+            roomId: this.room.id
+          })
+        }
+      }
+      
       if (!this.team) await this.setTeam(this.$route.params.teamId)
       
       // when user access /chat/:teamId
@@ -138,7 +158,7 @@ export default {
       if (this.$route.params.uid === undefined) {
         // create room
         var user = await this.signInAnonymously()
-
+        
         if (!this.team) await this.setTeam(this.$route.params.teamId)
         
         // create Chatroom
@@ -147,13 +167,13 @@ export default {
           teamId: this.$route.params.teamId,
           assignedUid: this.team.primary
         })
-
+        
         await this.createAnonymousUser({
           uid: user.uid,
           teamId: this.team.id,
           roomId: this.room.id
         })
-
+        
         // this.$router.push(`/chat/${this.$route.params.teamId}/${user.uid}`)
       }
     }

@@ -234,7 +234,7 @@ export const actions = {
             return user
           })
         })
-
+      
       // setIconURL of Bot User
       // (MEMO) use promise all
       for (var i = 0; i < users.length; i++) {
@@ -248,7 +248,7 @@ export const actions = {
           users[i].name = project.title
         }
       }
-
+      
       var guestUser = await db.collection(COLLECTIONS_ENUM.users)
         .where('room', 'array-contains', data.roomId)
         .get()
@@ -259,7 +259,7 @@ export const actions = {
             return user
           })[0]
         })
-
+      
       commit('replaceRoomUsers', users.concat(guestUser))
       resolve(users.concat(guestUser))
 
@@ -338,6 +338,17 @@ export const actions = {
       
       resolve(user)
     })
+  },
+  setHumanUserForPreview ({ commit }, uid) {
+    var user = {
+      name: "Guest",
+      uid: uid,
+      isAnonymous: true,
+      profile: "No Profile",
+      type: "human",
+      iconURL: "https://firebasestorage.googleapis.com/v0/b/chatcenter-min-ui.appspot.com/o/util%2Fuser-default.png?alt=media&token=5d9ac3a4-6849-4f60-a182-1d6df8d340ba"
+    }
+    commit('replaceHumanUserForPreview', user)
   }
 }
 

@@ -13,7 +13,7 @@
           div(v-clipboard:copy="copyMessage" v-clipboard:success="onCopy").wrap-url.f.fm
             v-icon.mr6 file_copy
             span.line-clamp-1 {{copyMessage}}
-        div.mb30
+        // div.mb30
           h4.mb8 {{this.$t("canvas.settings.embed_code.title")}}
           //div.wrap-embed-code.f.fm
           div(v-clipboard:copy="embedCode" v-clipboard:success="onCopy").wrap-embed-code.f.fm
@@ -110,6 +110,9 @@
 
 
 <script>
+import { createNamespacedHelpers } from "vuex"
+const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers("team")
+
 import { functions } from 'firebase'
 import { setTimeout } from 'timers'
 import ItemImgUploader from '@/components/item/ItemImgUploader'
@@ -141,13 +144,18 @@ export default {
       switchPublishedAsFormat: false,
     }
   },
+  computed: {
+    ...mapStateTeam([
+      'teamId'
+    ])
+  },
   created: function () {
     this.projectTitle = this.project.title
     this.switchPublishedAsFormat = (this.project.pulishedAsFormat)? this.project.pulishedAsFormat: false
     this.projectDescription = (this.project.discription)? this.project.discription: "About this bot..."
-    this.copyMessage = `${location.origin}/chat/${this.$route.params.id}`
+    this.copyMessage = `${location.origin}/preview/${this.$route.params.id}/${this.teamId}`
 
-    this.embedCode = `<iframe src="${location.origin}/chat/${this.$route.params.id}" width="320px" height="620px"></iframe>`
+    this.embedCode = `<iframe src="${location.origin}/preview/${this.$route.params.id}/${this.teamId}" width="320px" height="620px"></iframe>`
   },
   mounted: function () {
     //this.nextTick(this.activateWindow)

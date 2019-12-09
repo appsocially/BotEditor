@@ -61,6 +61,7 @@ export default new Router({
       name: "canvas",
       component: Canvas
     },
+    // 古いプレヴュー
     {
       path: "/canvas_preview/:id",
       name: "canvas_preview",
@@ -75,6 +76,13 @@ export default new Router({
       path: "/chat/:id",
       name: "preview_chat",
       component: Conversation
+    },
+    // 新しいプレヴュー
+    {
+      path: "/preview/:id/:teamId",
+      name: "preview",
+      component: () =>
+        import('@/views/Preview')
     },
     // for Inbox
     {

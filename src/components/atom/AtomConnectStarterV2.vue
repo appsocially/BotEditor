@@ -87,7 +87,7 @@ export default {
       this.to.x += d3.event.dx
       this.to.y += d3.event.dy
 
-      console.log(this.to)
+      // console.log(this.to)
 
       var data = [
         {

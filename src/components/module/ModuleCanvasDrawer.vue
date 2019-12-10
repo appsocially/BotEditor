@@ -52,9 +52,9 @@ export default {
     }
   },
   computed: {
-    ...mapState([
-      'customVars'
-    ]),
+    // ...mapState([
+    //   'customVars'
+    // ]),
   },
   watch: {
     showDrawer (show) {

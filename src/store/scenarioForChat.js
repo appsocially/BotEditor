@@ -109,6 +109,7 @@ export const actions = {
           await sleep(1200)
           await docRef.add(messageObj)
           break
+
         case 'selection':
           if (node.customVariable) {
             var customVariable = node.customVariable
@@ -120,6 +121,19 @@ export const actions = {
           await sleep(1200)
           await docRef.add(messageObj)
           break
+
+        case 'multipleselection':
+          if (node.customVariable) {
+            var customVariable = node.customVariable
+            customVariable.handleType = 'multipleselection'
+            commit('replaceHandledCustomVariable', customVariable)
+          }
+
+          messageObj.text = node.text
+          await sleep(1200)
+          await docRef.add(messageObj)
+          break
+
         case 'openquestion':
           if (node.customVariable) {
             var customVariable = node.customVariable
@@ -131,12 +145,26 @@ export const actions = {
           await sleep(1200)
           await docRef.add(messageObj)
           break
+
+        case 'ask_email':
+          if (node.customVariable) {
+            var customVariable = node.customVariable
+            customVariable.handleType = 'ask_email'
+            commit('replaceHandledCustomVariable', customVariable)
+          }
+
+          messageObj.text = node.text
+          await sleep(1200)
+          await docRef.add(messageObj)
+          break
+
         case 'media':
           messageObj.mediaType = node.mediaType
           messageObj.mediaURI = node.mediaURI
           await sleep(1200)
           await docRef.add(messageObj)
           break
+
         case 'goto':
           dispatch('onEvent', {
             nodeId: node.toId,
@@ -157,7 +185,11 @@ export const actions = {
         return matchedCondition
       }
 
-      if (node.type === 'selection' || node.type === 'openquestion' || node.type === 'goto') break
+      if (node.type === 'selection' ||
+          node.type === 'multipleselection' ||
+          node.type === 'openquestion' ||
+          node.type === 'ask_email' ||
+          node.type === 'goto') break
 
       var next = getMatchedCondition(node.conditions).next
       if (!next) break
@@ -184,6 +216,8 @@ export const actions = {
     var node = state.currentScenario.filter((e) => { return (e.id === eventId) })[0]
     if (node.type === 'normal' ||
       node.type === 'openquestion' ||
+      node.type === 'ask_email' ||
+      node.type === 'ask_phone_number' ||
       node.type === 'media' ||
       node.type === 'point') {
       return (node.conditions) ? node.conditions : null

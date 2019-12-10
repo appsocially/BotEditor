@@ -5,6 +5,7 @@
       div.wrap-text.mb8
         AtomFlexibleTextarea(
           ref="text"
+          :textId="content.id"
           :text="content.text"
           :width="160"
           :content="content"
@@ -13,10 +14,11 @@
         div(v-for="selection in content.selections").selection.px4.py4.f.fm.mb8
           v-icon(size="16px" color="#2a2a2a").mr6 check_box
           AtomFlexibleTextarea(
+            :textId="selection.id"
             :ref="selection.id"
             :text="selection.label"
             :width="120"
-            :content="selection"
+            :content="content"
             @onDelete="onDelete"
           )
       div.wrap-add-selection.f.fm
@@ -85,14 +87,16 @@ export default {
     ]),
     addSelection () {
       this.$emit("addOneSelectionInMultipleSelection", this.content.id)
+      // this.updateNode(this.content)
     },
-    onDelete (selection) {
-      var currentValue = this.$refs[selection.id][0].valueText
+    onDelete (textId) {
+      var currentValue = this.$refs[textId][0].valueText
       if (currentValue === "" && !this.letDelete) this.letDelete = true
       if (currentValue === "" && this.letDelete) {
-        this.$emit("removeOneSelectionInMultipleSelection", selection.id, this.content.id)
+        this.$emit("removeOneSelectionInMultipleSelection", textId, this.content.id)
         this.letDelete = false
       }
+      this.updateNode(this.content)
     },
     onResizeNode (gapSize) {
       if (gapSize.height !== 0) {

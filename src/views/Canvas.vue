@@ -122,11 +122,34 @@ export default {
       letInitConversation: true
     }
   },
+  computed: {
+    ...mapState([
+      'scenarioArray',
+      'customVars'
+    ]),
+    ...mapStateProject([
+      'project',
+      'test'
+    ]),
+    ...mapStateAuth([
+      'uid'
+    ]),
+  },
   watch:{
-    $route (to, from){
+    $route (to, from) {
       this.letInitConversation = true
       this.loadCanvas()
       // this.$refs.conversation.initConversation()
+    },
+    // scenarioArray (scenario) {
+    //   console.log("new scenario:", scenario)
+    // }
+    scenarioArray: {
+      handler: function (scenarioArray) {
+        // console.log("new scenario:", scenarioArray)
+        this.$refs.canvas.loadNodesArray()
+      },
+      deep: true
     }
   }, 
   created: async function () {
@@ -209,19 +232,6 @@ export default {
       console.log("toggleDrawer")
       this.showDrawer = !this.showDrawer
     }
-  },
-  computed: {
-    ...mapState([
-      'scenarioArray',
-      'customVars'
-    ]),
-    ...mapStateProject([
-      'project',
-      'test'
-    ]),
-    ...mapStateAuth([
-      'uid'
-    ]),
-  }
-};
+  } 
+}
 </script>

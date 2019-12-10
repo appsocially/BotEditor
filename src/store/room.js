@@ -193,7 +193,7 @@ export const actions = {
       if (data.isPreviewMode) {
         docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
       } else {
-        docRef = docRef.collection(COLLECTIONS_ENUM.previewRooms)
+        docRef = docRef.collection(COLLECTIONS_ENUM.rooms)
       }
       
       var customVars = await docRef

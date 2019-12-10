@@ -26,9 +26,8 @@ import entity from "../entity"
 
 import { createNamespacedHelpers } from "vuex"
 import { setTimeout } from 'timers'
-const { mapState, mapActions } = createNamespacedHelpers(
- "scenario"
-)
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
+const { mapState: mapStateScenarioForChat } = createNamespacedHelpers('scenarioForChat')
 
 import AtomConditionContent from "../atom/AtomConditionContent"
 import { functions } from 'firebase'
@@ -62,7 +61,10 @@ export default {
   },
   computed: {
     ...mapState([
-      'scenarioArray',
+      'scenarioArray'
+      // 'customVars'
+    ]),
+    ...mapStateScenarioForChat([
       'customVars'
     ]),
     customVarNames: function() {
@@ -76,7 +78,6 @@ export default {
       var customVar = this.customVars.filter((e) => {
         return (newVal === e.location)
       })[0]
-
       switch(customVar.varType) {
         case "String":
           this.operators = ["==", "!=", "contains"]

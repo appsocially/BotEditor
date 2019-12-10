@@ -180,6 +180,7 @@ export default {
           if (matchedCustomVar) {
             // カスタム変数が宣言されていた場合
             var replaceValue = matchedCustomVar.value ? matchedCustomVar.value : 'null'
+            if (matchedCustomVar.varType === "Array") replaceValue = replaceValue.join(", ")
           } else {
             // カスタム変数が宣言されていなかった場合
             var replaceValue = 'null'

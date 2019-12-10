@@ -40,8 +40,15 @@
 </style>
 
 <script>
+import { createNamespacedHelpers } from "vuex"
+const { mapActions: mapActionsScenario } = createNamespacedHelpers("scenario")
+
 export default {
   props: {
+    textId: {
+      type: String,
+      required: true
+    },
     text: {
       type: String,
       required: true
@@ -60,12 +67,20 @@ export default {
       valueText: null,
       textarea: null,
       hiddenText: null,
-      textareaStyle: null
+      textareaStyle: null,
+      letSaveNode: false,
+      timer: null
     }
   },
   watch: {
     valueText (newText, oldText) {
       this.$nextTick(this.changeSize)
+      
+      if (this.letSaveNode) {
+        clearTimeout(this.timer)
+        this.timer = setTimeout(this.saveNode, 1000)        
+      }
+      this.letSaveNode = true
     }
   },
   created: function() {
@@ -77,6 +92,9 @@ export default {
     this.changeSize()
   },
   methods: {
+    ...mapActionsScenario([
+      'updateNode'
+    ]),
     changeSize () {
       this.textareaStyle = `
         width: ${this.hiddenText.offsetWidth + 2}px;
@@ -87,7 +105,19 @@ export default {
       this.$emit("onEnter", this.content)
     },
     onDelete () {
-      this.$emit("onDelete", this.content)
+      this.$emit("onDelete", this.textId)
+    },
+    saveNode () {
+      // このテキストがcontent.textでなければ、selections[i].labelにvalueを入れる
+      if (this.content.id === this.textId) {
+        this.content.text = this.valueText
+      } else {
+        this.content.selections = this.content.selections.map(s => {
+          if (this.textId === s.id) s.label = this.valueText
+          return s
+        })
+      }
+      this.updateNode(this.content)
     }
   }
 }

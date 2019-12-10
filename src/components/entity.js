@@ -225,24 +225,6 @@ entity.getConditions = function(scenario, id) {
 
 entity.getConditionByConditionId = function(scenario, id) {
 
-  // return scenario.map((e) => {
-  //   var condition
-  //   if (e.nodeType === "single" || e.nodeType === "point") {
-  //     if (e.conditions) {
-  //       condition = e.conditions.filter((c) => {
-  //         return (c.id === id)
-  //       })[0]
-  //     }
-  //   } else if (e.nodeType === "selection") {
-  //     for(var s_i=0; s_i < e.selections.length; s_i++){
-  //       condition = e.selections[s_i].conditions.filter((c) => {
-  //         return (c.id === id)
-  //       })[0]
-  //     }
-  //   }
-  //   return condition
-  // })[0]
-
   var getMatchedConditions = (conditions, id) => {
     for (var i=0; i<conditions.length; i++) {
       if(conditions[i].id === id) return conditions[i]
@@ -265,10 +247,10 @@ entity.getConditionByConditionId = function(scenario, id) {
       }
     }
   }
-};
+}
 
 entity.getContentByConditionId = function(scenario, id) {
-  var content;
+  var content
   for (var i = 0; i < scenario.length; i++) {
     if (scenario[i].nodeType === "single" || scenario[i].nodeType === "point") {
       if (scenario[i].conditions) {
@@ -276,7 +258,7 @@ entity.getContentByConditionId = function(scenario, id) {
           return e.id === id
         })[0]
 
-        if (content) return scenario[i];
+        if (content) return scenario[i]
       }
     } else {
       var selections = scenario[i].selections;
@@ -286,7 +268,7 @@ entity.getContentByConditionId = function(scenario, id) {
             return e.id === id
           })[0]
 
-          if (content) return selections[s_i];
+          if (content) return selections[s_i]
         }
       }
     }

@@ -278,6 +278,23 @@ export default {
         ]
       break
 
+      case 'ask_email':
+        this.lists = [
+          {
+            label: this.$t("canvas.tool_window.node.custom_var.label"),
+            icon: 'monetization_on',
+            id: 'show-custom-vars',
+            func: this.toggleCuostomVarMenu
+          },
+          {
+            label: this.$t("canvas.tool_window.node.delete.label"),
+            icon: 'delete',
+            id: 'delete-node',
+            func: this.deleteNode
+          }
+        ]
+      break
+
       case 'media':
         this.lists = [
           {

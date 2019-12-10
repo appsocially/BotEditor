@@ -41,13 +41,21 @@
           "default_label": "Type a question here",
           "expected_answer_placeholder": "Placeholder"
         },
+        "ask_email": {
+          "default_label": "Let me know your email.",
+          "expected_answer_placeholder": "Type email here."
+        },
         "node_selector": {
           "normal": {"label": "Message"},
           "question": {
             "label": "Question",
             "selection": {"label": "Selection"},
             "multiple_selection": {"label": "Multiple Selection"},
-            "open_question": {"label": "Open Question"}
+            "open_question": {"label": "Open Question"},
+            "selection_others1": {"label": "More"},
+            "email": {"label": "Ask Email"},
+            "phone_number": {"label": "Ask Phone Number"},
+            "selection_others2": {"label": "More"}
           },
           "media": {"label": "Image"},
           "go_to": {"label": "Go To"}
@@ -183,13 +191,21 @@
           "default_label": "質問文をここに書いてください",
           "expected_answer_placeholder": "プレースホルダ"
         },
+        "ask_email": {
+          "default_label": "メールアドレスを教えてください。",
+          "expected_answer_placeholder": "Emailを入力"
+        },
         "node_selector": {
           "normal": {"label": "メッセージ"},
           "question": {
             "label": "質問文",
             "selection": {"label": "選択型質問"},
             "multiple_selection": {"label": "複数選択型質問"},
-            "open_question": {"label": "自由型質問"}
+            "open_question": {"label": "自由型質問"},
+            "selection_others1": {"label": "more"},
+            "email": {"label": "Emailを聞く"},
+            "phone_number": {"label": "電話番号を聞く"},
+            "selection_others2": {"label": "more"}
           },
           "media": {"label": "画像表示"},
           "go_to": {"label": "他ノードへジャンプ"}

@@ -84,6 +84,15 @@ export default {
     return {
       preNodeSize: null,
       letScaleUp: false,
+      nodeArrayNames: [
+        "normalMessageNodes",
+        "selectionNodes",
+        "multipleSelectionNodes",
+        "openQuestionNodes",
+        "askEmailNodes",
+        "mediaNodes",
+        "goToNodes"
+      ]
     }
   },
   mounted: function () {
@@ -202,12 +211,12 @@ export default {
         
         var moduleCanvas = this.$parent.$parent
         var targetNode
-        if (!targetNode) targetNode = moduleCanvas.normalMessageNodes.filter((node) => { return node.id === this.content.id })[0]
-        if (!targetNode) targetNode = moduleCanvas.selectionNodes.filter((node) => { return node.id === this.content.id })[0]
-        if (!targetNode) targetNode = moduleCanvas.multipleSelectionNodes.filter((node) => { return node.id === this.content.id })[0]
-        if (!targetNode) targetNode = moduleCanvas.openQuestionNodes.filter((node) => { return node.id === this.content.id })[0]
-        if (!targetNode) targetNode = moduleCanvas.mediaNodes.filter((node) => { return node.id === this.content.id })[0]
-        if (!targetNode) targetNode = moduleCanvas.goToNodes.filter((node) => { return node.id === this.content.id })[0]
+
+        for (var i=0; i<this.nodeArrayNames.length; i++) {
+          if (!targetNode) {
+            targetNode = moduleCanvas[this.nodeArrayNames[i]].filter((node) => { return node.id === this.content.id })[0]
+          }
+        }
         
         targetNode.gui.position = newPos
       }
@@ -219,12 +228,10 @@ export default {
     },
     onDelete () {
       var moduleCanvas = this.$parent.$parent
-      moduleCanvas.normalMessageNodes = moduleCanvas.normalMessageNodes.filter((node) => { return node.id !== this.content.id })
-      moduleCanvas.selectionNodes = moduleCanvas.selectionNodes.filter((node) => { return node.id !== this.content.id })
-      moduleCanvas.multipleSelectionNodes = moduleCanvas.multipleSelectionNodes.filter((node) => { return node.id !== this.content.id })
-      moduleCanvas.openQuestionNodes = moduleCanvas.openQuestionNodes.filter((node) => { return node.id !== this.content.id })
-      moduleCanvas.mediaNodes = moduleCanvas.mediaNodes.filter((node) => { return node.id !== this.content.id })
-      moduleCanvas.goToNodes = moduleCanvas.goToNodes.filter((node) => { return node.id !== this.content.id })
+
+      for (var i=0; i<this.nodeArrayNames.length; i++) {
+        moduleCanvas[this.nodeArrayNames[i]] = moduleCanvas[this.nodeArrayNames[i]].filter((node) => { return node.id !== this.content.id })
+      }
 
       moduleCanvas.removeEdgesThatConnectNodeOf(this.content.id)
 

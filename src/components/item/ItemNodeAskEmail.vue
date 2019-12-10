@@ -1,14 +1,7 @@
 <template lang="pug">
-  // How to add node
-  // 1. loadNodesArray
-  // 2. addNode function to array
-  // 3. nodeSelector
-  // 4. node window
-  // 5. Enjoy!
-  // How to make Chat UI
-  // 1. scenarioForChat
+
   ItemNodeWrapper(ref="node" :content="content" @onResizeNode="onResizeNode").px12.pt10.pb8
-    div.wrap-item-node-tmp
+    div.wrap-item-node-email
       div.wrap-text
         AtomFlexibleTextarea(
           ref="text"
@@ -17,15 +10,34 @@
           :width="160"
           :content="content"
         )
+      div.wrap-email-icon.f.fm
+        v-icon(size="18px").mr2 email
+        span Email?
       div.wrap-starter.f.fh
         AtomConnectStarterV2(:nodeId="content.id")
 
 </template>
 
 <style lang="scss" scoped>
-.wrap-item-node-tmp {
+.wrap-item-node-email {
   position: relative;
   background: #fff;
+  .wrap-info {
+    .wrap-icon {
+      span {
+        font-weight: bold;
+      }
+    }
+  }
+  .wrap-email-icon {
+    position: absolute;
+    top: -30px;
+    right: 0;
+    span {
+      font-size: 12px;
+      font-weight: bold;
+    }
+  }
   .wrap-starter {
     position: absolute;
     top: -0px;
@@ -61,6 +73,9 @@ export default {
     return {
       
     }
+  },
+  created () {
+    
   },
   methods: {
     ...mapActions([

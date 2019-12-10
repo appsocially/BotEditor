@@ -327,11 +327,13 @@ export const mutations = {
       }
     }
   },
-  setConditionOption(state, value){
-    var content = entity.getConditionByConditionId(scenarioArray, value.conditionId)
-    content.option = value.option
+  setConditionOption (state, data) {
+    var content = entity.getConditionByConditionId(scenarioArray, data.conditionId)
+    content.option = data.option
   }
-};
+}
+
+
 
 export const actions = {
   async loadScenarioByProjectId({commit}, projectId) {
@@ -392,8 +394,8 @@ export const actions = {
   insertValueIntoCustomVar({commit}, value){
     commit('insertValueIntoCustomVar', value)
   },
-  setConditionOption({commit}, option){
-    commit('setConditionOption', option)
+  setConditionOption({commit}, data){
+    commit('setConditionOption', data)
     commit('saveScenario')
   },
   addCustomAction({commit}, customAction){

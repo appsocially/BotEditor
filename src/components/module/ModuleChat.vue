@@ -9,6 +9,7 @@
         ItemChatInputText
         div.wrap-input-widgets
           ItemChatInputSelection(@openWidgetInput="openWidgetInput" @closeWidgetInput="closeWidgetInput")
+          ItemChatInputMultipleSelection(@openWidgetInput="openWidgetInput" @closeWidgetInput="closeWidgetInput")
     div(v-else).wrap-now-loading.f.fh
       v-progress-circular(indeterminate color="#2a2a2a")
 
@@ -67,6 +68,7 @@ import { createNamespacedHelpers } from 'vuex'
 import ItemChatMessage from '@/components/item/ItemChatMessage'
 import ItemChatInputText from '@/components/item/ItemChatInputText'
 import ItemChatInputSelection from '@/components/item/ItemChatInputSelection'
+import ItemChatInputMultipleSelection from '@/components/item/ItemChatInputMultipleSelection'
 const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers('auth')
 const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers('team')
 const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedHelpers('room')
@@ -78,7 +80,8 @@ export default {
   components: {
     ItemChatMessage,
     ItemChatInputText,
-    ItemChatInputSelection
+    ItemChatInputSelection,
+    ItemChatInputMultipleSelection
   },
   computed: {
     ...mapStateAuth([

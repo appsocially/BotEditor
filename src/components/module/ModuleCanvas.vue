@@ -13,6 +13,7 @@
         @addSelectionMessage='addSelectionMessage'
         @addMultipleSelectionMessage='addMultipleSelectionMessage'
         @addOpenQuestionMessage='addOpenQuestionMessage'
+        @addAskEmailMessage='addAskEmailMessage'
         @addMediaMessage='addMediaMessage'
         @selectToNodeByGoTo='selectToNodeByGoTo')
       item-edge-window(ref="edgeWindow" @updateEdgeType="updateEdgeType")
@@ -28,9 +29,14 @@
         v-if="multipleSelectionNodes"
         v-for="node in multipleSelectionNodes"
         :content="node"
-        @updateNodePosition="updateNodePosition"
         @addOneSelectionInMultipleSelection="addOneSelectionInMultipleSelection"
         @removeOneSelectionInMultipleSelection="removeOneSelectionInMultipleSelection")
+      ItemNodeAskEmail(
+        v-if="askEmailNodes"
+        v-for="node in askEmailNodes"
+        :content="node"
+      )
+
 
       div(@click="closeToolWindows")#canvasBg
       div#modalOverlay
@@ -135,13 +141,17 @@ import ModuleConversation from "./ModuleConversation"
 import ItemNodeSelector from "../item/ItemNodeSelector"
 import ItemEdgeWindow from "../item/ItemEdgeWindow"
 
+// 古いフォーマットでつくったノード（いつかリファクタ）
 import ItemNodeStartPoint from "../item/ItemNodeStartPoint"
 import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage"
 import ItemNodeSelection from "../item/ItemNodeSelection"
-import ItemNodeMultipleSelection from "../item/ItemNodeMultipleSelection"
 import ItemNodeOpenQuestion from "../item/ItemNodeOpenQuestion"
 import ItemNodeMedia from "../item/ItemNodeMedia"
 import ItemNodeGoTo from "../item/ItemNodeGoTo"
+
+// 新しいフォーマットで作ったノード
+import ItemNodeMultipleSelection from "../item/ItemNodeMultipleSelection"
+import ItemNodeAskEmail from "../item/ItemNodeAskEmail"
 
 import ItemEdge from "../item/ItemEdge"
 import { newExpression } from 'babel-types';
@@ -158,11 +168,13 @@ export default {
     ItemEdgeWindow,
     ItemNodeSimpleMessage,
     ItemNodeSelection,
-    ItemNodeMultipleSelection,
     ItemNodeOpenQuestion,
     ItemNodeMedia,
     ItemNodeGoTo,
-    ItemEdge
+    ItemEdge,
+
+    ItemNodeMultipleSelection,
+    ItemNodeAskEmail
   },
   props: {
     project: {
@@ -189,7 +201,31 @@ export default {
       edgesArray: [],
       completeLoadingLine: false,
 
-      multipleSelectionNodes: []
+      dummyNodes: [
+        {
+          id: "dummyTmp",
+          text: "This is dummy data",
+          num: 777,
+          type: "dummy",
+          nodeType: "single",
+          gui: {
+            position: {x: 300, y: 50000}
+          }
+        }
+      ],
+      multipleSelectionNodes: [],
+      askEmailNodes: [
+        // {
+        //   id: "dummyTmp",
+        //   text: "This is dummy data",
+        //   num: 777,
+        //   type: "dummy",
+        //   nodeType: "single",
+        //   gui: {
+        //     position: {x: 300, y: 50000}
+        //   }
+        // }
+      ]
     }
   },
   // watch: {
@@ -264,6 +300,7 @@ export default {
       this.goToNodes = entity.getGoToNodes(this.scenarioArray)
 
       this.multipleSelectionNodes = this.scenarioArray.filter((node) => { return node.type === "multipleselection" })
+      this.askEmailNodes = this.scenarioArray.filter((node) => { return node.type === "ask_email" })
     },
     update(){
       this.project = this.project;
@@ -522,7 +559,7 @@ export default {
         }
       }
 
-      this.normalMessageNodes.push(content)
+      // this.normalMessageNodes.push(content)
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
@@ -562,7 +599,7 @@ export default {
           }
         }
       }
-      this.selectionNodes.push(content)
+      // this.selectionNodes.push(content)
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
@@ -612,7 +649,8 @@ export default {
         },
       }
 
-      this.multipleSelectionNodes.push(content)
+      // Canvas.vueでwatchしてるからいらなくなった
+      // this.multipleSelectionNodes.push(content)
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
@@ -641,7 +679,7 @@ export default {
     },
     addOpenQuestionMessage(position, dragStartedPosition, dragStartedId){
 
-      var topOffset = 33;
+      var topOffset = 33
 
       this.project.nodeNum++;
       
@@ -661,7 +699,7 @@ export default {
         },
       }
       
-      this.openQuestionNodes.push(content);
+      // this.openQuestionNodes.push(content);
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
@@ -676,6 +714,30 @@ export default {
 
       this.deleteNode(id);
       this.disconnectNode(id);
+    },
+    addAskEmailMessage (position, dragStartedPosition, dragStartedId) {
+      this.project.nodeNum++;
+
+      var topOffset = 20
+
+      var content = {
+        author: this.uid,
+        id: `askEmailTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'ask_email',
+        nodeType: 'single',
+        text: this.$t("canvas.nodes.ask_email.default_label"),
+        expectedAnswer: this.$t("canvas.nodes.ask_email.expected_answer_placeholder"),
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          }
+        },
+      }
+
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.pushContentToScenario(content)
     },
     addMediaMessage(position, dragStartedPosition, dragStartedId){
 
@@ -700,7 +762,7 @@ export default {
         },
       }
       
-      this.mediaNodes.push(content)
+      // this.mediaNodes.push(content)
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
@@ -739,7 +801,7 @@ export default {
         },
       };
       
-      this.goToNodes.push(content)
+      // this.goToNodes.push(content)
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 

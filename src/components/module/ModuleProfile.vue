@@ -12,8 +12,9 @@
     div(v-if="customVarsInRoom").wrap-custom-vars-list
       div(v-for="item in customVarsInRoom").wrap-custom-var.f.flex-bwteen.mb6
         div.mb4
-          span.name.mr8 {{`${item.location} <${item.varType}>`}}
-          span.value {{item.value}}
+          span.name.mr8.mb4 {{`${item.location} <${item.varType}>`}}
+          span(v-if="item.varType === 'Array'") {{item.value.join(', ')}}
+          span(v-else).value {{item.value}}
         // span {{moment.unix(item.createdAt).format('ll')}}
     div(v-if="customVarsInRoom && !customVarsInRoom[0]").f.fc
       span No Data

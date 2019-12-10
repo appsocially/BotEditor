@@ -20,7 +20,6 @@
 import AtomConnectStarter from "../atom/AtomConnectStarter";
 
 export default {
-  name: 'ItemNodeSimpleMessage',
   components: {
     AtomConnectStarter,
   },

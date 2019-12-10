@@ -60,6 +60,11 @@ export default {
     this.initializeSelection()
 
   },
+  watch: {
+    selection () {
+      this.$nextTick(this.adjustPosition)
+    }
+  },
   mounted: function(){
     
     d3.select('#nodeSelector')
@@ -114,11 +119,24 @@ export default {
         break
         case 'to_question':
           this.selection = [
+            {label: this.$t("canvas.nodes.node_selector.question.open_question.label"), type: 'openquestion'},
             {label: this.$t("canvas.nodes.node_selector.question.selection.label"), type: 'selection'},
             {label: this.$t("canvas.nodes.node_selector.question.multiple_selection.label"), type: 'multipleselection'},
-            {label: this.$t("canvas.nodes.node_selector.question.open_question.label"), type: 'openquestion'}
+            {label: this.$t("canvas.nodes.node_selector.question.selection_others1.label"), type: 'selection_others1'}
           ]
           this.$nextTick(this.adjustPosition)
+        break
+        case 'selection_others1':
+          this.selection = [
+            {label: this.$t("canvas.nodes.node_selector.question.email.label"), type: 'ask_email'},
+            {label: this.$t("canvas.nodes.node_selector.question.phone_number.label"), type: 'ask_phone_number'},
+            // {label: this.$t("canvas.nodes.node_selector.question.selection_others2.label"), type: 'selection_others2'}
+          ]
+        break
+        case 'ask_email':
+          this.$emit('addAskEmailMessage', this.position, this.dragStartedPosition, this.dragStartedId)
+          this.hideSelf()
+          this.initializeSelection()
         break
         case 'to_action':
           this.$nextTick(this.adjustPosition)

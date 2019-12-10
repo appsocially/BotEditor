@@ -1,44 +1,78 @@
 <template lang="pug">
-  div.wrap-item-input-text.py4
-    div.wrap-input.f.fm.flex-between
-      div.wrap-textarea.f.fm.pr8
-        textarea(:placeholder="placeholder" v-model="value").px6.pt1
-      div.wrap-icon.f.fm.flex-right
-        v-icon(@click="sendMessage" :color="iconColor") send
+  transition
+    div(v-if="selections[0]").wrap-item-input-multiple-selection.pt8
+      div.wrap-selections
+        //- div(v-for="item in selections" @click="onSelection(item)").selection
+          v-checkbox(
+            v-model="item.checked"
+            :label="item.label"
+            color="#FF9A0A").ma-0.pa-0
+        div(v-for="item in selections").selection.mr6.mb6
+          span(@click="onSelection(item)" :class="{'is-active': item.checked}").px12.py8 {{item.label}}
+        div.wrap-send-button.f.fc.mt8.pb12
+          div.button.f.fm.px12.py8
+            span(@click="onSend").mr8 Send
+            v-icon(color="#FFF" size="18px") send
 </template>
 
-<style lang="scss">
-.wrap-item-input-text {
+<style lang="scss" scoped>
+.wrap-item-input-multiple-selection {
   width: 100%;
-  height: 40px;
+  height: 120px;
   border-top: solid 0.6px rgba(0, 0, 0, 0.2);
-  .wrap-input {
+  overflow: scroll;
+  .wrap-selections {
     width: 95%;
     max-width: 620px;
-    height: 100%;
     margin: 0 auto;
-    .wrap-textarea {
-      width: 100%;
-      height: 22px;
-      textarea {
-        width: 100%;
-        height: 26px;
-        border: solid 0.6px rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-        resize: none;
-        outline: none;
-        font-size: 16px;
-      }
-      .wrap-icon {
-        width: 24px;
-        height: 100%;
-        i {
-          cursor: pointer;
+    max-height: 100%;
+    .selection {
+      display: inline-block;
+      span {
+        display: block;
+        color: #FF9A0A;
+        border: solid #FF9A0A 0.8px;
+        background: #FFF;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        &.is-active {
+          color: #fff;
+          background: #FF9A0A;
         }
       }
     }
   }
+  .wrap-send-button {
+    .button {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      text-align: center;
+      background: #FF9A0A;
+      color: #fff;
+      border-radius: 3px;
+      filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
+      i {
+        width: 12px;
+      }
+    }
+  }
 }
+</style>
+
+<style lang="scss">
+// .v-input--checkbox {
+//   .v-input__slot {
+//     margin-bottom: 6px !important;
+//   }
+//   .v-messages {
+//     display: none !important;
+//   }
+//   label {
+//     font-size: 12px !important;
+//   }
+// }
 </style>
 
 <script>
@@ -51,28 +85,27 @@ const { mapState: mapStateTeam } = createNamespacedHelpers('team')
 export default {
   data () {
     return {
-      value: '',
-      placeholder: 'Type text here.',
-      iconColor: '#999'
+      selections: []
     }
   },
   watch: {
     async currentNode (newNode) {
-      if (newNode.type === 'openquestion'
-       || newNode.type === 'ask_email') {
-        this.placeholder = await this.getPlaceholderTextOf(newNode.id)
+      if (newNode.type === 'multipleselection') {
+        var selections = await this.getSelectionsOf(newNode.id)
+        this.selections = selections.map(e => {
+          e.checked = false
+          return e
+        })
+        this.$emit('openWidgetInput')
       } else {
-        this.placeholder = 'Type text here.'
+        this.selections = []
+        this.$emit('closeWidgetInput')
       }
-    },
-    value (newValue) {
-      this.iconColor = (newValue === '') ? '#999' : '#FF9A0A'
     }
   },
   computed: {
     ...mapStateAuth([
-      'uid',
-      'isAnonymous'
+      'uid'
     ]),
     ...mapStateScenario([
       'currentNode',
@@ -80,7 +113,7 @@ export default {
     ]),
     ...mapStateTeam([
       'team',
-      'teamId',
+      'teamId'
     ]),
     ...mapStateRoom([
       'room'
@@ -101,17 +134,16 @@ export default {
       'getNodeConditions',
       'getNextEventByConditions',
       'onEvent',
-      'getPlaceholderTextOf',
+      'getSelectionsOf',
       'setCustomVar'
     ]),
-    async sendMessage () {
-      if (this.value === "") return
-      
-      if (this.currentNode.type === "ask_email" && !this.validateEmail(this.value)) {
-        alert("Invalid Email Adress.")
-        return
-      }
-
+    onSelection (selection) {
+      this.selections = this.selections.map(e => {
+        if (e.id === selection.id) e.checked = !e.checked
+        return e
+      })
+    },
+    async onSend () {
       // For Preview
       var isPreviewMode = false
       if (this.$route.name === "canvas" 
@@ -127,26 +159,22 @@ export default {
         var roomId = this.room.id
       }
 
+      var checkedSelections = this.selections.filter(e => { return e.checked })
+      var text = checkedSelections.map(e => { return e.label }).join(", ")
       var messageObj = {
-        text: this.value,
+        text: text,
         uid: this.uid,
         teamId: teamId,
         roomId: roomId
       }
       if (isPreviewMode) messageObj.isPreviewMode = true
+      
       await this.addMessage(messageObj)
 
-      if (!this.isAnonymous && !isPreviewMode) {
-        this.value = ''
-        return
-      }
-      
-      if (this.handledCuntumVariable
-       && (this.handledCuntumVariable.handleType === 'openquestion'
-       || this.handledCuntumVariable.handleType === 'ask_email'
-       || this.handledCuntumVariable.handleType === 'ask_phone_number')) {
+      if (this.handledCuntumVariable && this.handledCuntumVariable.handleType === 'multipleselection') {
+        var value = checkedSelections.map(e => { return e.label })
         var customVarObj = {
-          value: this.value,
+          value: value,
           customVariable: this.handledCuntumVariable,
           teamId: teamId,
           roomId: roomId,
@@ -156,10 +184,8 @@ export default {
         await this.setCustomVar(customVarObj)
       }
 
-      this.value = ''
-
       // If there is matched condition, trigger next event.
-      var conditions = await this.getNodeConditions(this.currentNode.id)
+      var conditions = this.currentNode.conditions
       if (conditions) {
         var nextEvent = await this.getNextEventByConditions(conditions)
         if (nextEvent) {
@@ -178,10 +204,6 @@ export default {
           this.onEvent(eventObj)
         }
       }
-    },
-    validateEmail (email) {
-      var regexp = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/
-      return regexp.test(email)
     }
   }
 }

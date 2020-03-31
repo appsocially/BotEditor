@@ -14,7 +14,11 @@
         @addMultipleSelectionMessage='addMultipleSelectionMessage'
         @addOpenQuestionMessage='addOpenQuestionMessage'
         @addAskEmailMessage='addAskEmailMessage'
+        @addAskPhoneNumberMessage='addAskPhoneNumberMessage'
+        @addAskDateMessage='addAskDateMessage'
+        @addAskDateAndTimeMessage='addAskDateAndTimeMessage'
         @addMediaMessage='addMediaMessage'
+        @addActionSendEmailNode='addActionSendEmailNode'
         @selectToNodeByGoTo='selectToNodeByGoTo')
       item-edge-window(ref="edgeWindow" @updateEdgeType="updateEdgeType")
 
@@ -34,9 +38,23 @@
       ItemNodeAskEmail(
         v-if="askEmailNodes"
         v-for="node in askEmailNodes"
-        :content="node"
-      )
-
+        :content="node")
+      ItemNodeAskPhoneNumber(
+        v-if="askPhoneNumberNodes"
+        v-for="node in askPhoneNumberNodes"
+        :content="node")
+      ItemNodeAskDate(
+        v-if="askDateNodes"
+        v-for="node in askDateNodes"
+        :content="node")
+      ItemNodeAskDateAndTime(
+        v-if="askDateAndTimeNodes"
+        v-for="node in askDateAndTimeNodes"
+        :content="node")
+      ItemNodeActionSendEmail(
+        v-if="actionSendEmailNodes"
+        v-for="node in actionSendEmailNodes"
+        :content="node")
 
       div(@click="closeToolWindows")#canvasBg
       div#modalOverlay
@@ -128,7 +146,6 @@
 import db from "../firebaseInit"
 
 import { createNamespacedHelpers } from "vuex"
-import Auth from '@/components/auth'
 const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers("auth")
 const { mapState, mapActions } = createNamespacedHelpers("scenario")
 const { mapGetters: mapEdgesGetters } = createNamespacedHelpers("edges")
@@ -136,12 +153,13 @@ const { mapGetters: mapEdgesGetters } = createNamespacedHelpers("edges")
 import entity from "../entity"
 import exportECA from "../exportECA"
 
+import Auth from '@/components/auth'
 import ModuleConversation from "./ModuleConversation"
 
 import ItemNodeSelector from "../item/ItemNodeSelector"
 import ItemEdgeWindow from "../item/ItemEdgeWindow"
 
-// 古いフォーマットでつくったノード（いつかリファクタ）
+// 古いフォーマットでつくったノード（リファクタせねば）
 import ItemNodeStartPoint from "../item/ItemNodeStartPoint"
 import ItemNodeSimpleMessage from "../item/ItemNodeSimpleMessage"
 import ItemNodeSelection from "../item/ItemNodeSelection"
@@ -152,6 +170,10 @@ import ItemNodeGoTo from "../item/ItemNodeGoTo"
 // 新しいフォーマットで作ったノード
 import ItemNodeMultipleSelection from "../item/ItemNodeMultipleSelection"
 import ItemNodeAskEmail from "../item/ItemNodeAskEmail"
+import ItemNodeAskPhoneNumber from "../item/ItemNodeAskPhoneNumber"
+import ItemNodeAskDate from "../item/ItemNodeAskDate"
+import ItemNodeAskDateAndTime from "../item/ItemNodeAskDateAndTime"
+import ItemNodeActionSendEmail from "../item/ItemNodeActionSendEmail"
 
 import ItemEdge from "../item/ItemEdge"
 import { newExpression } from 'babel-types';
@@ -174,7 +196,11 @@ export default {
     ItemEdge,
 
     ItemNodeMultipleSelection,
-    ItemNodeAskEmail
+    ItemNodeAskEmail,
+    ItemNodeAskPhoneNumber,
+    ItemNodeAskDate,
+    ItemNodeAskDateAndTime,
+    ItemNodeActionSendEmail
   },
   props: {
     project: {
@@ -201,31 +227,12 @@ export default {
       edgesArray: [],
       completeLoadingLine: false,
 
-      dummyNodes: [
-        {
-          id: "dummyTmp",
-          text: "This is dummy data",
-          num: 777,
-          type: "dummy",
-          nodeType: "single",
-          gui: {
-            position: {x: 300, y: 50000}
-          }
-        }
-      ],
       multipleSelectionNodes: [],
-      askEmailNodes: [
-        // {
-        //   id: "dummyTmp",
-        //   text: "This is dummy data",
-        //   num: 777,
-        //   type: "dummy",
-        //   nodeType: "single",
-        //   gui: {
-        //     position: {x: 300, y: 50000}
-        //   }
-        // }
-      ]
+      askEmailNodes: [],
+      askPhoneNumberNodes: [],
+      askDateNodes: [],
+      askDateAndTimeNodes: [],
+      actionSendEmailNodes: []
     }
   },
   // watch: {
@@ -301,9 +308,13 @@ export default {
 
       this.multipleSelectionNodes = this.scenarioArray.filter((node) => { return node.type === "multipleselection" })
       this.askEmailNodes = this.scenarioArray.filter((node) => { return node.type === "ask_email" })
+      this.askPhoneNumberNodes = this.scenarioArray.filter((node) => { return node.type === "ask_phone_number" })
+      this.askDateNodes = this.scenarioArray.filter((node) => { return node.type === "ask_date" })
+      this.askDateAndTimeNodes = this.scenarioArray.filter((node) => { return node.type === "ask_date_and_time" })
+      this.actionSendEmailNodes = this.scenarioArray.filter((node) => { return node.type === "action_send_email" })
     },
     update(){
-      this.project = this.project;
+      this.project = this.project
     },
     loadAllEdges(){
       this.edgesArray = []
@@ -555,7 +566,7 @@ export default {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
+          }
         }
       }
 
@@ -576,7 +587,7 @@ export default {
     },
     addSelectionMessage(position, dragStartedPosition, dragStartedId){
 
-      this.project.nodeNum++;
+      this.project.nodeNum++
 
       var topOffset = 63
 
@@ -625,7 +636,7 @@ export default {
       this.disconnectNode(id);
     },
     addMultipleSelectionMessage (position, dragStartedPosition, dragStartedId) {
-      this.project.nodeNum++;
+      this.project.nodeNum++
 
       var topOffset = 63
 
@@ -645,8 +656,8 @@ export default {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
+          }
+        }
       }
 
       // Canvas.vueでwatchしてるからいらなくなった
@@ -678,10 +689,9 @@ export default {
       }
     },
     addOpenQuestionMessage(position, dragStartedPosition, dragStartedId){
-
       var topOffset = 33
 
-      this.project.nodeNum++;
+      this.project.nodeNum++
       
       var content = {
         author: this.uid,
@@ -695,16 +705,15 @@ export default {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
+          }
+        }
       }
       
       // this.openQuestionNodes.push(content);
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
-      this.pushContentToScenario(content);
-
+      this.pushContentToScenario(content)
     },
     removeOpenQuestionNode(id){
       this.openQuestionNodes = this.openQuestionNodes.filter(e => {
@@ -716,7 +725,7 @@ export default {
       this.disconnectNode(id);
     },
     addAskEmailMessage (position, dragStartedPosition, dragStartedId) {
-      this.project.nodeNum++;
+      this.project.nodeNum++
 
       var topOffset = 20
 
@@ -733,14 +742,83 @@ export default {
             x: position.x,
             y: position.y - topOffset
           }
-        },
+        }
       }
 
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
       this.pushContentToScenario(content)
     },
-    addMediaMessage(position, dragStartedPosition, dragStartedId){
+    addAskPhoneNumberMessage (position, dragStartedPosition, dragStartedId) {
+      this.project.nodeNum++
 
+      var topOffset = 20
+
+      var content = {
+        author: this.uid,
+        id: `askPhoneNumberTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'ask_phone_number',
+        nodeType: 'single',
+        text: this.$t("canvas.nodes.ask_phone_number.default_label"),
+        expectedAnswer: this.$t("canvas.nodes.ask_phone_number.expected_answer_placeholder"),
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          }
+        }
+      }
+
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.pushContentToScenario(content)
+    },
+    addAskDateMessage (position, dragStartedPosition, dragStartedId) {
+      this.project.nodeNum++
+
+      var topOffset = 20
+
+      var content = {
+        author: this.uid,
+        id: `askDateTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'ask_date',
+        nodeType: 'single',
+        text: this.$t("canvas.nodes.ask_date.default_label"),
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          }
+        }
+      }
+
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.pushContentToScenario(content)
+    },
+    addAskDateAndTimeMessage (position, dragStartedPosition, dragStartedId) {
+      this.project.nodeNum++
+
+      var topOffset = 20
+
+      var content = {
+        author: this.uid,
+        id: `askDateAndTimeTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'ask_date_and_time',
+        nodeType: 'single',
+        text: this.$t("canvas.nodes.ask_date_and_time.default_label"),
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          }
+        }
+      }
+
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.pushContentToScenario(content)
+    },
+    addMediaMessage (position, dragStartedPosition, dragStartedId) {
       var topOffset = 60
 
       this.project.nodeNum++
@@ -758,8 +836,8 @@ export default {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
+          }
+        }
       }
       
       // this.mediaNodes.push(content)
@@ -767,9 +845,8 @@ export default {
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
       this.pushContentToScenario(content)
-
     },
-    removeMediaNode(id){
+    removeMediaNode (id) {
       this.mediaNodes = this.mediaNodes.filter(e => {
         return e.id !== id
       })
@@ -778,9 +855,33 @@ export default {
       this.deleteNode(id)
       this.disconnectNode(id)
     },
+    addActionSendEmailNode (position, dragStartedPosition, dragStartedId) {
+      this.project.nodeNum++
+
+      var topOffset = 30
+
+      var content = {
+        author: this.uid,
+        id: `actionSendEmailTmp${this.project.nodeNum}`,
+        num: this.project.nodeNum,
+        type: 'action_send_email',
+        nodeType: 'single',
+        title: 'Title', // this.$t("canvas.nodes.ask_email.default_label"),
+        text: 'Body of email',
+        gui: {
+          position: {
+            x: position.x,
+            y: position.y - topOffset
+          }
+        }
+      }
+
+      this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
+      this.pushContentToScenario(content)
+    },
+
     // これはノード選択後に呼び出す
     addGoTo(position, dragStartedPosition, dragStartedId, targetId, targetNum){
-
       var topOffset = 23
 
       this.project.nodeNum++
@@ -797,8 +898,8 @@ export default {
           position: {
             x: position.x,
             y: position.y - topOffset
-          },
-        },
+          }
+        }
       };
       
       // this.goToNodes.push(content)
@@ -806,7 +907,6 @@ export default {
       this.addEdgeFromSelector(dragStartedId, content.id, dragStartedPosition, position)
 
       this.pushContentToScenario(content)
-
     },
     removeGoToNode(id){
       this.goToNodes = this.goToNodes.filter(e => {

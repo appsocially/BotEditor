@@ -8,11 +8,16 @@
             :label="item.label"
             color="#FF9A0A").ma-0.pa-0
         div(v-for="item in selections").selection.mr6.mb6
-          span(@click="onSelection(item)" :class="{'is-active': item.checked}").px12.py8 {{item.label}}
+          span(@click="onSelection(item, $event)"
+            :class="{'is-active': item.checked}"
+            :style="`border-color: ${themeColor}; color: ${themeColor};`").px12.py8 {{item.label}}
         div.wrap-send-button.f.fc.mt8.pb12
-          div.button.f.fm.px12.py8
-            span(@click="onSend").mr8 Send
-            v-icon(color="#FFF" size="18px") send
+          div(:style="`background: ${themeColor};`").button.f.fm.px12.py8
+            span(@click="onSend"
+              :style="`color: ${textColor};`").mr8 Send
+            v-icon(color="#FFF"
+              size="18px"
+              :style="`color: ${textColor};`") send
 </template>
 
 <style lang="scss" scoped>
@@ -30,15 +35,16 @@
       display: inline-block;
       span {
         display: block;
-        color: #FF9A0A;
-        border: solid #FF9A0A 0.8px;
+        // color: #FF9A0A;
+        // border: solid #FF9A0A 0.8px;
+        border: solid 0.8px;
         background: #FFF;
         border-radius: 6px;
         font-size: 12px;
         cursor: pointer;
         &.is-active {
           color: #fff;
-          background: #FF9A0A;
+          // background: #FF9A0A;
         }
       }
     }
@@ -49,7 +55,7 @@
       font-size: 14px;
       font-weight: bold;
       text-align: center;
-      background: #FF9A0A;
+      // background: #FF9A0A;
       color: #fff;
       border-radius: 3px;
       filter: drop-shadow(2px 1px 1px rgba(0, 0, 0, 0.2));
@@ -78,6 +84,7 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState: mapStateAuth } = createNamespacedHelpers('auth')
+const { mapState: mapStateProject } = createNamespacedHelpers("project")
 const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers('scenarioForChat')
 const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedHelpers('room')
 const { mapState: mapStateTeam } = createNamespacedHelpers('team')
@@ -85,7 +92,9 @@ const { mapState: mapStateTeam } = createNamespacedHelpers('team')
 export default {
   data () {
     return {
-      selections: []
+      selections: [],
+      themeColor: "#FF9A0A",
+      textColor: "#fff"
     }
   },
   watch: {
@@ -104,23 +113,18 @@ export default {
     }
   },
   computed: {
-    ...mapStateAuth([
-      'uid'
-    ]),
-    ...mapStateScenario([
-      'currentNode',
-      'handledCuntumVariable'
-    ]),
-    ...mapStateTeam([
-      'team',
-      'teamId'
-    ]),
-    ...mapStateRoom([
-      'room'
-    ])
+    ...mapStateAuth(['uid']),
+    ...mapStateScenario(['currentNode', 'handledCuntumVariable']),
+    ...mapStateProject(['project']),
+    ...mapStateTeam(['team', 'teamId']),
+    ...mapStateRoom(['room', 'messages'])
   },
   async created () {
     this.user = await this.getRoomUserById(this.uid)
+    if (this.project.themeColor) {
+      this.themeColor = this.project.themeColor.hex
+      this.textColor = this.blackOrWhite(this.themeColor)
+    }
   },
   async mounted () {
 
@@ -137,7 +141,14 @@ export default {
       'getSelectionsOf',
       'setCustomVar'
     ]),
-    onSelection (selection) {
+    onSelection (selection, event) {
+      if (selection.checked) {
+        event.target.style.background = "#FFF"
+        event.target.style.color = this.themeColor
+      } else {
+        event.target.style.background = this.themeColor
+        event.target.style.color = "#FFF"
+      }
       this.selections = this.selections.map(e => {
         if (e.id === selection.id) e.checked = !e.checked
         return e
@@ -180,6 +191,9 @@ export default {
           roomId: roomId,
           uid: this.uid
         }
+        if (this.messages[this.messages.length - 2]) {
+          customVarObj.questionMessage = this.messages[this.messages.length-2]
+        }
         if (isPreviewMode) customVarObj.isPreviewMode = true
         await this.setCustomVar(customVarObj)
       }
@@ -204,6 +218,13 @@ export default {
           this.onEvent(eventObj)
         }
       }
+    },
+    blackOrWhite (hexcolor) {
+      var r = parseInt( hexcolor.substr( 1, 2 ), 16 ) ;
+      var g = parseInt( hexcolor.substr( 3, 2 ), 16 ) ;
+      var b = parseInt( hexcolor.substr( 5, 2 ), 16 ) ;
+
+      return ( ( ( (r * 299) + (g * 587) + (b * 114) ) / 1000 ) < 128 ) ? "#fff" : "#2a2a2a"
     }
   }
 }

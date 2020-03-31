@@ -160,7 +160,7 @@ export default {
     
     setTimeout(() => {
       this.bubbleActive = 'active'
-      this.detectURL(this.message.text)
+      this.detectURL(this.renderedText)
     }, 800)
   },
   methods: {
@@ -196,45 +196,92 @@ export default {
       return resultText
     },
     detectURL (text) {
-      // URLの文字列かどうか
-      const regex = /https*(:\/\/[-_.!~*¥'()a-zA-Z0-9;\/?:¥@&=+¥$,%#]+)/
+      if (!text) return false
 
-      if (text && text.match(regex)) {
-        var span = document.createElement('span')
-        var textArrayWithoutURL = text.split(text.match(regex)[0])
+      var targetText = text
 
-        var splitAllRegex = (text) => {
-
+      var AutoLink = (str) => {
+        var regexp_url = /((h?)(ttps?:\/\/[a-zA-Z0-9.\-_@:/~?%&;=+#',()*!]+))/g
+        var regexp_makeLink = function(all, url, h, href) {
+          return '<a href="h' + href + '" target="brank">' + url + '</a>'
         }
-
-        var textArray = [text]
-
-        while (true) {
-          if (textArray[textArray.length - 1].match(regex)) {
-            var splitPointURL = textArray[textArray.length - 1].match(regex)[0]
-            var bottomTextArray = textArray[textArray.length - 1].split(splitPointURL)
-
-            bottomTextArray.splice(1, 0, splitPointURL)
-
-            textArray.pop()
-            textArray = textArray.concat(bottomTextArray)
-          } else {
-            break
-          }
-        }
-
-        var resultHTML = ''
-        for (var i = 0; i < textArray.length; i++) {
-          if (textArray[i].match(regex)) {
-            resultHTML += `<a href="${textArray[i]}" target="brank">${textArray[i]}</a>`
-          } else {
-            resultHTML += textArray[i]
-          }
-        }
-        resultHTML = `<span class="text">${resultHTML}</span>`
-
-        this.$refs.bubble.innerHTML = resultHTML
+        return str.replace(regexp_url, regexp_makeLink)
       }
+
+      var AutoEmailLink = (str) => {
+        var regexp_url = /(\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*)/
+        var regexp_makeLink = function(all, url, h, href) {
+          return '<a href="mailto:' + url + '">' + url + '</a>'
+        }
+        return str.replace(regexp_url, regexp_makeLink)
+      }
+      
+      var AutoPhoneNumberLink = (str) => {
+        // 電話番号だと思われる文字列を抽出
+        var phone_array = str.match( /\+?[0-9]+[\-\x20]?[0-9]+[\-\x20]?[0-9]+[\-\x20]?[0-9]+/g )
+        var cursor = 0
+        for ( var i = 0; phone_array != null && i < phone_array.length; i++ ) {
+          // ハイフンとスペースを削除
+          var tmp = phone_array[i]
+          tmp = tmp.replace( /[\-\x20]/g, '' )
+          if ( tmp.length < 10 ) {
+            // 10桁未満は電話番号とみなさない
+            continue
+          }
+
+          // aタグ文字列を生成
+          var tag_a = '<a href="tel:' + tmp + '">' + phone_array[i] + '</a>'
+
+          // 置換する電話番号の出現位置を取得
+          var start = str.indexOf( phone_array[i], cursor )
+
+          // 出現した電話番号を置換
+          str = str.slice( 0, start ) + tag_a + str.slice( start + phone_array[i].length )
+          cursor = start + tag_a.length
+        }
+
+        return str
+      }
+
+      targetText = AutoLink(targetText)
+      targetText = AutoEmailLink(targetText)
+      targetText = AutoPhoneNumberLink(targetText)
+
+      this.$refs.bubble.innerHTML = `<span class="text">${targetText}</span>`
+
+      // const regex = /https*(:\/\/[-_.!~*¥'()a-zA-Z0-9;\/?:¥@&=+¥$,%#]+)/
+      // if (text && text.match(regex)) {
+      //   var span = document.createElement('span')
+      //   var textArrayWithoutURL = text.split(text.match(regex)[0])
+
+      //   var textArray = [text]
+
+      //   while (true) {
+      //     if (textArray[textArray.length - 1].match(regex)) {
+      //       var splitPointURL = textArray[textArray.length - 1].match(regex)[0]
+      //       var bottomTextArray = textArray[textArray.length - 1].split(splitPointURL)
+
+      //       bottomTextArray.splice(1, 0, splitPointURL)
+
+      //       textArray.pop()
+      //       textArray = textArray.concat(bottomTextArray)
+      //     } else {
+      //       break
+      //     }
+      //   }
+
+      //   var resultHTML = ''
+      //   for (var i = 0; i < textArray.length; i++) {
+      //     if (textArray[i].match(regex)) {
+      //       resultHTML += `<a href="${textArray[i]}" target="brank">${textArray[i]}</a>`
+      //     } else {
+      //       resultHTML += textArray[i]
+      //     }
+      //   }
+      //   resultHTML = `<span class="text">${resultHTML}</span>`
+
+      //   this.$refs.bubble.innerHTML = resultHTML
+      // }
     }
   }
 }

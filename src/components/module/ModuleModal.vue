@@ -7,6 +7,13 @@
         item-img-uploader(:existingImg="project.botIcon" :imgId="project.id" ref="imgUploader")
         v-text-field(:label="projectTitleLabel" :value="project.title" v-model="projectTitle" color="#FF9A0A")
         v-textarea(name="input-7-1" :label="projectDescriptionLabel" v-model="projectDescription" rows="3" color="#FF9A0A")
+        div.wrap-color-picker.mb28
+          h4.mb8 Color
+          div.f.fm.pl2.mb8
+            div(:style="`background: ${themeColor.hex};`").color-preview.mr4
+            span {{this.themeColor.hex}}
+          Compact(v-model="themeColor").pl2
+        //- v-color-picker(v-model="themeColor")
         v-switch(v-model="switchPublishedAsFormat" color="#FF9A0A" :label="togglePublishLabel").switch
         div.mb24
           h4.mb8 {{this.$t("canvas.settings.bot_url.title")}}
@@ -21,7 +28,7 @@
             span.line-clamp-1 {{embedCode}}
             //input(type="text" :value="embedCode" readonly).embed-code.line-clamp-1
         div.wrap-save-button.f.fc.pb12
-          span(@click="onSave").save-button.px4.py6.f.fh {{this.$t("canvas.settings.save_label")}}
+          span(@click="onSave").save-button.px4.pt7.pb6.f.fh {{this.$t("canvas.settings.save_label")}}
 
 </template>
 
@@ -57,6 +64,14 @@
       font-size: 12px;
       font-weight: normal;
       color:rgba(0,0,0,0.54);
+    }
+    .wrap-color-picker {
+      .color-preview {
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+      }
     }
     .switch {
       margin-top: 0;
@@ -114,12 +129,13 @@ import { createNamespacedHelpers } from "vuex"
 const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedHelpers("team")
 
 import { functions } from 'firebase'
-import { setTimeout } from 'timers'
+import { Compact } from 'vue-color'
 import ItemImgUploader from '@/components/item/ItemImgUploader'
 
 export default {
   components: {
-    ItemImgUploader
+    ItemImgUploader,
+    Compact
   },
   props: {
     // showModal: {
@@ -142,6 +158,13 @@ export default {
       copyMessage: "",
       embedCode: "",
       switchPublishedAsFormat: false,
+      themeColor: {
+        hex: "#FF9A0A",
+        hsl: { h: 0, s: 0, l: 38, a: 1 },
+        hsv: { h: 0.098, s: 0.9608, v: 1, a: 1 },
+        rgba: { r: 255, g: 154, b: 10, a: 1 },
+        a: 1
+      }
     }
   },
   computed: {
@@ -151,6 +174,7 @@ export default {
   },
   created: function () {
     this.projectTitle = this.project.title
+    if (this.project.themeColor) this.themeColor = this.project.themeColor
     this.switchPublishedAsFormat = (this.project.pulishedAsFormat)? this.project.pulishedAsFormat: false
     this.projectDescription = (this.project.discription)? this.project.discription: "About this bot..."
     this.copyMessage = `${location.origin}/preview/${this.$route.params.id}/${this.teamId}`
@@ -179,6 +203,7 @@ export default {
         botIcon: this.$refs.imgUploader.getImgUrl(),
         title: this.projectTitle,
         discription: this.projectDescription,
+        themeColor: this.themeColor,
         pulishedAsFormat: this.switchPublishedAsFormat
       })
     },

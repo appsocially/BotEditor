@@ -6,7 +6,8 @@
     span.team-name.mb12 {{team.name}}
     div.wrap-qr.f.fc.mb4
       img(:src="qrSrc")
-    div(v-clipboard:copy="teamURI" v-clipboard:success="onCopyTeamURI").wrap-uri.f.fh
+    div(v-clipboard:copy="teamURI"
+      v-clipboard:success="onCopyTeamURI").wrap-uri.f.fh.mb24
       div.f
         v-icon(color="#999" size="16px").mr4 file_copy
         span.team-uri {{teamURI}}

@@ -21,13 +21,14 @@ export const mutations = {
   updateSettings(state, settings) {
     state.project.title = settings.title
     state.project.discription = settings.discription
+    state.project.themeColor = settings.themeColor
     state.project.botIcon = settings.botIcon
     state.project.pulishedAsFormat = settings.pulishedAsFormat
   }
 }
 
 export const actions = {
-  async loadProject({commit}, id) {
+  async loadProject({ commit }, id) {
     return new Promise(async resolve => {
       // commit('loadProject', id)
       var project = await db.collection("projects")
@@ -42,7 +43,7 @@ export const actions = {
       resolve(project)
     })
   },
-  async getProject({commit}, id) {
+  async getProject({ commit }, id) {
     return new Promise(async resolve => {
       // commit('loadProject', id)
       var project = await db.collection("projects")
@@ -56,24 +57,25 @@ export const actions = {
       resolve(project)
     })
   },
-  replaceProject({commit}, project) {
+  replaceProject({ commit }, project) {
     commit('replaceProject', project)
   },
-  updateEditTime({commit}, id) {
+  updateEditTime({ commit }, id) {
     commit('updateEditTime', id)
   },
-  updateSettings({commit}, data) {
+  updateSettings({ commit }, data) {
     db.collection("projects")
       .doc(data.id)
       .update({
         title: data.settings.title,
         discription: data.settings.discription,
         botIcon: data.settings.botIcon,
+        themeColor: data.settings.themeColor,
         publishedAsFormat: data.settings.pulishedAsFormat
       })
     commit('updateSettings', data.settings)
   },
-  async copyProject({commit}, data) {
+  async copyProject({ commit }, data) {
     return new Promise(async resolve => {
       var baseProjectId = data.project.id
       var projectObj = {
@@ -110,7 +112,7 @@ export const actions = {
       resolve(copiedProject.id)
     })
   },
-  async deleteProject({commit}, id) {
+  async deleteProject({ commit }, id) {
     var nodeIds = await db.collection("projects").doc(id).collection("scenario").get().then((d) => {
       return d.docs.map((doc) => {
         return doc.id

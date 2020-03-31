@@ -1,12 +1,13 @@
 <template lang="pug">
   div(:class="{'is-preview-mode': isPreviewMode}").wrap-module-chat
-    div(v-if="!isNowLoading").wrap-chat
+    div(v-if="!isNowLoading && project").wrap-chat
       div(ref="messagesWrapper"
           :class="{'widget-is-active': widgetIsActive, 'is-ios-safari': iOSSafari}"
           ).wrap-messages.py8
         ItemChatMessage(v-for="message in messages" :message="message")
       div(v-if="currentNode || !isAnonymous").wrap-input
-        ItemChatInputText
+        ItemChatInputDate(v-if="currentNode && (currentNode.type==='ask_date' || currentNode.type==='ask_date_and_time')")
+        ItemChatInputText(v-else)
         div.wrap-input-widgets
           ItemChatInputSelection(@openWidgetInput="openWidgetInput" @closeWidgetInput="closeWidgetInput")
           ItemChatInputMultipleSelection(@openWidgetInput="openWidgetInput" @closeWidgetInput="closeWidgetInput")
@@ -23,7 +24,7 @@
   background: #FFF;
   position: relative;
   width: 100%;
-  height: calc(100vh - 48px);
+  height: calc(100vh - (48px + 48px));
   overflow: hidden;
   .wrap-chat {
     position: relative;
@@ -67,6 +68,7 @@
 import { createNamespacedHelpers } from 'vuex'
 import ItemChatMessage from '@/components/item/ItemChatMessage'
 import ItemChatInputText from '@/components/item/ItemChatInputText'
+import ItemChatInputDate from '@/components/item/ItemChatInputDate'
 import ItemChatInputSelection from '@/components/item/ItemChatInputSelection'
 import ItemChatInputMultipleSelection from '@/components/item/ItemChatInputMultipleSelection'
 const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers('auth')
@@ -75,11 +77,13 @@ const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedH
 const { mapState: mapStateScenarioForChat, mapActions: mapActionsScenarioForChat } = createNamespacedHelpers('scenarioForChat')
 
 const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers('scenario')
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers("project")
 
 export default {
   components: {
     ItemChatMessage,
     ItemChatInputText,
+    ItemChatInputDate,
     ItemChatInputSelection,
     ItemChatInputMultipleSelection
   },
@@ -106,6 +110,9 @@ export default {
     ]),
     ...mapStateScenario([
       'scenarioArray'
+    ]),
+    ...mapStateProject([
+      'project'
     ])
   },
   props: {
@@ -162,10 +169,11 @@ export default {
     await this.setUserTeamOf(this.uid)
     await this.loadRoomUsers({ teamId: this.team.id, roomId: this.room.id })
     await this.loadAssignedUser(this.room.assignedUid)
+    await this.loadProject(this.room.assignedUid)
     await this.loadCustomVars({ teamId: this.team.id, roomId: this.room.id })
     await this.handleMessages({ teamId: this.team.id, roomId: this.room.id })
     
-    if (this.isAnonymous && this.teamAsGuest.includes(this.team.id)) {
+    if (this.isAnonymous && this.teamAsGuest[0] && this.teamAsGuest.includes(this.team.id)) {
       if (this.assignedUser.type === 'bot') {
         this.startScenario()
       }
@@ -210,6 +218,9 @@ export default {
       'setScenarioForPreview',
       'deleteMessagesForPreview'
     ]),
+    ...mapActionsProject([
+      'loadProject'
+    ]),
     async startScenario () {      
       await this.loadScenarioOf(this.assignedUser.projectId)
       var firstEvent = await this.getFirstEventOf(this.currentScenario)
@@ -231,7 +242,7 @@ export default {
       
       var projectId = this.$route.params.id
       var roomId = `${projectId}-${this.uid}`
-
+      
       await this.loadCustomVars({ 
         teamId: this.teamId,
         roomId: roomId,

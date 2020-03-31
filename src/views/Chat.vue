@@ -15,7 +15,7 @@
 </style>
 
 <script>
-import db, { firebase } from '@/components/firebaseInit'
+import db, { api } from '@/components/firebaseInit'
 
 import Auth from '@/components/auth'
 
@@ -78,20 +78,14 @@ export default {
     }
   },
   computed: {
-    ...mapStateAuth([
-      'uid',
-      'isAnonymous'
-      // 'teamsThatUserBelongs'
-    ]),
-    ...mapStateTeam([
-      'team'
-    ]),
-    ...mapStateRoom([
-      'room'
-    ])
+    ...mapStateAuth(['uid', 'isAnonymous']),
+    ...mapStateTeam(['team']),
+    ...mapStateRoom(['room'])
   },
   async created () {
     this.resetMessages()
+
+    // window.addEventListener('beforeunload', this.sendEmailWithCustomVars, false)
   },
   methods: {
     ...mapActionsAuth([
@@ -173,10 +167,29 @@ export default {
           teamId: this.team.id,
           roomId: this.room.id
         })
-        
         // this.$router.push(`/chat/${this.$route.params.teamId}/${user.uid}`)
       }
     }
+    // sendEmailWithCustomVars (e) {
+    //   fetch(`${api}/sendEmailWithCustomVars`, {
+    //     method: 'POST',
+    //     mode: 'cors',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Accept': 'application/json'
+    //     },
+    //     body: JSON.stringify({
+    //       uid: this.uid,
+    //       teamId: this.team.id
+    //     })
+    //   })
+
+    //   console.log("call sendEmailWithCustomVars")
+
+    //   var confirmMessage = 'ページを離れますか？'
+    //   e.returnValue = confirmMessage
+    //   return confirmMessage
+    // }
   }
 }
 </script>

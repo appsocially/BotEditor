@@ -58,7 +58,7 @@ export default {
   },
   watch: {
     showDrawer (show) {
-      this.drawerWidthStyle = (show)? "width: 300px" : "width: 0px;"     
+      this.drawerWidthStyle = (show)? "width: 340px" : "width: 0px;"     
     }
   },
   created: function(){

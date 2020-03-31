@@ -4,7 +4,7 @@ const admin = require('firebase-admin')
 const FieldValue = admin.firestore.FieldValue
 const mailSender = require('./mailSender')
 
-const mode = "dev"
+const mode = "prod"
 
 if (mode === "dev") {
   // Dev
@@ -32,10 +32,10 @@ if (mode === "dev") {
     messagingSenderId: "938144697052"
   })
 
-  var stripeKey = 'sk_test_ZluOqOvwXDnfxjOn7c6h2LqO00SVQfjQu0'
+  var stripeKey = 'sk_live_aNk3sFovFEiRjHgewJjpEYeA00gg1jwxmM'
   var stripe = require('stripe')(stripeKey)
 
-  var domain = "https://editor.chatcenter.ai"
+  var domain = "https://app.editor.chatcenter.ai"
 }
 
 const db = admin.firestore()
@@ -44,16 +44,80 @@ db.settings({
   timestampsInSnapshots: true
 })
 
-const cors = require('cors')({origin: true})
+const cors = require('cors')({ origin: true })
 
 // APIs
+exports.sendEmailWithCustomVars = functions.https.onRequest((req, res) => {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+  res.set('Access-Control-Allow-Headers', 'Content-Type')
+
+  cors(req, res, async () => {
+    console.log("call sendEmailWithCustomVars")
+
+    var title = req.body.title
+    var body = req.body.text
+
+    var teamId = req.body.teamId
+    var guestUid = req.body.uid
+    
+    var team = await db.collection('teams').doc(teamId).get().then(d => { return d.data() })
+    var user = await db.collection('users').doc(team.author).get().then(d => { return d.data() })
+    console.log("user:", user)
+    if (user.plan === "BUSINESS_HR_SOLUTION_PLAN") {
+      var customVars = await db.collection('teams')
+        .doc(teamId).collection('rooms')
+        .doc(guestUid).collection('customVars')
+        .orderBy("createdAt", "asc")
+        .get()
+        .then(q => {
+          return q.docs.map(d => { return d.data() })
+        })
+      var keyVals = customVars.map(e => {
+        var value = (e.varType === "Array")? e.value.join(", "): e.value
+        if (e.questionBy) {
+          return `${e.questionBy.text}:\n${value}`
+        } else {
+          return `${e.location}:\n${value}`
+        }
+      })
+      var customVarsListStr = keyVals.join("\n")
+
+      var email = await db.collection('users').doc(team.author)
+        .collection('secrets').doc('email')
+        .get().then((d) => { return d.data().email })
+      
+      var subject = title
+      var text = `${body}\n\n${customVarsListStr}\n\n${domain}/profile/${teamId}/${guestUid}`
+
+      console.log(`Send to ${email}`, text)
+
+      mailSender(email, subject, text)
+
+      res.status(200).send({result: "send email"}).end()
+    } else {
+      var email = await db.collection('users').doc(team.author)
+        .collection('secrets').doc('email')
+        .get().then((d) => { return d.data().email })
+      
+      var subject = title
+      var text = `${body}\n\n${domain}/profile/${teamId}/${guestUid}`
+
+      console.log(`Send to ${email}`, text)
+
+      mailSender(email, subject, text)
+
+      res.status(200).send({result: "anotherPlan"}).end()
+    }
+  }) // cors
+})
+
 exports.getScenario = functions.https.onRequest((req, res) => {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+  res.set('Access-Control-Allow-Headers', 'Content-Type')
 
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
-
-  cors(req, res, async function() {
+  cors(req, res, async () => {
 
     let data = req.body
     var scenarioId = data.scenarioId
@@ -75,16 +139,14 @@ exports.getScenario = functions.https.onRequest((req, res) => {
       return
     }
   }) // cors
-
 })
 
 exports.getProject = functions.https.onRequest((req, res) => {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+  res.set('Access-Control-Allow-Headers', 'Content-Type')
 
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
-
-  cors(req, res, async function() {
+  cors(req, res, async () => {
 
     let data = req.body
     var scenarioId = data.scenarioId
@@ -103,9 +165,22 @@ exports.getProject = functions.https.onRequest((req, res) => {
       return
     }
   }) // cors
-
 })
 
+exports.updateTeamAsGuest = functions.https.onRequest((req, res) => {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+  res.set('Access-Control-Allow-Headers', 'Content-Type')
+
+  cors(req, res, async () => {
+    let data = req.body
+    await db.collection("users").doc(data.uid)
+      .update({
+        teamAsGuest: FieldValue.arrayUnion(data.teamId)
+      })
+    res.status(200).send({result: "succeeded"}).end()
+  }) // cors
+})
 
 
 // triggers
@@ -114,9 +189,7 @@ exports.createRoom = functions.firestore
   .onCreate(async (doc, context) => {
     console.log('createRoom', doc.data())
     var room = doc.data()
-    await db.collection('teams').doc(room.teamId).update({
-      roomNum: FieldValue.increment(1)
-    })
+    await db.collection('teams').doc(room.teamId).update({roomNum: FieldValue.increment(1)})
     var team = await db.collection('teams')
       .doc(room.teamId)
       .get()
@@ -130,7 +203,7 @@ exports.createRoom = functions.firestore
       .collection('secrets').doc('email')
       .get().then((d) => { return d.data().email })
 
-    var subject = '[Chatcenter.Ai] ボットにアクセスがありました。'
+    var subject = '[BotEditor] ボットにアクセスがありました。'
     var text = `誰かがあなたのボットにアクセスしました。\n\n ${domain}/profile/${team.id}/${doc.id}`
     mailSender(email, subject, text)
 
@@ -140,9 +213,6 @@ exports.createRoom = functions.firestore
     //   num: team.roomNum
     // }, context, db)
   })
-
-
-
 
 // For Stripe
 const INDIVIDUAL_CUSTOMVAR_CRM_PLAN = 'INDIVIDUAL_CUSTOMVAR_CRM_PLAN'
@@ -176,6 +246,8 @@ exports.getStripeSession = functions.https.onRequest((req, res) => {
 
   }) // cors
 })
+
+// reference for upgrade plan: https://stripe.com/docs/billing/subscriptions/upgrading-downgrading
 
 exports.webhook = functions.https.onRequest((req, res) => {
   // res.set('Access-Control-Allow-Origin', '*')

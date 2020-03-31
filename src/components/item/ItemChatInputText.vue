@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.wrap-item-input-text.py4
+  div(v-if="showTextInput").wrap-item-input-text.py4
     div.wrap-input.f.fm.flex-between
       div.wrap-textarea.f.fm.pr8
         textarea(:placeholder="placeholder" v-model="value").px6.pt1
@@ -44,6 +44,7 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState: mapStateAuth } = createNamespacedHelpers('auth')
+const { mapState: mapStateProject } = createNamespacedHelpers("project")
 const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers('scenarioForChat')
 const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedHelpers('room')
 const { mapState: mapStateTeam } = createNamespacedHelpers('team')
@@ -53,38 +54,35 @@ export default {
     return {
       value: '',
       placeholder: 'Type text here.',
-      iconColor: '#999'
+      iconColor: '#999',
+      showTextInput: true
     }
   },
   watch: {
     async currentNode (newNode) {
+      this.showTextInput = true
       if (newNode.type === 'openquestion'
-       || newNode.type === 'ask_email') {
+       || newNode.type === 'ask_email'
+       || newNode.type === 'ask_phone_number') {
         this.placeholder = await this.getPlaceholderTextOf(newNode.id)
+      } else if (newNode.type === 'selection'
+       || newNode.type === 'multipleselection') {
+        this.showTextInput = false
       } else {
         this.placeholder = 'Type text here.'
       }
     },
     value (newValue) {
-      this.iconColor = (newValue === '') ? '#999' : '#FF9A0A'
+      var activeColor = (this.project.themeColor)? this.project.themeColor.hex: "#FF9A0A"
+      this.iconColor = (newValue === '') ? '#999' : activeColor
     }
   },
   computed: {
-    ...mapStateAuth([
-      'uid',
-      'isAnonymous'
-    ]),
-    ...mapStateScenario([
-      'currentNode',
-      'handledCuntumVariable'
-    ]),
-    ...mapStateTeam([
-      'team',
-      'teamId',
-    ]),
-    ...mapStateRoom([
-      'room'
-    ])
+    ...mapStateAuth(['uid', 'isAnonymous']),
+    ...mapStateProject(['project']),
+    ...mapStateScenario(['currentNode', 'handledCuntumVariable']),
+    ...mapStateTeam(['team', 'teamId']),
+    ...mapStateRoom(['room', 'messages'])
   },
   async created () {
     this.user = await this.getRoomUserById(this.uid)
@@ -93,10 +91,7 @@ export default {
 
   },
   methods: {
-    ...mapActionsRoom([
-      'getRoomUserById',
-      'addMessage'
-    ]),
+    ...mapActionsRoom(['getRoomUserById', 'addMessage']),
     ...mapActionsScenario([
       'getNodeConditions',
       'getNextEventByConditions',
@@ -109,6 +104,10 @@ export default {
       
       if (this.currentNode.type === "ask_email" && !this.validateEmail(this.value)) {
         alert("Invalid Email Adress.")
+        return
+      }
+      if (this.currentNode.type === "ask_phone_number" && !this.validatePhoneNumber(this.value)) {
+        alert("Invalid Phone Number.")
         return
       }
 
@@ -138,13 +137,14 @@ export default {
 
       if (!this.isAnonymous && !isPreviewMode) {
         this.value = ''
-        return
+        return true
       }
       
       if (this.handledCuntumVariable
        && (this.handledCuntumVariable.handleType === 'openquestion'
        || this.handledCuntumVariable.handleType === 'ask_email'
        || this.handledCuntumVariable.handleType === 'ask_phone_number')) {
+        
         var customVarObj = {
           value: this.value,
           customVariable: this.handledCuntumVariable,
@@ -152,6 +152,10 @@ export default {
           roomId: roomId,
           uid: this.uid
         }
+        if (this.messages[this.messages.length - 2]) {
+          customVarObj.questionMessage = this.messages[this.messages.length-2]
+        }
+
         if (isPreviewMode) customVarObj.isPreviewMode = true
         await this.setCustomVar(customVarObj)
       }
@@ -182,6 +186,11 @@ export default {
     validateEmail (email) {
       var regexp = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/
       return regexp.test(email)
+    },
+    validatePhoneNumber (phoneNumber) {
+      var noBar = phoneNumber.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'')
+      var regexp = /^(0[5-9]0[0-9]{8}|0[1-9][1-9][0-9]{7})$/
+      return regexp.test(noBar)
     }
   }
 }

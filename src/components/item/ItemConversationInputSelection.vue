@@ -25,17 +25,13 @@
     }
   }
 }
-
 </style>
 
 <script>
-
 import entity from "../entity"
 
 import { createNamespacedHelpers } from "vuex"
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers(
- "scenario"
-)
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
 
 export default {
   name: 'ItemConversationInputSelection',
@@ -53,19 +49,10 @@ export default {
     }
   },
   computed: {
-    ...mapState([
-      'scenarioArray',
-      'customVars'
-    ])
+    ...mapState(['scenarioArray', 'customVars'])
   },
-  created: function(){
+  created () {
     
-  },
-  mounted: function(){
-    
-  },
-  update: function(){
-
   },
   methods: {
     ...mapActions([

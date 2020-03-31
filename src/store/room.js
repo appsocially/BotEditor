@@ -177,6 +177,7 @@ export const actions = {
         createdBy: data.uid,
         teamId: data.teamId
       }
+      
       await docRef
         .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.customVars)

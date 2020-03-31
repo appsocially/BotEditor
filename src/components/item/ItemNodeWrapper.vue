@@ -1,5 +1,4 @@
 <template lang="pug">
-
   div(ref='dragDiv'
     :style='{top: `${content.gui.position.y}px`, left: `${content.gui.position.x}px`}'
     :class="{'scale-up': letScaleUp}"
@@ -16,7 +15,6 @@
         AtomNodeWindow(:content='content'
           ref="toolWindow"
           @delete='onDelete')
-
 </template>
 
 <style lang="scss" scoped>
@@ -90,7 +88,11 @@ export default {
         "multipleSelectionNodes",
         "openQuestionNodes",
         "askEmailNodes",
+        "askPhoneNumberNodes",
+        "askDateNodes",
+        "askDateAndTimeNodes",
         "mediaNodes",
+        "actionSendEmailNodes",
         "goToNodes"
       ]
     }
@@ -212,7 +214,7 @@ export default {
         var moduleCanvas = this.$parent.$parent
         var targetNode
 
-        for (var i=0; i<this.nodeArrayNames.length; i++) {
+        for (var i = 0; i < this.nodeArrayNames.length; i++) {
           if (!targetNode) {
             targetNode = moduleCanvas[this.nodeArrayNames[i]].filter((node) => { return node.id === this.content.id })[0]
           }

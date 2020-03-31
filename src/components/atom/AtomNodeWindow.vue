@@ -293,6 +293,61 @@ export default {
             func: this.deleteNode
           }
         ]
+        this.varTypes = ['String']
+      break
+
+      case 'ask_phone_number':
+        this.lists = [
+          {
+            label: this.$t("canvas.tool_window.node.custom_var.label"),
+            icon: 'monetization_on',
+            id: 'show-custom-vars',
+            func: this.toggleCuostomVarMenu
+          },
+          {
+            label: this.$t("canvas.tool_window.node.delete.label"),
+            icon: 'delete',
+            id: 'delete-node',
+            func: this.deleteNode
+          }
+        ]
+        this.varTypes = ['String']
+      break
+
+      case 'ask_date':
+        this.lists = [
+          {
+            label: this.$t("canvas.tool_window.node.custom_var.label"),
+            icon: 'monetization_on',
+            id: 'show-custom-vars',
+            func: this.toggleCuostomVarMenu
+          },
+          {
+            label: this.$t("canvas.tool_window.node.delete.label"),
+            icon: 'delete',
+            id: 'delete-node',
+            func: this.deleteNode
+          }
+        ]
+        this.varTypes = ['Date']
+      break
+
+      case 'ask_date_and_time':
+        this.lists = [
+          {
+            label: this.$t("canvas.tool_window.node.custom_var.label"),
+            icon: 'monetization_on',
+            id: 'show-custom-vars',
+            func: this.toggleCuostomVarMenu
+          },
+          {
+            label: this.$t("canvas.tool_window.node.delete.label"),
+            icon: 'delete',
+            id: 'delete-node',
+            func: this.deleteNode
+          }
+        ]
+        this.varTypes = ['Date']
       break
 
       case 'media':
@@ -307,6 +362,17 @@ export default {
       break
 
       case 'goto':
+        this.lists = [
+          {
+            label: this.$t("canvas.tool_window.node.delete.label"),
+            icon: 'delete',
+            id: 'delete-node',
+            func: this.deleteNode
+          }
+        ]
+      break
+
+      case 'action_send_email':
         this.lists = [
           {
             label: this.$t("canvas.tool_window.node.delete.label"),

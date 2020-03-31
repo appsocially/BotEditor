@@ -1,7 +1,7 @@
 <template lang="pug">
 
   ItemNodeWrapper(ref="node" :content="content" @onResizeNode="onResizeNode").px12.pt10.pb8
-    div.wrap-item-node-email
+    div.wrap-item-node-ask-phone-number
       div.wrap-text
         AtomFlexibleTextarea(
           ref="text"
@@ -10,16 +10,16 @@
           :width="160"
           :content="content"
         )
-      div.wrap-email-icon.f.fm
-        v-icon(size="18px" color="#2a2a2a").mr2 email
-        span Email?
+      div.wrap-phone-number-icon.f.fm
+        v-icon(size="19px" color="#2a2a2a").mr2 local_phone
+        span Phone Number?
       div.wrap-starter.f.fh
         AtomConnectStarterV2(:nodeId="content.id")
 
 </template>
 
 <style lang="scss" scoped>
-.wrap-item-node-email {
+.wrap-item-node-ask-phone-number {
   position: relative;
   background: #fff;
   .wrap-info {
@@ -29,7 +29,7 @@
       }
     }
   }
-  .wrap-email-icon {
+  .wrap-phone-number-icon {
     position: absolute;
     top: -30px;
     right: 0;

@@ -1,33 +1,41 @@
 <template lang="pug">
-
   ItemNodeWrapper(ref="node" :content="content" @onResizeNode="onResizeNode").px12.pt10.pb8
-    div.wrap-item-node-email
-      div.wrap-text
-        AtomFlexibleTextarea(
-          ref="text"
-          :textId="content.id"
-          :text="content.text"
-          :width="160"
-          :content="content"
-        )
-      div.wrap-email-icon.f.fm
-        v-icon(size="18px" color="#2a2a2a").mr2 email
-        span Email?
+    div.wrap-item-node-tmp
+      div.wrap-item-content
+        div.wrap-title.pb4
+          AtomFlexibleTextarea(
+            ref="title"
+            :textId="content.id"
+            :text="content.title"
+            :width="160"
+            :content="content")
+        div.wrap-text.pt4
+          AtomFlexibleTextarea(
+            ref="text"
+            :textId="content.id"
+            :text="content.text"
+            :width="160"
+            :content="content")
+        div.wrap-email-icon.f.fm
+          v-icon(size="18px" color="#2a2a2a").mr2 notifications_active
+          span Notification
       div.wrap-starter.f.fh
         AtomConnectStarterV2(:nodeId="content.id")
-
 </template>
 
 <style lang="scss" scoped>
-.wrap-item-node-email {
+.wrap-item-node-tmp {
   position: relative;
   background: #fff;
-  .wrap-info {
-    .wrap-icon {
-      span {
-        font-weight: bold;
-      }
-    }
+  .wrap-title {
+    border-bottom: solid 0.6px rgba(0, 0, 0, 0.2);
+  }
+  .wrap-starter {
+    position: absolute;
+    top: -0px;
+    left: calc(100% + 14px);
+    width: 18px;
+    height: 100%;
   }
   .wrap-email-icon {
     position: absolute;
@@ -37,13 +45,6 @@
       font-size: 12px;
       font-weight: bold;
     }
-  }
-  .wrap-starter {
-    position: absolute;
-    top: -0px;
-    left: calc(100% + 14px);
-    width: 18px;
-    height: 100%;
   }
 }
 </style>
@@ -73,9 +74,6 @@ export default {
     return {
       
     }
-  },
-  created () {
-    
   },
   methods: {
     ...mapActions([

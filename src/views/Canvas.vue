@@ -28,7 +28,7 @@
         ModuleChat(ref="moduleChat" v-if="uid && scenarioArray" :isPreviewMode="true")
       div(v-show="!showPreview" @click="togglePreview").wrap-preview-float-icon.f.fh
         v-icon(color='#2a2a2a') remove_red_eye
-      module-modal(
+      ModuleModal(
         v-if="showModal"
         @toggleModal="toggleModal"
         @updateProject="updateProject"
@@ -45,7 +45,7 @@
     z-index: 103;
     right: 16px;
     bottom: 16px;
-    width: 300px;
+    width: 320px;
     height: 440px;
     filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
     overflow: hidden;
@@ -75,15 +75,9 @@ import Auth from '@/components/auth'
 import db from "@/components/firebaseInit"
 
 import { createNamespacedHelpers } from "vuex"
-const { mapState, mapActions } = createNamespacedHelpers(
- "scenario"
-)
-const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers(
- "project"
-)
-const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
- "auth"
-)
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers("project")
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers("auth")
 
 import UtilHeader from "../components/util/UtilHeader"
 import UtilCanvasHeader from "../components/util/UtilCanvasHeader"
@@ -95,10 +89,8 @@ import ModuleCanvasDrawer from "../components/module/ModuleCanvasDrawer"
 import ModuleModal from "../components/module/ModuleModal"
 
 import ItemPreviewHeader from "../components/item/ItemPreviewHeader"
-import { functions } from 'firebase';
 
 export default {
-  name: 'Canvas',
   components: {
     Auth,
     UtilHeader,

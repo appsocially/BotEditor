@@ -158,6 +158,54 @@ export const actions = {
           await docRef.add(messageObj)
           break
 
+        case 'ask_phone_number':
+          if (node.customVariable) {
+            var customVariable = node.customVariable
+            customVariable.handleType = 'ask_phone_number'
+            commit('replaceHandledCustomVariable', customVariable)
+          }
+
+          messageObj.text = node.text
+          await sleep(1200)
+          await docRef.add(messageObj)
+          break
+
+        case 'ask_date':
+          if (node.customVariable) {
+            var customVariable = node.customVariable
+            customVariable.handleType = 'ask_date'
+            commit('replaceHandledCustomVariable', customVariable)
+          }
+
+          messageObj.text = node.text
+          await sleep(1200)
+          await docRef.add(messageObj)
+          break
+
+        case 'ask_time':
+          if (node.customVariable) {
+            var customVariable = node.customVariable
+            customVariable.handleType = 'ask_time'
+            commit('replaceHandledCustomVariable', customVariable)
+          }
+
+          messageObj.text = node.text
+          await sleep(1200)
+          await docRef.add(messageObj)
+          break
+
+        case 'ask_date_and_time':
+          if (node.customVariable) {
+            var customVariable = node.customVariable
+            customVariable.handleType = 'ask_date_and_time'
+            commit('replaceHandledCustomVariable', customVariable)
+          }
+
+          messageObj.text = node.text
+          await sleep(1200)
+          await docRef.add(messageObj)
+          break
+
         case 'media':
           messageObj.mediaType = node.mediaType
           messageObj.mediaURI = node.mediaURI
@@ -173,6 +221,23 @@ export const actions = {
             roomId: data.roomId
           })
           break
+
+          case 'action_send_email':
+            // プレヴューの時は送信しない
+            if (location.pathname.split("/")[1] !== "canvas") {
+              dispatch('sendEmail', {
+                title: node.title,
+                text: node.text,
+                teamId: data.teamId,
+                roomId: data.roomId
+              })
+            }
+            break
+      }
+
+      if (location.pathname.split("/")[1] === "canvas") {
+        $(".focused").removeClass("focused")
+        $(`#${node.id}`).addClass("focused")
       }
 
       // getMatchedCondition is duplicated in actions.
@@ -189,6 +254,10 @@ export const actions = {
           node.type === 'multipleselection' ||
           node.type === 'openquestion' ||
           node.type === 'ask_email' ||
+          node.type === 'ask_phone_number' ||
+          node.type === 'ask_date' ||
+          node.type === 'ask_time' ||
+          node.type === 'ask_date_and_time' ||
           node.type === 'goto') break
 
       var next = getMatchedCondition(node.conditions).next
@@ -218,6 +287,9 @@ export const actions = {
       node.type === 'openquestion' ||
       node.type === 'ask_email' ||
       node.type === 'ask_phone_number' ||
+      node.type === 'ask_date' ||
+      node.type === 'ask_time' ||
+      node.type === 'ask_date_and_time' ||
       node.type === 'media' ||
       node.type === 'point') {
       return (node.conditions) ? node.conditions : null
@@ -278,6 +350,14 @@ export const actions = {
       customVariableObj.createdBy = data.uid
       customVariableObj.createdAt = new Date()
       customVariableObj.value = data.value
+      
+      if (data.questionMessage) {
+        customVariableObj.questionBy = {
+          nodeId: data.questionMessage.nodeId,
+          text: data.questionMessage.text
+        }
+      }
+
       await docRef
         .doc(data.roomId)
         .collection(COLLECTIONS_ENUM.customVars)
@@ -319,6 +399,22 @@ export const actions = {
       await Promise.all(promises)
       
       resolve(true)
+    })
+  },
+  sendEmail ({ state, commit }, data) {
+    fetch(`${api}/sendEmailWithCustomVars`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        title: data.title,
+        text: data.text,
+        uid: data.roomId,
+        teamId: data.teamId
+      })
     })
   }
 }

@@ -45,6 +45,18 @@
           "default_label": "Let me know your email.",
           "expected_answer_placeholder": "Type email here."
         },
+        "ask_phone_number": {
+          "default_label": "Let me know your phone number.",
+          "expected_answer_placeholder": "Type phone number here."
+        },
+         "ask_date": {
+          "default_label": "Let me know date.",
+          "expected_answer_placeholder": "Input date."
+        },
+        "ask_date_and_time": {
+          "default_label": "Let me know date.",
+          "expected_answer_placeholder": "Input time."
+        },
         "node_selector": {
           "normal": {"label": "Message"},
           "question": {
@@ -55,10 +67,18 @@
             "selection_others1": {"label": "More"},
             "email": {"label": "Ask Email"},
             "phone_number": {"label": "Ask Phone Number"},
+            "date": {"label": "Ask Date"},
+            "date_only": {"label": "Ask Date"},
+            "date_and_time": {"label": "Date and Time"},
             "selection_others2": {"label": "More"}
           },
           "media": {"label": "Image"},
-          "go_to": {"label": "Go To"}
+          "go_to": {"label": "Go To"},
+          "action": {
+            "label": "Action",
+            "go_to": {"label": "Go To"},
+            "send_email": {"label": "Notification via email"}
+          }
         }
       },
       "tool_window": {
@@ -183,17 +203,29 @@
           "default_label": "メッセージ"
         },
         "selection": {
-          "default_label": "質問文をここに書いてください",
+          "default_label": "質問文をここに書いてください。",
           "expected_answer_selection_1": "選択肢1",
           "expected_answer_selection_2": "選択肢2"
         },
         "open_question": {
-          "default_label": "質問文をここに書いてください",
+          "default_label": "質問文をここに書いてください。",
           "expected_answer_placeholder": "プレースホルダ"
         },
         "ask_email": {
           "default_label": "メールアドレスを教えてください。",
           "expected_answer_placeholder": "Emailを入力"
+        },
+        "ask_phone_number": {
+          "default_label": "電話番号を教えてください。",
+          "expected_answer_placeholder": "電話番号を入力（ハイフン抜き）"
+        },
+        "ask_date": {
+          "default_label": "日付を教えてください。",
+          "expected_answer_placeholder": "日付を入力"
+        },
+        "ask_date_and_time": {
+          "default_label": "日時を教えてください。",
+          "expected_answer_placeholder": "日時を入力"
         },
         "node_selector": {
           "normal": {"label": "メッセージ"},
@@ -205,10 +237,18 @@
             "selection_others1": {"label": "more"},
             "email": {"label": "Emailを聞く"},
             "phone_number": {"label": "電話番号を聞く"},
+            "date": {"label": "日時を聞く"},
+            "date_only": {"label": "日付のみ"},
+            "date_and_time": {"label": "日付と時間"},
             "selection_others2": {"label": "more"}
           },
           "media": {"label": "画像表示"},
-          "go_to": {"label": "他ノードへジャンプ"}
+          "go_to": {"label": "他ノードへジャンプ"},
+          "action": {
+            "label": "アクション",
+            "go_to": {"label": "他ノードへジャンプ"},
+            "send_email": {"label": "通知メールを送信"}
+          }
         }
       },
       "tool_window": {

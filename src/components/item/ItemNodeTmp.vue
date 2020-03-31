@@ -1,10 +1,12 @@
 <template lang="pug">
   // How to add node
-  // 1. loadNodesArray
-  // 2. addNode function to array
-  // 3. nodeSelector
-  // 4. node window
-  // 5. Enjoy!
+  // 0. register Component
+  // 1. define node array data which is inserted in loadNodesArray function
+  // 2. addNode function to node array data
+  // 3. update nodeSelector
+  // 4. update AtomNodeWindow in ItemNodeWrapper
+  // 5. update ItemNodeWrapper
+  // 6. Enjoy!
   // How to make Chat UI
   // 1. scenarioForChat
   ItemNodeWrapper(ref="node" :content="content" @onResizeNode="onResizeNode").px12.pt10.pb8

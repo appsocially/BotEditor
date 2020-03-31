@@ -8,33 +8,28 @@
     div(v-if="showChild").wrap-drawer-list-content
       div(v-if="list.type === 'custom_variable'").custom-vars
         div(v-for="item in customVars").var-list.pl24.pr10.pt12.pb4
-          div(v-if="item.varType === 'String' || item.varType === 'Number'")
-            span.var-title {{item.location + ` <${item.varType}>`}}
+          div(v-if="item.varType === 'String' || item.varType === 'Number' || item.varType === 'Date'")
+            div.f.fm.flex-between
+              span.var-title {{item.location + ` <${item.varType}>`}}
+              v-icon(
+                v-clipboard:copy="'${'+`${item.location}`+'}'"
+                v-clipboard:success="onCopy"
+                size="16px"
+                color="#FF9A0A") file_copy
             div.wrap-value.py8
               span(v-if="!item.value") Null
               span(v-else) {{item.value}}
-            // v-text-field(
-              label="Value"
-              :value="item.value"
-              placeholder="Null"
-              @keyup="upField(item.location ,$event)"
-              disabled)
           div(v-if="item.varType === 'Array'").pb8
-            span.var-title {{item.location + ` <${item.varType}>`}}
+            div.f.fm.flex-between
+              span.var-title {{item.location + ` <${item.varType}>`}}
+              v-icon(
+                v-clipboard:copy="'${'+`${item.location}`+'}'"
+                v-clipboard:success="onCopy"
+                size="16px"
+                color="#FF9A0A") file_copy
             div.wrap-array-values.py8
-              // v-text-field(
-                v-if="!item.value[0]"
-                label="Value"
-                :value="item.value"
-                placeholder="Null"
-                disabled)
               span(v-if="!item.value[0]") Null
               span(v-else v-for="element in item.value").array-value {{`- ${element}`}}
-        // そもそもここで変種できる必要あるかな？
-        //div(v-for="item in customVars").var-list.pl20.pr10.pt12
-          v-text-field(label="Name" :value="item.location").pt8
-          v-select(:items="varTypes" label="Type" :value="item.varType")
-          v-text-field(label="Value" :value="item.value" placeholder="Null")
       div(v-if="list.type === 'exports'").exports
         div(v-for="li in exportsItems" @click="exportScenario(li)").exports-list.pl24.pr10.py12
           span {{li}}
@@ -170,7 +165,10 @@ export default {
       element.click()
 
       document.body.removeChild(element)
+    },
+    onCopy () {
+      alert("Custom Var has been copied.")
     }
   }
-};
+}
 </script>

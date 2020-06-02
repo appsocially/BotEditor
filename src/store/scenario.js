@@ -263,16 +263,17 @@ export const mutations = {
     })
   },
   setCustomAction(state, value){
-    var content = entity.getContent(scenarioArray, value.nodeId);
+    var content = entity.getContent(state.scenarioArray, value.nodeId);
     content.customAction = value.customAction    
   },
   updateCustomAction(state, value){
-    var content = entity.getContent(scenarioArray, value.nodeId);
+    var content = entity.getContent(state.scenarioArray, value.nodeId);
     content.customAction = value.customAction
   },
   updateEdgeCondition(state, value){
-    var content = entity.getContentByConditionId(scenarioArray, value.id)
+    var content = entity.getContentByConditionId(state.scenarioArray, value.id)
     
+    console.log("content:", content)
     content.conditions = content.conditions.map((e) => {
       if(e.id === value.id) {
         var condition = e

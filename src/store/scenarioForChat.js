@@ -222,17 +222,49 @@ export const actions = {
           })
           break
 
-          case 'action_send_email':
+        case 'action_send_email':
+
+          var replaceCustomVar = (text) => {
+            var resultText
+            if (text && text.match(/\${[A-Za-z0-9]+}/)) { // customVarの文字列かどうか
+              resultText = text
+              while (true) {
+                var containedCustomVarName = resultText.match(/\${[A-Za-z0-9]+}/)[0].split('{')[1].split('}')[0]
+                var matchedCustomVar = state.customVars.filter((e) => {
+                  return (e.location === containedCustomVarName)
+                })[0]
+                if (matchedCustomVar) {
+                  // カスタム変数が宣言されていた場合
+                  var replaceValue = matchedCustomVar.value ? matchedCustomVar.value : 'null'
+                  if (matchedCustomVar.varType === "Array") replaceValue = replaceValue.join(", ")
+                } else {
+                  // カスタム変数が宣言されていなかった場合
+                  var replaceValue = 'null'
+                }
+                resultText = resultText.replace(/\${[A-Za-z0-9]+}/, replaceValue)
+                if (!resultText.match(/\${[A-Za-z0-9]+}/)) break
+              }
+            } else {
+              resultText = text
+            }
+            return resultText
+          }
+
+          if (node.title && node.text) {
+            var title = replaceCustomVar(node.title)
+            var text = replaceCustomVar(node.text)
             // プレヴューの時は送信しない
             if (location.pathname.split("/")[1] !== "canvas") {
               dispatch('sendEmail', {
-                title: node.title,
-                text: node.text,
+                title: title,
+                text: text,
+                email: node.email,
                 teamId: data.teamId,
                 roomId: data.roomId
               })
             }
-            break
+          }
+          break
       }
 
       if (location.pathname.split("/")[1] === "canvas") {
@@ -402,6 +434,27 @@ export const actions = {
     })
   },
   sendEmail ({ state, commit }, data) {
+    var params = {
+      title: data.title,
+      text: data.text,
+      uid: data.roomId,
+      teamId: data.teamId
+    }
+
+    if (data.email) {
+      var validateEmail = (email) => {
+        var regexp = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/
+        return regexp.test(email)
+      }
+      if (!validateEmail(data.email)) {
+        console.log("invalid email")
+        return false
+      }
+      params.email = data.email
+    }
+
+    console.log('params:', params)
+
     fetch(`${api}/sendEmailWithCustomVars`, {
       method: 'POST',
       mode: 'cors',
@@ -409,12 +462,7 @@ export const actions = {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({
-        title: data.title,
-        text: data.text,
-        uid: data.roomId,
-        teamId: data.teamId
-      })
+      body: JSON.stringify(params)
     })
   }
 }

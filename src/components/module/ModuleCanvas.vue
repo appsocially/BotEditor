@@ -8,6 +8,7 @@
         svg#previewLineForGoTo
         item-edge(v-for='item in edgesArray' :content='item' :ref='item.id' :key="item.key" @openEdgeWindow="openEdgeWindow")
         //item-edge(v-for='item in edges' :content='item')
+      // 古いフォーマットのノード
       item-node-selector(
         @addNormalMessage='addNormalMessage'
         @addSelectionMessage='addSelectionMessage'
@@ -29,6 +30,7 @@
       item-node-media(v-for='item in mediaNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeMediaNode='removeMediaNode' @loadAllEdges='loadAllEdges').item-node-media
       item-node-go-to(v-for='item in goToNodes' :id='item.id' :key='item.id' :content='item' @updateNode='updateNode' @removeGoToNode='removeGoToNode' @loadAllEdges='loadAllEdges').item-node-go-to
 
+      // 新しいフォーマットのノード
       ItemNodeMultipleSelection(
         v-if="multipleSelectionNodes"
         v-for="node in multipleSelectionNodes"

@@ -57,6 +57,7 @@ exports.sendEmailWithCustomVars = functions.https.onRequest((req, res) => {
 
     var title = req.body.title
     var body = req.body.text
+    var email = req.body.email
 
     var teamId = req.body.teamId
     var guestUid = req.body.uid
@@ -64,6 +65,7 @@ exports.sendEmailWithCustomVars = functions.https.onRequest((req, res) => {
     var team = await db.collection('teams').doc(teamId).get().then(d => { return d.data() })
     var user = await db.collection('users').doc(team.author).get().then(d => { return d.data() })
     console.log("user:", user)
+
     if (user.plan === "BUSINESS_HR_SOLUTION_PLAN") {
       var customVars = await db.collection('teams')
         .doc(teamId).collection('rooms')
@@ -83,12 +85,15 @@ exports.sendEmailWithCustomVars = functions.https.onRequest((req, res) => {
       })
       var customVarsListStr = keyVals.join("\n")
 
-      var email = await db.collection('users').doc(team.author)
-        .collection('secrets').doc('email')
-        .get().then((d) => { return d.data().email })
-      
+      if (!email) {
+        email = await db.collection('users').doc(team.author)
+          .collection('secrets').doc('email')
+          .get().then((d) => { return d.data().email })
+      }
+
       var subject = title
-      var text = `${body}\n\n${customVarsListStr}\n\n${domain}/profile/${teamId}/${guestUid}`
+      var text = `${body}\n\n${domain}/profile/${teamId}/${guestUid}`
+      // var text = `${body}\n\n${customVarsListStr}\n\n${domain}/profile/${teamId}/${guestUid}`
 
       console.log(`Send to ${email}`, text)
 
@@ -96,10 +101,12 @@ exports.sendEmailWithCustomVars = functions.https.onRequest((req, res) => {
 
       res.status(200).send({result: "send email"}).end()
     } else {
-      var email = await db.collection('users').doc(team.author)
-        .collection('secrets').doc('email')
-        .get().then((d) => { return d.data().email })
-      
+      if (!email) {
+        email = await db.collection('users').doc(team.author)
+          .collection('secrets').doc('email')
+          .get().then((d) => { return d.data().email })
+      }
+
       var subject = title
       var text = `${body}\n\n${domain}/profile/${teamId}/${guestUid}`
 

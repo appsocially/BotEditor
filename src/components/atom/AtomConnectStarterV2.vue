@@ -42,7 +42,7 @@ export default {
   mounted: function(){
 
     var connectStarter = d3.select(`#connectStarter-${this.nodeId}`).data([
-      {nodeId: this.nodeId, starterId: `connectStarter-${this.nodeId}`}
+      { nodeId: this.nodeId, starterId: `connectStarter-${this.nodeId}` }
     ])
 
     var dragOnConnectStarter = d3.behavior.drag()

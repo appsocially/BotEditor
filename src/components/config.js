@@ -20,8 +20,8 @@
 // }
 
 // const api = "https://us-central1-bot-editor-dev.cloudfunctions.net"
+// // const api = "http://localhost:5000/bot-editor-prod/us-central1"
 // const stripeKey = "pk_test_J5Wi6Z7mtNhAEAI9QXGdUIl400EGRhCfTX"
-// export { api, stripeKey }
 
 // For Prod
 export default {
@@ -35,4 +35,5 @@ export default {
 
 const api = "https://us-central1-bot-editor-prod.cloudfunctions.net"
 const stripeKey = "pk_live_hbnraerdEYfGBWCPoARilSeO00kYKzAL6s"
+
 export { api, stripeKey }

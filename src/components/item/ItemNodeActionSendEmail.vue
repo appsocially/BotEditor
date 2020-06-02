@@ -4,18 +4,30 @@
       div.wrap-item-content
         div.wrap-title.pb4
           AtomFlexibleTextarea(
+            ref="email"
+            :textId="content.id"
+            :text="content.email"
+            :width="160"
+            :content="content"
+            placeholder="Type email"
+            targetProp="email")
+        div.wrap-title.py4
+          AtomFlexibleTextarea(
             ref="title"
             :textId="content.id"
             :text="content.title"
             :width="160"
-            :content="content")
+            :content="content"
+            placeholder="Type title"
+            targetProp="title")
         div.wrap-text.pt4
           AtomFlexibleTextarea(
             ref="text"
             :textId="content.id"
             :text="content.text"
             :width="160"
-            :content="content")
+            :content="content"
+            placeholder="Type body")
         div.wrap-email-icon.f.fm
           v-icon(size="18px" color="#2a2a2a").mr2 notifications_active
           span Notification
@@ -86,7 +98,7 @@ export default {
           y: this.content.gui.position.y - gapSize.height/2
         }
       }
-    }    
+    }
   }
 }
 </script>

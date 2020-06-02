@@ -4,6 +4,7 @@
     textarea(
       ref="textarea"
       :style="textareaStyle"
+      :placeholder="placeholder"
       v-model="valueText"
       @keydown.enter.exact.prevent="enter"
       @keydown.delete="onDelete"
@@ -51,7 +52,11 @@ export default {
     },
     text: {
       type: String,
-      required: true
+      required: false
+    },
+    placeholder: {
+      type: String,
+      required: false
     },
     content: {
       type: Object,
@@ -60,6 +65,10 @@ export default {
     width: {
       type: Number,
       default: 180
+    },
+    targetProp: {
+      type: String,
+      required: false
     }
   },
   data() {
@@ -110,7 +119,12 @@ export default {
     saveNode () {
       // このテキストがcontent.textでなければ、selections[i].labelにvalueを入れる
       if (this.content.id === this.textId) {
-        this.content.text = this.valueText
+        // this.content.text以外のプロパティをアップデートする場合
+        if (this.targetProp) {
+          this.content[this.targetProp] = this.valueText
+        } else {
+          this.content.text = this.valueText
+        }
       } else {
         this.content.selections = this.content.selections.map(s => {
           if (this.textId === s.id) s.label = this.valueText

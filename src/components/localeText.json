@@ -1,0 +1,342 @@
+{
+  "en": {
+    "navigation": {
+      "my_bots": "My Bots",
+      "team": "Team",
+      "open_bots": "Bot Market",
+      "others": "Others",
+      "service_terms": "Service Terms",
+      "privacy_policy": "Privacy Policy",
+      "sign_out": "Sign Out"
+    },
+    "sign_up": {
+      "message": "Welcome to BotEditor."
+    },
+    "top": {
+      "create_bot": {
+        "placeholder": "Bot Name",
+        "button_label": "Create Bot",
+        "default_content": {
+          "description": "No Description"
+        }
+      },
+      "cards": {
+        "delete_alert": "Do you really delete"
+      }
+    },
+    "open_bots": {
+      "title": "Open Bot"
+    },
+    "canvas": {
+      "nodes": {
+        "normal": {
+          "default_label": "Message"
+        },
+        "selection": {
+          "default_label": "Type a question here",
+          "expected_answer_selection_1": "Selection1",
+          "expected_answer_selection_2": "Selection2"
+        },
+        "open_question": {
+          "default_label": "Type a question here",
+          "expected_answer_placeholder": "Placeholder"
+        },
+        "ask_email": {
+          "default_label": "Let me know your email.",
+          "expected_answer_placeholder": "Type email here."
+        },
+        "ask_phone_number": {
+          "default_label": "Let me know your phone number.",
+          "expected_answer_placeholder": "Type phone number here."
+        },
+         "ask_date": {
+          "default_label": "Let me know date.",
+          "expected_answer_placeholder": "Input date."
+        },
+        "ask_date_and_time": {
+          "default_label": "Let me know date.",
+          "expected_answer_placeholder": "Input time."
+        },
+        "node_selector": {
+          "normal": {"label": "Message"},
+          "question": {
+            "label": "Question",
+            "selection": {"label": "Selection"},
+            "multiple_selection": {"label": "Multiple Selection"},
+            "open_question": {"label": "Open Question"},
+            "selection_others1": {"label": "More"},
+            "email": {"label": "Ask Email"},
+            "phone_number": {"label": "Ask Phone Number"},
+            "date": {"label": "Ask Date"},
+            "date_only": {"label": "Ask Date"},
+            "date_and_time": {"label": "Date and Time"},
+            "selection_others2": {"label": "More"}
+          },
+          "media": {"label": "Image"},
+          "go_to": {"label": "Go To"},
+          "action": {
+            "label": "Action",
+            "go_to": {"label": "Go To"},
+            "send_email": {"label": "Notification via email"}
+          }
+        }
+      },
+      "tool_window": {
+        "node": {
+          "custom_var": {
+            "label": "Custom Var as Answer",
+            "no_content": {
+              "sentence": "This node has No Custom Var",
+              "add": "Add Custom Var"
+            },
+            "content": {
+              "input_label": "Variable Name",
+              "type_label": "type"
+            }
+          },
+          "custom_action": {
+            "label": "Custom Action",
+            "no_content": {
+              "sentence": "This node has No Custom Action",
+              "add": "Add Custom Action"
+            },
+            "content": {
+              "input_label": "Action Name"
+            }
+          },
+          "delete": {
+            "label": "Delete Node"
+          }
+        },
+        "condition": {
+          "title": "Condition",
+          "disconnect": "Disconnect",
+          "settings": {
+            "condition_type_label": "Condition Type",
+            "types": {
+              "else": "else",
+              "custom_var": "custom_var"
+            },
+            "operation": {
+              "custom_var_name": "Variable Name",
+              "operator": "Operator",
+              "value": "Value"
+            }
+          }
+        }
+      },
+      "drawer": {
+        "menu": {
+          "custom_variable": {
+            "label": "Custom Variable"
+          },
+          "exports": {
+            "label": "Exports",
+            "upil_label": "Export to Upil"
+          }
+        }
+      },
+      "settings": {
+        "title": "Bot Setting",
+        "project": {
+          "title_label": "Name",
+          "description_label": "Description"
+        },
+        "bot_description": {
+          "label": "Publish on Bot Market",
+          "default_content": ""
+        },
+        "toggle_publish_label": "Publish on Bot Market",
+        "bot_url": {
+          "title": "Bot URL for Preview",
+          "on_copy": "The URL of your bot has been copied."
+        },
+        "embed_code": {
+          "title": "Embed Code",
+          "on_copy": "Embed Code of your bot has been copied."
+        },
+        "save_label": "Save"
+      },
+      "dialogs": {
+        "no_right": "You don't have the right to edit this scenario. Please return to the top page."
+      },
+      "header": {
+        "sign_in": "Sign In",
+        "add_bot": "Add to Team",
+        "clone": "Use the Bot Format",
+        "start_with_bot": "Clone",
+        "no_right": "You don't have the right to edit."
+      }
+    }
+  },
+  "ja": {
+    "navigation": {
+      "my_bots": "マイボット",
+      "team": "チーム",
+      "open_bots": "ボットマーケット",
+      "others": "その他",
+      "service_terms": "利用規約",
+      "privacy_policy": "個情報保護方針",
+      "sign_out": "ログアウト"
+    },
+    "sign_up": {
+      "message": "BotEditorへようこそ"
+    },
+    "top": {
+      "create_bot": {
+        "placeholder": "ボットの名前",
+        "button_label": "ボットを作成",
+        "default_content": {
+          "description": "説明文なし"
+        }
+      },
+      "cards": {
+        "delete_alert": "本当に削除しますか？"
+      }
+    },
+    "open_bots": {
+      "title": "ボットマーケット"
+    },
+    "canvas": {
+      "nodes": {
+        "normal": {
+          "default_label": "メッセージ"
+        },
+        "selection": {
+          "default_label": "質問文をここに書いてください。",
+          "expected_answer_selection_1": "選択肢1",
+          "expected_answer_selection_2": "選択肢2"
+        },
+        "open_question": {
+          "default_label": "質問文をここに書いてください。",
+          "expected_answer_placeholder": "プレースホルダ"
+        },
+        "ask_email": {
+          "default_label": "メールアドレスを教えてください。",
+          "expected_answer_placeholder": "Emailを入力"
+        },
+        "ask_phone_number": {
+          "default_label": "電話番号を教えてください。",
+          "expected_answer_placeholder": "電話番号を入力（ハイフン抜き）"
+        },
+        "ask_date": {
+          "default_label": "日付を教えてください。",
+          "expected_answer_placeholder": "日付を入力"
+        },
+        "ask_date_and_time": {
+          "default_label": "日時を教えてください。",
+          "expected_answer_placeholder": "日時を入力"
+        },
+        "node_selector": {
+          "normal": {"label": "メッセージ"},
+          "question": {
+            "label": "質問文",
+            "selection": {"label": "選択型質問"},
+            "multiple_selection": {"label": "複数選択型質問"},
+            "open_question": {"label": "自由型質問"},
+            "selection_others1": {"label": "more"},
+            "email": {"label": "Emailを聞く"},
+            "phone_number": {"label": "電話番号を聞く"},
+            "date": {"label": "日時を聞く"},
+            "date_only": {"label": "日付のみ"},
+            "date_and_time": {"label": "日付と時間"},
+            "selection_others2": {"label": "more"}
+          },
+          "media": {"label": "画像表示"},
+          "go_to": {"label": "他ノードへジャンプ"},
+          "action": {
+            "label": "アクション",
+            "go_to": {"label": "他ノードへジャンプ"},
+            "send_email": {"label": "通知メールを送信"}
+          }
+        }
+      },
+      "tool_window": {
+        "node": {
+          "custom_var": {
+            "label": "カスタム変数",
+            "no_content": {
+              "sentence": "このノードにはカスタム変数がありません",
+              "add": "カスタム変数を追加"
+            },
+            "content": {
+              "input_label": "変数名",
+              "type_label": "型"
+            }
+          },
+          "custom_action": {
+            "label": "カスタムアクション",
+            "no_content": {
+              "sentence": "このノードにはカスタムアクションがありません",
+              "add": "カスタムアクションを追加"
+            },
+            "content": {
+              "input_label": "アクション名"
+            }
+          },
+          "delete": {
+            "label": "このノードを削除"
+          }
+        },
+        "condition": {
+          "title": "条件分岐",
+          "disconnect": "接続解除",
+          "settings": {
+            "condition_type_label": "条件分岐のタイプ",
+            "types": {
+              "else": "else",
+              "custom_var": "カスタム変数"
+            },
+            "operation": {
+              "custom_var_name": "変数名",
+              "operator": "演算子",
+              "value": "値"
+            }
+          }
+        }
+      },
+      "drawer": {
+        "menu": {
+          "custom_variable": {
+            "label": "カスタム変数一覧"
+          },
+          "exports": {
+            "label": "エクスポート",
+            "upil_label": "Upil形式へエクスポート"
+          }
+        }
+      },
+      "settings": {
+        "title": "ボットの設定",
+        "project": {
+          "title_label": "ボット名",
+          "description_label": "説明文"
+        },
+        "bot_description": {
+          "label": "ボットマーケットへ公開",
+          "default_content": ""
+        },
+        "toggle_publish_label": "ボットマーケットへ公開",
+        "bot_url": {
+          "title": "このボットのプレヴューURL",
+          "on_copy": "URLをコピーしました"
+        },
+        "embed_code": {
+          "title": "埋め込みコード",
+          "on_copy": "埋め込みコードをコピーしました"
+        },
+        "save_label": "保存"
+      },
+      "dialogs": {
+        "no_right": "このシナリオへのアクセス権がありません。トップに戻ります。"
+      },
+      "header": {
+        "sign_in": "サインイン",
+        "add_bot": "チームに追加",
+        "clone": "このシナリオをコピー",
+        "start_with_bot": "このボットでサインアップ",
+        "no_right": "編集権限がありません。"
+      }
+    }
+  }
+}

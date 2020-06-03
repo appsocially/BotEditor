@@ -1,8 +1,11 @@
 <template lang="pug">
 
   div.wrap-item-preview-header.f.flex-right
-    div.wrap-preview-header-icons.f.flex-between.px4.py2
+    div.wrap-preview-header-icons.f.flex-between.px4.py4
+      v-icon(v-if="this.$route.name === 'canvas'" v-clipboard:copy="copyMessage" v-clipboard:success="onCopy" color="#2a2a2a") link
       v-icon(@click='callInitConversation' color='#2a2a2a') refresh
+      v-icon(v-if="this.$route.name === 'canvas'" @click='toggleWindow' color='#2a2a2a') close
+      
       
 </template>
 
@@ -36,17 +39,23 @@ export default {
   },
   data() {
     return {
-
+      copyMessage: ""
     }
   },
-  created: function(){
-
+  created: function() {
+    this.copyMessage = `${location.origin}/preview/${this.$route.params.id}`
   },
-  mounted: function(){
+  mounted: function() {
     
   },
   methods: {
-    callInitConversation(){
+    toggleWindow () {
+      this.$emit("togglePreview")
+    },
+    onCopy () {
+      alert("Preview Link has been copied.")
+    },
+    callInitConversation() {
       console.log('reset');
       this.$emit('initConversation');
     }

@@ -3,7 +3,13 @@
   div.wrap-atom-selection
     div.wrap-label.px8.pt4.pb5.mb5
       span.label {{content.label}}
-      textarea(v-model='message' :style='textareaStyle' @keydown='down' @keydown.enter.exact.prevent).label
+      textarea(
+        v-model='message'
+        :style='textareaStyle'
+        @keyup='up'
+        @keydown.enter.exact.prevent
+        @keyup.delete="upDelete"
+        @keydown.delete="downDelete").label
       div.wrap-starter.f.fh
         atom-connect-starter(:nodeId='content.id' :id='starterId')
     
@@ -52,10 +58,14 @@
 </style>
 
 <script>
+import { createNamespacedHelpers } from "vuex"
+import nodeController from "../nodeController"
+import AtomConnectStarter from "./AtomConnectStarter"
+import { setTimeout } from 'timers';
 
-import nodeController from "../nodeController";
-
-import AtomConnectStarter from "./AtomConnectStarter";
+const { mapState, mapActions } = createNamespacedHelpers(
+ "scenario"
+)
 
 export default {
   name: 'AtomNodeSelection',
@@ -75,6 +85,9 @@ export default {
       nodeTextSize: {},
       preNodeSize: {},
       textareaStyle: '',
+      timer: {},
+      upDeleteText: '',
+      downDeleteText: ''
     }
   },
   created: function(){
@@ -90,49 +103,69 @@ export default {
 
     this.textareaStyle = `
       height: ${this.nodeTextSize.height}px;
-      `;
+      `
 
-    
-    var textarea = this.$el.children[0].children[1];
-    textarea.select();
-
+    var textarea = this.$el.children[0].children[1]
+    textarea.select()
 
   },
   methods: {
-    down(e){
-      this.preNodeSize.height = this.$el.offsetHeight;
+    ...mapActions([
+      'deleteOneSelection'
+    ]),
+    up (e) {
+      this.preNodeSize.height = this.$el.offsetHeight
 
-      this.content.label = e.target.value;
+      this.content.label = e.target.value
 
-      //this.fixSize();
-      setTimeout(this.fixSize, 10);
+      this.$nextTick(this.fixSize)
+
+       // コンテンツのセーブ
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNode, 400)
     },
-    fixSize(){
-      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8;
-      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight;
+    upDelete (e) {
+      this.upDeleteText = e.target.value
+      if (this.upDeleteText === "" && this.downDeleteText === "") {
+        // deleteThisSelection
+        if (this.content.conditions) {
+          for(var i=0; i < this.content.conditions.length; i++ ){
+            this.removeLine(this.content.conditions[i].id)
+          }
+        }
+        this.deleteOneSelection(this.content.id)
+        this.fixSize()
+      }
+
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.updateNode, 400)
+    },
+    downDelete (e) {
+      this.downDeleteText = e.target.value
+    },
+    fixSize () {
+      this.nodeTextSize.width = this.$el.children[0].firstChild.offsetWidth + 8
+      this.nodeTextSize.height = this.$el.children[0].firstChild.offsetHeight
       this.textareaStyle = `
-        height: ${this.nodeTextSize.height}px;
-        `;
-
-      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height;
+        height: ${this.nodeTextSize.height}px
+        `
+      var gapOfHeight = this.$el.offsetHeight - this.preNodeSize.height
       
-      console.log('gapOfHeight::', gapOfHeight);
-
-      /*
-      this.content.gui.position.y -= gapOfHeight/2;
-
-      var id = this.content.id;
-      var pos = this.content.gui.position;
-      var node = d3.select(`#${id}`)
-        .data([{pos: pos, id: id}])
-        .style('top', `${pos.y}px`)
-        .style('left', `${pos.x}px`);
-      */
-
-      if(gapOfHeight!=0) this.$emit('loadAllEdges');
+      // this.loadAllEdges()
+      setTimeout(this.loadAllEdges, 10)
     },
-    addNewNode(){
-      console.log('Add Single New Node');
+    loadAllEdges () {
+      this.$parent.loadAllEdges()
+      // this.$emit('loadAllEdges') // これだとなぜか効かない
+    },
+    removeLine(id){
+      d3.select('#lines').select(`#line-${id}`).remove();
+    },
+    addNewNode () {
+      console.log('Add Single New Node')
+    },
+    updateNode () {
+      this.$emit("updateNodeContent")
     }
   },
 };

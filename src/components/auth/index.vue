@@ -20,11 +20,19 @@ export default {
   props: {
     onFailedAuthentication: {
       type: Function,
-      required: true
+      default: () => { return true }
+      // required: true
     }
   },
   computed: {
-    ...mapState(['uid', 'isLoggedIn', 'isAuthenticating', 'onboardingData'])
+    ...mapState([
+      'uid',
+      'isLoggedIn',
+      'isAuthenticating',
+      'onboardingData',
+      'roles',
+      'isAnonymous'
+    ])
   },
   watch: {
     // Check if we should login again if authentication info changes
@@ -53,6 +61,9 @@ export default {
       if (!isAuthenticating && !isLoggedIn) {
         // Will probably redirect somewhere if can't log in
         this.onFailedAuthentication()
+
+        // for Inbox
+        this.$emit('loginFailed')
       } else if (isLoggedIn) {
         const data = await this.getUserData()
         this.$emit('loggedIn', data)

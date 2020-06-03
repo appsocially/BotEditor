@@ -6,12 +6,20 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit",
+    "test:ui": "cypress open"
   },
   "dependencies": {
     "firebase": "^5.8.2",
+    "firebaseui": "^3.5.2",
     "pug-plain-loader": "^1.0.0",
+    "qrcode": "^1.4.4",
+    "stripe": "^7.13.0",
     "vue": "^2.5.22",
+    "vue-clipboard2": "^0.3.0",
+    "vue-color": "^2.7.1",
+    "vue-i18n": "^8.14.1",
+    "vue-resize-directive": "^1.2.0",
     "vue-router": "^3.0.1",
     "vuetify": "^1.3.0",
     "vuex": "^3.0.1"
@@ -26,7 +34,9 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
+    "cypress": "^3.4.1",
     "eslint": "^5.8.0",
+    "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^5.0.0",
     "node-sass": "^4.11.0",
     "prettier": "1.16.4",

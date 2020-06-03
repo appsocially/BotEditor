@@ -25,24 +25,18 @@
 <script>
 import Auth from '@/components/auth'
 
-import db from "../components/firebaseInit";
+import db from "../components/firebaseInit"
 
-import { createNamespacedHelpers } from "vuex";
-const { mapState, mapActions } = createNamespacedHelpers(
- "scenario"
-);
+import { createNamespacedHelpers } from "vuex"
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
+const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers("auth")
 
-const { mapState: mapStateAuth, mapActions: mapActionsAuth } = createNamespacedHelpers(
- "auth"
-);
-
-import UtilHeader from "../components/util/UtilHeader";
-import ModuleCanvas from "../components/module/ModuleCanvas";
-import ModuleConversation from "../components/module/ModuleConversation";
+import UtilHeader from "../components/util/UtilHeader"
+import ModuleCanvas from "../components/module/ModuleCanvas"
+import ModuleConversation from "../components/module/ModuleConversation"
 
 
 export default {
-  name: 'Canvas',
   components: {
     Auth,
     UtilHeader,
@@ -60,38 +54,40 @@ export default {
   },
   created: async function(){
 
-    $('#nowLoading').fadeIn(400);
+    $('#nowLoading').fadeIn(400)
 
-    var projectId = this.$route.params.id;
+    var projectId = this.$route.params.id
 
     var project = await db.collection("projects")
       .doc(projectId)
       .get()
       .then(function(doc) {
         var data = doc.data()
-        data.id = doc.id;
-        return data;
+        data.id = doc.id
+        return data
       })
       .catch(function(error) {
-        console.error("Error writing document: ", error);
-      });
+        console.error("Error writing document: ", error)
+      })
 
-    project.editedAt = new Date();
+    // project.editedAt = new Date()
 
-    await db.collection("projects")
-          .doc(projectId)
-          .update({editedAt: new Date()});
+    // await db.collection("projects")
+    //   .doc(projectId)
+    //   .update({editedAt: new Date()})
 
-    console.log('canvas', project);
-    this.label = project.title;
-    this.project = project;
+    console.log('canvas', project)
+    this.label = project.title
+    this.project = project
 
-    await this.loadScenarioByProjectId(projectId);
-    this.scenario = this.scenarioArray;
+    await this.loadScenarioByProjectId(projectId)
+    this.scenario = this.scenarioArray
 
-    $('#nowLoading').fadeOut(400);
+    this.loadAllCustomVars()
 
-    //var test = await this.loadScenarioByProjectId(projectId);
+    $('#nowLoading').fadeOut(400)
+
+    //var test = await this.loadScenarioByProjectId(projectId)
    
     /*
     var scenarioArray = await db.collection("projects")
@@ -113,6 +109,7 @@ export default {
   methods: {
     ...mapActions([
       'loadScenarioByProjectId',
+      'loadAllCustomVars',
       'pushContentToScenario',
       'connectSingleNode',
       'connectGroupNode'
@@ -125,17 +122,18 @@ export default {
 
     },
     onTitleClick(signOut){
-      console.log('clicked');
+      console.log('clicked')
       signOut();
     },
   },
   computed: {
     ...mapState([
-      'scenarioArray'
+      'scenarioArray',
+      'customVars'
     ]),
     ...mapStateAuth([
       'uid'
-    ]),
+    ])
   }
 };
 </script>

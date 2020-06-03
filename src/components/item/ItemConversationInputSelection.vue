@@ -1,8 +1,8 @@
 <template lang="pug">
 
   div.wrap-item-conversation-selection.f.flex-wrap.px8.py10
-    div(v-for='item in selections').selection.mr6.mt6.mb12
-      span(@click='callNextEvent(item.label, item.next)').px12.py8 {{item.label}}
+    div(v-for='item in selections').selection.mr6.mb12
+      span(@click='callNextEvent(item.label, item.id)').px12.py8 {{item.label}}
 
 </template>
 
@@ -15,6 +15,7 @@
   .selection {
     display: inline-block;
     span {
+      display: block;
       color: #2a2a2a;
       background: #FFEB52;
       border-radius: 12px;
@@ -24,11 +25,13 @@
     }
   }
 }
-
 </style>
 
 <script>
+import entity from "../entity"
 
+import { createNamespacedHelpers } from "vuex"
+const { mapState, mapActions } = createNamespacedHelpers("scenario")
 
 export default {
   name: 'ItemConversationInputSelection',
@@ -40,26 +43,39 @@ export default {
       type: Array,
       required: true,
     },
+    currentEvent: {
+      type: String,
+      required: false
+    }
   },
-  created: function(){
-    console.log(this.selections);
+  computed: {
+    ...mapState(['scenarioArray', 'customVars'])
   },
-  mounted: function(){
+  created () {
     
   },
-  update: function(){
-
-  },
   methods: {
+    ...mapActions([
+      'insertValueIntoCustomVar'
+    ]),
     callNextEvent(label, id){
-      this.$emit('resetSelections');
-      this.$emit('fireEventOfConversation', id);
+      this.$emit('resetSelections')
 
+      var node = entity.getContent(this.scenarioArray, this.currentEvent)  
+      if(node.customVariable) this.insertValueIntoCustomVar({id: node.customVariable.location, value: label})
+      
+      var conditions = entity.getConditions(this.scenarioArray, id)
+      var matchedCondition= entity.getMatchedCondition(this.scenarioArray, conditions, this.customVars)
+      
+      this.$emit('fireEventOfConversation', matchedCondition.next)
+      
       var message = {
         text: label,
         reverse: 'flex-row-reverse',
-      };
-      this.$emit('sendMessage', message);
+      }
+      this.$emit('sendMessage', message)
+
+      // this.insertValueIntoCustomVar({id: this.currentEvent.id, value: label})
     },
   }
 };

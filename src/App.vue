@@ -34,7 +34,7 @@
   height: 100%;
   background: #FFF;
   position: fixed;
-  z-index: 100;
+  z-index: 1000;
   left: 0;
   top: 0;
   .wrap-now-loading {
@@ -46,9 +46,23 @@
 </style>
 
 <script>
+import Vue from "vue"
+import VueI18n from 'vue-i18n'
+
+const localeText = require('./components/localeText.json')
+
+
+var localeLang = (navigator.language === "ja")? "ja" : "en"
+
+Vue.use(VueI18n)
+const i18n = new VueI18n({
+  locale: localeLang, // デフォルト言語はjaにしておくが、ブラウザの言語を拾ってきてここに入れる => 言語変更されたら書き換える
+  messages: localeText
+})
 
 export default {
   name: "App",
+  i18n: i18n,
   components: {
   },
   data() {

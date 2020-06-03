@@ -2,19 +2,16 @@
 
   Auth(:on-failed-authentication="onFailedAuthentication" @loggedIn="onLoggedIn")
     div(slot-scope="{signOut}").wrap-top-page.py48
-      util-header(:label='label')
-      //module-projects
+      util-header(:label='label' :leftIcon="headerLeft" :rightIcon="headerRight" :othersList="othersList")
       div.wrapper.mt80
         div.wrap-add-new-project.py20.f.flex-between
           div.wrap-input.px4
-            input(v-model='botName' placeholder='Bot Name').px4.py8
-          span(@click='createNewBot').create-button.px12.f.fh Create Bot
+            input(v-model='botName' :placeholder='inputBotNamePlaceholder').px4.py8
+          span(@click='createNewBot').create-button.px12.f.fh {{createBotLabel}}
         div.wrap-projects.mt20.pb40
-          div(v-for='item in projects' @click='toCanvas(item.id)').project.mb12.f.fh
-            div
-              span.title.mb18 {{item.title}}
-              span.name.mb2 {{item.userName}}
-              span.created-at Edited at {{item.time}}
+          // Data Update for v2
+          // span(@click="addConditionToAllNodes") update          
+          item-project-card(v-for="item in projects" :project="item" @deleteProjectCard="deleteProjectCard")
 
 
 </template>
@@ -28,7 +25,8 @@
     margin: 0 auto;
     .wrap-input {
       filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
-      width: calc(100% - 90px);
+      /*width: calc(100% - 90px);*/
+      width: calc(100% - 110px);
       background: #FFF;
       input {
         width: 100%;
@@ -38,12 +36,13 @@
     }
     .create-button {
       cursor: pointer;
-      width: 84px;
+      /*width: 84px;*/
+      width: 104px;
       font-size: 12px;
       font-weight: bold;
       text-align: center;
-      background: #FFEB52;
-      color: #2A2A2A;
+      background: #ff9a0a;
+      color: #fff;
       border-radius: 3px;
       filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
     }
@@ -52,65 +51,112 @@
     width: 90%;
     max-width: 540px;
     margin: 0 auto;
-    .project {
-      width: 100%;
-      height: 180px;
-      background: #FFF;
-      border-radius: 3px;
-      filter: drop-shadow(2px 1px 1px rgba(0,0,0,0.2));
-      cursor: pointer;
-      .title {
-        font-size: 16px;
-      }
-      span {
-        display: block;
-        font-size: 12px;
-        text-align: center;
-      }
-    }
   }  
 }
 
 </style>
 
 <script>
-import Auth from '@/components/auth';
-import { createNamespacedHelpers } from "vuex";
+import Auth from '@/components/auth'
+import { createNamespacedHelpers } from "vuex"
 const { mapState, mapActions } = createNamespacedHelpers(
  "auth"
-);
+)
 
-import db from "../components/firebaseInit";
+import db from "../components/firebaseInit"
 
-import UtilHeader from "../components/util/UtilHeader";
+import UtilHeader from "../components/util/UtilHeader"
+import ItemProjectCard from "../components/item/ItemProjectCard"
 
 export default {
-  name: 'Canvas',
   components: {
     Auth,
-    UtilHeader
+    UtilHeader,
+    ItemProjectCard
   },
-  data() {
+  data () {
     return {
-      label: 'Scenarios',
+      label: '',
       projects: [],
       botName: '',
       inputBotName: '',
+      inputBotNamePlaceholder: this.$t("top.create_bot.placeholder"),
+      createBotLabel: this.$t("top.create_bot.button_label"),
       letCreate: true,
+      headerLeft: {
+        //to: "/openbots"
+        to: "/top"
+      },
+      headerRight: [
+        {
+          // label: this.$t("navigation.my_bots"),
+          icon: "home",
+          to: "/top"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "inbox",
+          to: "/inbox"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "group",
+          to: "/team"
+        },
+        {
+          // label: this.$t("navigation.team"),
+          icon: "local_grocery_store",
+          to: "/store"
+        }
+        // {
+        //   label: this.$t("navigation.open_bots"),
+        //   to: "/openbots"
+        // }
+      ],
+      othersList: [
+        {
+          label: this.$t("navigation.service_terms"),
+          to: "/service-terms"
+        },
+        {
+          label: this.$t("navigation.privacy_policy"),
+          to: "/privacy-policy"
+        },
+        {
+          label: this.$t("navigation.sign_out"),
+          to: "/sign-in"
+        }
+      ]
     }
+  },
+  watch: {
+    botName: function(newVal, oldVal){
+      this.inputBotName = newVal
+    }
+  },
+  computed: {
+    ...mapState([
+      'uid',
+      'isAnonymous'
+    ]),
   },
   created: async function(){
     
   },
   methods: {
     ...mapActions([
-      ''
+      'signOut'
     ]),
     onFailedAuthentication() {
       //this.loggingIn = false;
-      this.$router.push('sign-in');
+      this.$router.push('sign-in')
     },
     async onLoggedIn({ onboardingData }) {
+
+      if (this.isAnonymous) this.$router.push('sign-in')
+
+      // for debug
+      window.signOut = this.signOut
       
       this.projects = await db.collection("projects")
         .orderBy("editedAt", "desc")
@@ -118,18 +164,18 @@ export default {
         //.where('author', '==', 'pc28zrjHf3gzOQ4kaYrhCVpDO3X2')
         .get().then(function(doc) {
           return doc.docs.map(function(doc){
-            var data = doc.data();
-            data.id = doc.id;
+            var data = doc.data()
+            data.id = doc.id
 
-            var time = data.editedAt.toDate();
-            data.time = moment(time).format("YYYY-MM-DD HH:mm");
+            var time = data.editedAt.toDate()
+            data.time = moment(time).format("YYYY-MM-DD HH:mm")
 
             return data;
-          });
-        });
+          })
+        })
     },
     toCanvas(projectId){
-      this.$router.push(`/canvas/${projectId}`);
+      this.$router.push(`/canvas/${projectId}`)
     },
     async createNewBot(){
       if(this.inputBotName=='') return;
@@ -147,19 +193,21 @@ export default {
         var projectObj = {
           author: user.uid,
           userName: user.name,
-          userIcon: user.photoUrl,
+          botIcon: "https://firebasestorage.googleapis.com/v0/b/bot-editor-dev.appspot.com/o/public%2Fweak_ai.png?alt=media&token=fba07766-397a-41ba-a0b9-a225f6dc69c9",//user.photoUrl,
           title: this.inputBotName,
+          discription: this.$t("top.create_bot.default_content.description"),//"No Discription",
+          publishedAsFormat: false,
           createdAt: new Date(),
           editedAt: new Date(),
-          nodeNum: 2,
-        };
+          nodeNum: 2
+        }
 
         var id = await db.collection("projects")
           .add(projectObj)
           .then(function(data) {
             var id = data.id
-            return id;
-          });
+            return id
+          })
 
         await db.collection("projects").doc(id)
           .collection('scenario')
@@ -169,14 +217,22 @@ export default {
             id: `start-point-${id}`,
             type: 'start-point',
             nodeType: 'point',
-            next: `first-${id}`,
+            eventType: 'open_chat',
+            conditions: [
+              {
+                id: `else-start-point-${id}`,
+                next: `first-${id}`,
+                type: "else"
+              }
+            ],
+            // next: `first-${id}`,
             text: 'Start Point',
             num: 0,
             gui: {
-              position: {x: 100, y: 100000/2},
-              topLineId: `line-start-point-${id}`
+              position: {x: 100, y: 100000/2}
+              // topLineId: `line-start-point-${id}`
             }
-          });
+          })
 
         await db.collection("projects").doc(id)
           .collection('scenario')
@@ -191,28 +247,69 @@ export default {
             gui: {
               position: {x: 200, y: 100000/2-10}
             }
-          });
+          })
 
-        $('#nowLoading').fadeOut(400);
+        $('#nowLoading').fadeOut(400)
 
-        this.$router.push(`/canvas/${id}`);
+        this.$router.push(`/canvas/${id}`)
         //window.location.href = `./canvas/${id}`;
       } // if
 
     },
-    /*deleteBot() {
+    async addConditionToAllNodes () {
+      var ids = await db.collection("projects").get().then((q) => {
+        return q.docs.map((e)=>{ return e.id })
+      })
+      
+      for(var i=0; i<ids.length; i++){
+        var nodes = await db.collection("projects").doc(ids[i])
+          .collection("scenario").get()
+          .then((q) => {
+            return q.docs.map((e)=>{ return e.data() })
+          })
 
-    }*/
-  },
-  watch: {
-    botName: function(newVal, oldVal){
-      this.inputBotName = newVal;
+        for(var n_i=0; n_i < nodes.length; n_i++){
+          if(nodes[n_i].nodeType == "group"){
+            var selections = nodes[n_i].selections
+            for(var s_i=0; s_i < selections.length; s_i++){
+              if(selections[s_i].next){
+                selections[s_i].conditions = [
+                  {
+                    type: "else",
+                    next: selections[s_i].next,
+                    id: "else-"+selections[s_i].id
+                  }
+                ]
+              }
+            }
+            db.collection("projects").doc(ids[i])
+              .collection("scenario")
+              .doc(nodes[n_i].id)
+              .set({"selections": selections}, {merge: true})
+          } else {
+            if(nodes[n_i].next){
+              nodes[n_i].conditions = [
+                {
+                  type: "else",
+                  next: nodes[n_i].next,
+                  id: "else-"+nodes[n_i].id
+                }
+              ]
+              db.collection("projects").doc(ids[i])
+                .collection("scenario")
+                .doc(nodes[n_i].id)
+                .set({"conditions": nodes[n_i].conditions}, {merge: true})
+            }
+          }
+        }
+        console.log("nodes", nodes)
+      }
+    },
+    deleteProjectCard(id) {
+      this.projects = this.projects.filter((e) => {
+        return (e.id !== id)
+      })
     }
-  },
-  computed: {
-    ...mapState([
-      'uid',
-    ]),
   }
 };
 </script>

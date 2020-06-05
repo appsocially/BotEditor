@@ -1,7 +1,6 @@
+import Vue from "vue";
 
-import Vue from 'vue';
-
-export const state = ()=>({
+export const state = () => ({
   coordinates: {}
 });
 
@@ -21,22 +20,21 @@ export const actions = {
 };
 
 export const getters = {
-  edges(state){
-    
-    return Object.keys(state.coordinates).map(key=>{
-      const coordinate = state.coordinates[key];
-      const nextCoordinate = state.coordinates[coordinate.next];
+  edges(state) {
+    return Object.keys(state.coordinates)
+      .map(key => {
+        const coordinate = state.coordinates[key];
+        const nextCoordinate = state.coordinates[coordinate.next];
 
-      const hasNext = !!nextCoordinate;
-      if(hasNext){
-        const from = coordinate.right;
-        const to = nextCoordinate.left;
-        return {from, to, id: `${coordinate.id}-${nextCoordinate.id}`}
-
-      }else{
-        return null;
-      }
-    }).filter(edge=>edge!==null);
-
+        const hasNext = !!nextCoordinate;
+        if (hasNext) {
+          const from = coordinate.right;
+          const to = nextCoordinate.left;
+          return { from, to, id: `${coordinate.id}-${nextCoordinate.id}` };
+        } else {
+          return null;
+        }
+      })
+      .filter(edge => edge !== null);
   }
 };

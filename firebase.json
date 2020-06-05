@@ -5,15 +5,12 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-<<<<<<< HEAD
-=======
     ],
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
->>>>>>> dev/marge_test
     ]
   }
 }

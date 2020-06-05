@@ -1,23 +1,23 @@
 
-var entity = {};
+var entity = {}
 
-entity.getContent = function(scenario, id) {
+entity.getContent = function (scenario, id) {
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].id == id) return scenario[i]
+    if (scenario[i].id === id) return scenario[i]
   }
 
   return false
 }
 
-entity.getStartPointNode = function(scenario) {
+entity.getStartPointNode = function (scenario) {
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].type == "start-point") return scenario[i]
+    if (scenario[i].type === 'start-point') return scenario[i]
   }
 }
 
-entity.getFirstNode = function(scenario) {
+entity.getFirstNode = function (scenario) {
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].type == "start-point") {
+    if (scenario[i].type === 'start-point') {
       var matchedCondition = entity.getMatchedCondition(
         scenario,
         scenario[i].conditions
@@ -27,178 +27,178 @@ entity.getFirstNode = function(scenario) {
   }
 }
 
-entity.getNormalNodes = function(scenario) {
-  return scenario.filter(function(content) {
-    return content.type == "normal"
+entity.getNormalNodes = function (scenario) {
+  return scenario.filter(function (content) {
+    return content.type === 'normal'
   })
 }
 
-entity.getSelectionNodes = function(scenario) {
-  return scenario.filter(function(content) {
-    return content.type == "selection"
+entity.getSelectionNodes = function (scenario) {
+  return scenario.filter(function (content) {
+    return content.type === 'selection'
   })
 }
 
-entity.getOpenQuestionNodes = function(scenario) {
-  return scenario.filter(function(content) {
-    return content.type == "openquestion"
+entity.getOpenQuestionNodes = function (scenario) {
+  return scenario.filter(function (content) {
+    return content.type === 'openquestion'
   })
 }
 
-entity.getMediaNodes = function(scenario) {
-  return scenario.filter(function(content) {
-    return content.type == "media"
+entity.getMediaNodes = function (scenario) {
+  return scenario.filter(function (content) {
+    return content.type === 'media'
   })
 }
 
-entity.getGoToNodes = function(scenario) {
-  return scenario.filter(function(content) {
-    return content.type == "goto"
+entity.getGoToNodes = function (scenario) {
+  return scenario.filter(function (content) {
+    return content.type === 'goto'
   })
 }
 
-entity.getNodesThatConnectTo = function(scenario, id) {
-  var nodes = [];
+entity.getNodesThatConnectTo = function (scenario, id) {
+  var nodes = []
   for (var i = 0; i < scenario.length; i++) {
     if (
-      (scenario[i].nodeType == "single" || scenario[i].nodeType == "point") &&
-      scenario[i].next == id
+      (scenario[i].nodeType === 'single' || scenario[i].nodeType === 'point') &&
+      scenario[i].next === id
     ) {
-      nodes.push(scenario[i]);
+      nodes.push(scenario[i])
     }
-    if (scenario[i].nodeType == "group") {
-      var selections = scenario[i].selections;
+    if (scenario[i].nodeType === 'group') {
+      var selections = scenario[i].selections
       for (var j = 0; j < selections.length; j++) {
-        if (selections[j].next == id) {
-          nodes.push(selections[j]);
+        if (selections[j].next === id) {
+          nodes.push(selections[j])
         }
       }
     }
   }
-  return nodes;
+  return nodes
 }
 
-entity.nodeHasNext = function(scenario, id) {
+entity.nodeHasNext = function (scenario, id) {
   for (var i = 0; i < scenario.length; i++) {
     if (
-      (scenario[i].nodeType == "single" || scenario[i].nodeType == "point") &&
-      scenario[i].id == id
+      (scenario[i].nodeType === 'single' || scenario[i].nodeType === 'point') &&
+      scenario[i].id === id
     ) {
-      return scenario[i].next ? true : false;
+      return !!scenario[i].next
     }
-    if (scenario[i].nodeType == "group" && scenario[i].id == id) {
-      var selections = scenario[i].selections;
+    if (scenario[i].nodeType === 'group' && scenario[i].id === id) {
+      var selections = scenario[i].selections
       for (var j = 0; j < selections.length; j++) {
-        //if(selections[j].id == id){
-        return selections[j].next ? true : false;
-        //}
+        // if(selections[j].id === id){
+        return !!selections[j].next
+        // }
       }
     }
   }
 }
 
-entity.getNodesThatConnectFrom = function(scenario, id) {
-  var nodes = [];
+entity.getNodesThatConnectFrom = function (scenario, id) {
+  var nodes = []
   for (var i = 0; i < scenario.length; i++) {
     if (
-      (scenario[i].nodeType == "single" || scenario[i].nodeType == "point") &&
-      scenario[i].id == id
+      (scenario[i].nodeType === 'single' || scenario[i].nodeType === 'point') &&
+      scenario[i].id === id
     ) {
-      if (scenario[i].next) nodes.push(scenario[i]);
+      if (scenario[i].next) nodes.push(scenario[i])
     }
-    if (scenario[i].nodeType == "group" && scenario[i].id == id) {
-      var selections = scenario[i].selections;
+    if (scenario[i].nodeType === 'group' && scenario[i].id === id) {
+      var selections = scenario[i].selections
       for (var j = 0; j < selections.length; j++) {
-        if (selections[j].next) nodes.push(selections[j]);
+        if (selections[j].next) nodes.push(selections[j])
       }
     }
   }
 
-  return nodes;
-};
+  return nodes
+}
 
-entity.getEdgesThatConnectTo = function(scenario, id) {
-  var edges = [];
+entity.getEdgesThatConnectTo = function (scenario, id) {
+  var edges = []
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].nodeType == "single" || scenario[i].nodeType == "point") {
+    if (scenario[i].nodeType === 'single' || scenario[i].nodeType === 'point') {
       if (scenario[i].conditions) {
         var targetConditions = scenario[i].conditions.filter(e => {
-          return e.next == id;
-        });
+          return e.next === id
+        })
         targetConditions.map(e => {
-          var c = e;
-          c.fromNodeId = scenario[i].id;
-          return c;
-        });
-        edges = edges.concat(targetConditions);
+          var c = e
+          c.fromNodeId = scenario[i].id
+          return c
+        })
+        edges = edges.concat(targetConditions)
       }
     }
-    if (scenario[i].nodeType == "group") {
-      var selections = scenario[i].selections;
+    if (scenario[i].nodeType === 'group') {
+      var selections = scenario[i].selections
       for (var j = 0; j < selections.length; j++) {
         if (selections[j].conditions) {
-          var targetConditions = selections[j].conditions.filter(e => {
-            return e.next == id;
-          });
+          targetConditions = selections[j].conditions.filter(e => {
+            return e.next === id
+          })
           targetConditions.map(e => {
-            var c = e;
-            c.fromNodeId = selections[j].id;
-            return c;
-          });
-          edges = edges.concat(targetConditions);
+            var c = e
+            c.fromNodeId = selections[j].id
+            return c
+          })
+          edges = edges.concat(targetConditions)
         }
       }
     }
   }
-  return edges;
-};
+  return edges
+}
 
-entity.getEdgesThatConnectFrom = function(scenario, id) {
+entity.getEdgesThatConnectFrom = function (scenario, id) {
   var edges = []
 
   var targetNode = scenario.filter(e => {
-    return id == e.id
+    return id === e.id
   })[0]
-  
-  if (targetNode.nodeType == "single" || targetNode.nodeType == "point") {
+
+  if (targetNode.nodeType === 'single' || targetNode.nodeType === 'point') {
     if (targetNode.conditions) {
-      var targetConditions = targetNode.conditions;
+      var targetConditions = targetNode.conditions
       targetConditions.map(e => {
-        var c = e;
-        c.fromNodeId = targetNode.id;
-        return c;
-      });
-      edges = edges.concat(targetConditions);
+        var c = e
+        c.fromNodeId = targetNode.id
+        return c
+      })
+      edges = edges.concat(targetConditions)
     }
   }
 
-  if (targetNode.nodeType == "group") {
-    var selections = targetNode.selections;
+  if (targetNode.nodeType === 'group') {
+    var selections = targetNode.selections
     for (var j = 0; j < selections.length; j++) {
       if (selections[j].conditions) {
-        var targetConditions = selections[j].conditions;
+        targetConditions = selections[j].conditions
         targetConditions.map(e => {
-          var c = e;
-          c.fromNodeId = selections[j].id;
-          return c;
-        });
-        edges = edges.concat(targetConditions);
+          var c = e
+          c.fromNodeId = selections[j].id
+          return c
+        })
+        edges = edges.concat(targetConditions)
       }
     }
   }
 
-  return edges;
-};
+  return edges
+}
 
-entity.getConditions = function(scenario, id) {
+entity.getConditions = function (scenario, id) {
   var conditions = []
 
-  if (id.indexOf("selection") !== 0) {
+  if (id.indexOf('selection') !== 0) {
     var targetNode = scenario.filter(e => {
-      return id == e.id
+      return id === e.id
     })[0]
 
-    if (targetNode.nodeType == "single" || targetNode.nodeType == "point") {
+    if (targetNode.nodeType === 'single' || targetNode.nodeType === 'point') {
       if (targetNode.conditions) {
         conditions = targetNode.conditions.map(e => {
           var c = e
@@ -208,9 +208,9 @@ entity.getConditions = function(scenario, id) {
       }
     }
   } else {
-    var selectionGroupId = id.split("-")[0]
+    var selectionGroupId = id.split('-')[0]
     var selections = scenario.filter(e => {
-      return selectionGroupId == e.id
+      return selectionGroupId === e.id
     })[0].selections
 
     for (var j = 0; j < selections.length; j++) {
@@ -221,25 +221,24 @@ entity.getConditions = function(scenario, id) {
   }
 
   return conditions
-};
+}
 
-entity.getConditionByConditionId = function(scenario, id) {
-
+entity.getConditionByConditionId = function (scenario, id) {
   var getMatchedConditions = (conditions, id) => {
-    for (var i=0; i<conditions.length; i++) {
-      if(conditions[i].id === id) return conditions[i]
+    for (var i = 0; i < conditions.length; i++) {
+      if (conditions[i].id === id) return conditions[i]
     }
   }
 
   var condition
-  for (var i=0; i < scenario.length; i++) {
-    if (scenario[i].nodeType === "single" || scenario[i].nodeType === "point") {
-      if (scenario[i].conditions){
+  for (var i = 0; i < scenario.length; i++) {
+    if (scenario[i].nodeType === 'single' || scenario[i].nodeType === 'point') {
+      if (scenario[i].conditions) {
         condition = getMatchedConditions(scenario[i].conditions, id)
         if (condition) return condition
       }
-    } else if (scenario[i].nodeType === "group") {
-      for (var s=0; s < scenario[i].selections.length; s++) {
+    } else if (scenario[i].nodeType === 'group') {
+      for (var s = 0; s < scenario[i].selections.length; s++) {
         if (scenario[i].selections[s].conditions) {
           condition = getMatchedConditions(scenario[i].selections[s].conditions, id)
           if (condition) return condition
@@ -249,10 +248,10 @@ entity.getConditionByConditionId = function(scenario, id) {
   }
 }
 
-entity.getContentByConditionId = function(scenario, id) {
+entity.getContentByConditionId = function (scenario, id) {
   var content
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].nodeType === "single" || scenario[i].nodeType === "point") {
+    if (scenario[i].nodeType === 'single' || scenario[i].nodeType === 'point') {
       if (scenario[i].conditions) {
         content = scenario[i].conditions.filter(e => {
           return e.id === id
@@ -261,89 +260,91 @@ entity.getContentByConditionId = function(scenario, id) {
         if (content) return scenario[i]
       }
     } else {
-      var selections = scenario[i].selections;
-      for (var s_i = 0; s_i < selections.length; s_i++) {
-        if (selections[s_i].conditions) {
-          content = selections[s_i].conditions.filter(e => {
+      var selections = scenario[i].selections
+      for (let s = 0; s < selections.length; s++) {
+        if (selections[s].conditions) {
+          content = selections[s].conditions.filter(e => {
             return e.id === id
           })[0]
 
-          if (content) return selections[s_i]
+          if (content) return selections[s]
         }
       }
     }
   }
 }
 
-entity.getNodeByConditionId = function(scenario, id) {
-  var content;
+entity.getNodeByConditionId = function (scenario, id) {
+  var content
   for (var i = 0; i < scenario.length; i++) {
-    if (scenario[i].nodeType === "single" || scenario[i].nodeType === "point") {
+    if (scenario[i].nodeType === 'single' || scenario[i].nodeType === 'point') {
       if (scenario[i].conditions) {
         content = scenario[i].conditions.filter(e => {
-          return e.id === id;
-        })[0];
+          return e.id === id
+        })[0]
 
-        if (content) return scenario[i];
+        if (content) return scenario[i]
       }
     } else {
-      var selections = scenario[i].selections;
-      for (var s_i = 0; s_i < selections.length; s_i++) {
-        if (selections[s_i].conditions) {
-          content = selections[s_i].conditions.filter(e => {
+      var selections = scenario[i].selections
+      for (let s = 0; s < selections.length; s++) {
+        if (selections[s].conditions) {
+          content = selections[s].conditions.filter(e => {
             return e.id === id
           })[0]
 
-          if (content) return scenario[i];
+          if (content) return scenario[i]
         }
       }
     }
   }
-};
+}
 
-entity.getMatchedCondition = function(scenario, conditions, customVarsArray) {
+entity.getMatchedCondition = function (scenario, conditions, customVarsArray) {
   var matchedCondition
   var elseCondition = conditions.filter(e => {
-    return e.type === "else";
+    return e.type === 'else'
   })[0]
   // debugger
   for (var i = 0; i < conditions.length; i++) {
-    var conditionType = conditions[i].type;
+    var conditionType = conditions[i].type
     switch (conditionType) {
-      case "custom_var":
+      case 'custom_var':
         if (!conditions[i].option) break
-        
+
         var customVar = customVarsArray.filter((e) => {
           return (conditions[i].option.customVarName === e.location)
         })[0]
-        
+
         if (!customVar || !conditions[i].option) break
 
         var option = conditions[i].option
-        switch(customVar.varType) {
-          case "String":
-            if (option.operator === "contains") {
+        switch (customVar.varType) {
+          case 'String':
+            if (option.operator === 'contains') {
               var operationStr = `'${customVar.value}'.indexOf('${option.comparedValue}') !== -1`
-              if ( eval(operationStr) ) matchedCondition = conditions[i]
+              // eslint-disable-next-line no-eval
+              if (eval(operationStr)) matchedCondition = conditions[i]
             } else {
-              var operationStr = `'${customVar.value}' ${option.operator} '${option.comparedValue}'`
-              if ( eval(operationStr) ) matchedCondition = conditions[i]
+              operationStr = `'${customVar.value}' ${option.operator} '${option.comparedValue}'`
+              // eslint-disable-next-line no-eval
+              if (eval(operationStr)) matchedCondition = conditions[i]
             }
-          break
-          case "Number":
-            var operationStr = `${customVar.value} ${option.operator} ${option.comparedValue}`
-            if ( eval(operationStr) ) matchedCondition = conditions[i]
-          break
+            break
+          case 'Number':
+            operationStr = `${customVar.value} ${option.operator} ${option.comparedValue}`
+            // eslint-disable-next-line no-eval
+            if (eval(operationStr)) matchedCondition = conditions[i]
+            break
         }
-        
-      break
-     
+
+        break
     }
   }
 
   if (!matchedCondition && elseCondition) return elseCondition
-  if (!matchedCondition && !elseCondition) return {next: ""}
-  return matchedCondition;
+  if (!matchedCondition && !elseCondition) return { next: '' }
+  return matchedCondition
 }
 
-export default entity;
+export default entity

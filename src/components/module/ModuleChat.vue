@@ -4,7 +4,7 @@
       div(ref="messagesWrapper"
           :class="{'widget-is-active': widgetIsActive, 'is-ios-safari': iOSSafari}"
           ).wrap-messages.py8
-        ItemChatMessage(v-for="message in messages" :message="message" :key="message")
+        ItemChatMessage(v-for="message in messages" :message="message" :key="message.mediaURI")
       div(v-if="currentNode || !isAnonymous").wrap-input
         ItemChatInputDate(v-if="currentNode && (currentNode.type==='ask_date' || currentNode.type==='ask_date_and_time')")
         ItemChatInputText(v-else)

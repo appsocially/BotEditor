@@ -4,7 +4,7 @@
       div(ref="messagesWrapper"
           :class="{'widget-is-active': widgetIsActive, 'is-ios-safari': iOSSafari}"
           ).wrap-messages.py8
-        ItemChatMessage(v-for="message in messages" :message="message")
+        ItemChatMessage(v-for="message in messages" :message="message" :key="message")
       div(v-if="currentNode || !isAnonymous").wrap-input
         ItemChatInputDate(v-if="currentNode && (currentNode.type==='ask_date' || currentNode.type==='ask_date_and_time')")
         ItemChatInputText(v-else)
@@ -21,7 +21,7 @@
 // $widgetHeight: 120px;
 // $safariToolBarHeight: 1;
 .wrap-module-chat {
-  background: #FFF;
+  background: #fff;
   position: relative;
   width: 100%;
   height: calc(100vh - (48px + 48px));
@@ -37,7 +37,7 @@
       overflow-y: scroll;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
-      overflow-scrolling: touch;
+      // overflow-scrolling: touch;
       &.widget-is-active {
         height: calc(100% - (40px + 120px));
       }
@@ -48,11 +48,11 @@
     .widget-is-active.is-ios-safari {
       height: calc(100% - (40px + 120px + 114px));
     }
-    .wrap-input {
-      .wrap-input-widgets {
-        // height: 120px;
-      }
-    }
+    // .wrap-input {
+    //   .wrap-input-widgets {
+    //     height: 120px;
+    //   }
+    // }
   }
   .wrap-now-loading {
     width: 100%;
@@ -76,8 +76,8 @@ const { mapState: mapStateTeam, mapActions: mapActionsTeam } = createNamespacedH
 const { mapState: mapStateRoom, mapActions: mapActionsRoom } = createNamespacedHelpers('room')
 const { mapState: mapStateScenarioForChat, mapActions: mapActionsScenarioForChat } = createNamespacedHelpers('scenarioForChat')
 
-const { mapState: mapStateScenario, mapActions: mapActionsScenario } = createNamespacedHelpers('scenario')
-const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers("project")
+const { mapState: mapStateScenario } = createNamespacedHelpers('scenario')
+const { mapState: mapStateProject, mapActions: mapActionsProject } = createNamespacedHelpers('project')
 
 export default {
   components: {
@@ -164,7 +164,7 @@ export default {
       this.initForPreview()
       return true
     }
-    
+
     // await this.loadMemberUsers(this.team.id)
     await this.setUserTeamOf(this.uid)
     await this.loadRoomUsers({ teamId: this.team.id, roomId: this.room.id })
@@ -172,7 +172,7 @@ export default {
     await this.loadProject(this.room.assignedUid)
     await this.loadCustomVars({ teamId: this.team.id, roomId: this.room.id })
     await this.handleMessages({ teamId: this.team.id, roomId: this.room.id })
-    
+
     if (this.isAnonymous && this.teamAsGuest[0] && this.teamAsGuest.includes(this.team.id)) {
       if (this.assignedUser.type === 'bot') {
         this.startScenario()
@@ -186,8 +186,8 @@ export default {
       })
       // old scenario don't have 'openchat'
       this.startScenario()
-    } else if (!this.isAnonymous) {
-      
+    } else if (!this.ymous) {
+
     }
 
     this.isNowLoading = false
@@ -221,7 +221,7 @@ export default {
     ...mapActionsProject([
       'loadProject'
     ]),
-    async startScenario () {      
+    async staario () {
       await this.loadScenarioOf(this.assignedUser.projectId)
       var firstEvent = await this.getFirstEventOf(this.currentScenario)
       this.onEvent({
@@ -234,16 +234,15 @@ export default {
     async initForPreview () {
       this.isNowLoading = true
 
-      if (this.$route.name === "preview") {
-       this.setTeamId(this.$route.params.teamId)
+      if (this.$route.name === 'preview') {
+        this.setTeamId(this.$route.params.teamId)
       } else {
         await this.loadCurrentTeamId(this.uid)
       }
-      
       var projectId = this.$route.params.id
       var roomId = `${projectId}-${this.uid}`
-      
-      await this.loadCustomVars({ 
+
+      await this.loadCustomVars({
         teamId: this.teamId,
         roomId: roomId,
         isPreviewMode: true
@@ -252,24 +251,24 @@ export default {
         projectId: projectId,
         teamId: this.teamId
       })
-      if (this.$route.name === "preview") {
+      if (this.$route.name === 'preview') {
         this.setHumanUserForPreview(this.uid)
       } else {
         await this.loadHumanUserForPreview(this.uid)
       }
 
-      await this.handleMessages({ 
+      await this.handleMessages({
         teamId: this.teamId,
         roomId: roomId,
         isPreviewMode: true
       })
-      
+
       this.setScenarioForPreview(this.scenarioArray)
       var firstEvent = await this.getFirstEventOf(this.currentScenario)
 
       this.onEvent({
         nodeId: firstEvent,
-        uid: "previewBot",
+        uid: 'previewBot',
         teamId: this.teamId,
         roomId: roomId,
         isPreviewMode: true
@@ -297,7 +296,7 @@ export default {
 
       this.onEvent({
         nodeId: firstEvent,
-        uid: "previewBot",
+        uid: 'previewBot',
         teamId: this.teamId,
         roomId: roomId,
         isPreviewMode: true

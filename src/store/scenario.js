@@ -65,7 +65,7 @@ export const mutations = {
   },
   deleteNode (state, value) {
     for (var i = 0; i < state.scenarioArray.length; i++) {
-      if (state.scenarioArray[i].id == value) state.scenarioArray.splice(i, 1)
+      if (state.scenarioArray[i].id === value) state.scenarioArray.splice(i, 1)
     }
 
     var projectId = location.pathname.split('/')[2]
@@ -89,14 +89,14 @@ export const mutations = {
   },
   updateNode (state, value) {
     for (var i = 0; i < state.scenarioArray.length; i++) {
-      if (state.scenarioArray[i].id == value.id) {
+      if (state.scenarioArray[i].id === value.id) {
         state.scenarioArray[i] = value
       }
     }
   },
   async disconnectNode (state, value) {
     for (var i = 0; i < state.scenarioArray.length; i++) {
-      if (state.scenarioArray[i].nodeType == 'single' || state.scenarioArray[i].nodeType == 'point') {
+      if (state.scenarioArray[i].nodeType === 'single' || state.scenarioArray[i].nodeType === 'point') {
         // if(state.scenarioArray[i].next==value){
         //   delete state.scenarioArray[i].next
         // }
@@ -115,7 +115,7 @@ export const mutations = {
               .set(state.scenarioArray[i])
           }
         }
-      } else if (state.scenarioArray[i].nodeType == 'group') {
+      } else if (state.scenarioArray[i].nodeType === 'group') {
         var selections = state.scenarioArray[i].selections
         for (var j = 0; j < selections.length; j++) {
           // if(selections[j].next==value){
@@ -128,7 +128,7 @@ export const mutations = {
             if (!state.scenarioArray[i].selections[j].conditions[0]) {
               delete state.scenarioArray[i].selections[j].conditions
 
-              var projectId = location.pathname.split('/')[2]
+              projectId = location.pathname.split('/')[2]
               await db.collection('projects')
                 .doc(projectId)
                 .collection('scenario')
@@ -141,7 +141,7 @@ export const mutations = {
     }
   },
   addHistory (state, value) {
-    if (state.scenarioArray.length == 0) return
+    if (state.scenarioArray.length === 0) return
     if (state.scenarioHistory.length > 10) state.scenarioHistory.shift()
 
     var scenario = state.scenarioArray.map(function (e) {
@@ -171,10 +171,10 @@ export const mutations = {
       var dbContent = entity.getContent(dbScenario, clientContent.id)
       // var clientContent = entity.getContent(clientScenario, dbContent.id)
 
-      if (clientContent == undefined || dbContent == undefined) break
+      if (clientContent === undefined || dbContent === undefined) break
 
       // dbに無い場合
-      if (dbContent == false) {
+      if (dbContent === false) {
         db.collection('projects')
           .doc(projectId)
           .collection('scenario')
@@ -185,7 +185,7 @@ export const mutations = {
           })
 
       // dbとコンテンツが違う場合
-      } else if (JSON.stringify(dbContent) != JSON.stringify(clientContent)) {
+      } else if (JSON.stringify(dbContent) !== JSON.stringify(clientContent)) {
         db.collection('projects')
           .doc(projectId)
           .collection('scenario')
@@ -207,7 +207,7 @@ export const mutations = {
     console.log('saved')
   },
   setCustomVar (state, value) {
-    var content = entity.getContent(scenarioArray, value.nodeId)
+    var content = entity.getContent(state.scenarioArray, value.nodeId)
     // content.customVariable.location = value.location
     // content.customVariable.varType = value.varType
     content.customVariable = {
@@ -222,7 +222,7 @@ export const mutations = {
     }
   },
   updateCustomVar (state, value) {
-    var content = entity.getContent(scenarioArray, value.nodeId)
+    var content = entity.getContent(state.scenarioArray, value.nodeId)
     content.customVariable.location = value.location
     content.customVariable.varType = value.varType
   },
@@ -243,11 +243,12 @@ export const mutations = {
     // return state.customVars
   },
   insertValueIntoCustomVar (state, value) {
-    return state.customVars = state.customVars.map((e) => {
+    state.customVars = state.customVars.map((e) => {
       var customVar = e
       if (e.location === value.id) customVar.value = value.value
-      return customVar
+      return state.customVars
     })
+    return state.customVars
   },
   setCustomAction (state, value) {
     var content = entity.getContent(state.scenarioArray, value.nodeId)
@@ -275,7 +276,7 @@ export const mutations = {
   },
   async removeEdgeCondition (state, id) {
     for (var i = 0; i < state.scenarioArray.length; i++) {
-      if (state.scenarioArray[i].nodeType == 'single' || state.scenarioArray[i].nodeType == 'point') {
+      if (state.scenarioArray[i].nodeType === 'single' || state.scenarioArray[i].nodeType === 'point') {
         if (state.scenarioArray[i].conditions) {
           state.scenarioArray[i].conditions = state.scenarioArray[i].conditions.filter((e) => {
             return (e.id !== id)
@@ -291,7 +292,7 @@ export const mutations = {
               .set(state.scenarioArray[i])
           }
         }
-      } else if (state.scenarioArray[i].nodeType == 'group') {
+      } else if (state.scenarioArray[i].nodeType === 'group') {
         var selections = state.scenarioArray[i].selections
         for (var j = 0; j < selections.length; j++) {
           if (selections[j].conditions) {
@@ -301,7 +302,7 @@ export const mutations = {
             if (!state.scenarioArray[i].selections[j].conditions[0]) {
               delete state.scenarioArray[i].selections[j].conditions
 
-              var projectId = location.pathname.split('/')[2]
+              projectId = location.pathname.split('/')[2]
               await db.collection('projects')
                 .doc(projectId)
                 .collection('scenario')
@@ -314,7 +315,7 @@ export const mutations = {
     }
   },
   setConditionOption (state, data) {
-    var content = entity.getConditionByConditionId(scenarioArray, data.conditionId)
+    var content = entity.getConditionByConditionId(state.scenarioArray, data.conditionId)
     content.option = data.option
   }
 }
@@ -322,8 +323,8 @@ export const mutations = {
 export const actions = {
   async loadScenarioByProjectId ({ commit }, projectId) {
     // commit('addHistory')
-    return new Promise(async resolve => {
-      const scenarioArray = await db.collection('projects')
+    return new Promise(resolve => {
+      const scenarioArray = db.collection('projects')
         .doc(projectId)
         .collection('scenario')
         .get()
@@ -357,8 +358,8 @@ export const actions = {
     commit('saveScenario')
     commit('addHistory')
   },
-  connectNode ({ commit }, id_from_to) {
-    commit('updateCondition', id_from_to)
+  connectNode ({ commit }, idFromTo) {
+    commit('updateCondition', idFromTo)
     commit('saveScenario')
   },
   disconnectNode ({ commit }, id) {
@@ -393,8 +394,8 @@ export const actions = {
   loadAllCustomVars ({ commit }) {
     commit('loadAllCustomVars')
   },
-  updateEdgeCondition ({ commit }, new_condition_id) {
-    commit('updateEdgeCondition', new_condition_id)
+  updateEdgeCondition ({ commit }, newConditionId) {
+    commit('updateEdgeCondition', newConditionId)
     commit('saveScenario')
   },
   removeEdgeCondition ({ commit }, id) {

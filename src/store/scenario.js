@@ -322,20 +322,13 @@ export const mutations = {
 
 export const actions = {
   async loadScenarioByProjectId ({ commit }, projectId) {
-    // commit('addHistory')
-    return new Promise(resolve => {
-      const scenarioArray = db.collection('projects')
-        .doc(projectId)
-        .collection('scenario')
-        .get()
-        .then(function (doc) {
-          return doc.docs.map(function (doc) {
-            return doc.data()
-          })
-        })
-      commit('replaceScenario', scenarioArray)
-      resolve(scenarioArray)
-    })
+    const scenario = await db
+      .collection('projects')
+      .doc(projectId)
+      .collection('scenario')
+      .get()
+    const scenarioArray = scenario.docs.map(doc => doc.data())
+    commit('replaceScenario', scenarioArray)
   },
   resetScenario ({ commit }) {
     commit('replaceScenario', [])

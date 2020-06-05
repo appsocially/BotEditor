@@ -6,10 +6,12 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "emulate:firestore": "firebase emulators:start --only firestore",
     "test:unit": "vue-cli-service test:unit",
     "test:ui": "cypress open"
   },
   "dependencies": {
+    "d3": "^5.16.0",
     "eslint-config-standard": "^14.1.1",
     "firebase": "^5.8.2",
     "firebaseui": "^3.5.2",
@@ -26,6 +28,7 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@firebase/testing": "^0.20.0",
     "@vue/cli-plugin-babel": "^3.4.0",
     "@vue/cli-plugin-eslint": "^3.4.0",
     "@vue/cli-plugin-unit-jest": "^3.4.0",

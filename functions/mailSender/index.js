@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer')
 const gmailEmail = 'app.bot.editor@gmail.com'
-const gmailPassword = 'interstella55'
+const gmailPassword = 'interstella55' // 'interstella55'
 // const adminEmail = 'hello@appsocial.ly'
 
 const mailTransport = nodemailer.createTransport({
